@@ -1,0 +1,8 @@
+node_modules/
+.env
+.env.local
+bin/
+obj/
+.DS_Store
+.vs/
+.idea/

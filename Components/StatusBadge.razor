@@ -1,0 +1,18 @@
+@* Reusable status pill for property and list headers. *@
+<span class="ss-status-badge @VariantClass" role="status">@Text</span>
+
+@code {
+    /// <summary>Display text (sentence case, e.g. &quot;Active&quot;).</summary>
+    [Parameter] public string Text { get; set; } = "";
+
+    [Parameter] public StatusBadgeVariant Variant { get; set; } = StatusBadgeVariant.Neutral;
+
+    private string VariantClass => Variant switch
+    {
+        StatusBadgeVariant.Active => "ss-status-badge--active",
+        StatusBadgeVariant.Inactive => "ss-status-badge--inactive",
+        StatusBadgeVariant.Pending => "ss-status-badge--pending",
+        StatusBadgeVariant.Neutral => "ss-status-badge--neutral",
+        _ => "ss-status-badge--neutral"
+    };
+}

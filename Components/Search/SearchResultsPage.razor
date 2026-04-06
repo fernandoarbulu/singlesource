@@ -1,0 +1,169 @@
+@typeparam TItem
+
+@* Reusable shell: optional breadcrumbs/tabs + header + filter toolbar + grid/empty. Wire module-specific data and columns at the page level. *@
+<div class="ss-search-page">
+    @if (BreadcrumbBar is not null)
+    {
+        @BreadcrumbBar
+    }
+
+    @if (TopTabNavigation is not null)
+    {
+        @TopTabNavigation
+    }
+
+    <SearchPageHeader Title="@PageTitle"
+                      Description="@PageDescription"
+                      HeaderClass="@(string.IsNullOrWhiteSpace(PageHeaderClass) ? "mt-4 mb-3" : PageHeaderClass)" />
+
+    <FilterToolbar FilterLabel="@FilterLabel"
+                   SearchFieldLabel="@SearchFieldLabel"
+                   FilterOptions="@FilterOptions"
+                   SelectedFilter="@SelectedFilter"
+                   SelectedFilterChanged="@SelectedFilterChanged"
+                   SearchText="@SearchText"
+                   SearchTextChanged="@SearchTextChanged"
+                   SearchPlaceholder="@SearchPlaceholder"
+                   SearchButtonText="@SearchButtonText"
+                   OnSearch="@OnSearch" />
+
+    @if (ShowResultSummary && HasSearched && Items is not null)
+    {
+        var list = Items is ICollection<TItem> c ? c : Items.ToList();
+        var n = list.Count;
+        var label = n == 1 ? ResultSingularLabel : ResultPluralLabel;
+        <p class="small text-body-secondary mb-2">
+            <span class="fw-semibold text-body">@n</span> @label @ResultSummarySuffix
+        </p>
+    }
+
+    <SearchResultsPanel TItem="TItem"
+                        Items="@Items"
+                        HasSearched="@HasSearched"
+                        GridColumns="@GridColumns"
+                        Pageable="@Pageable"
+                        PageSize="@PageSize"
+                        Sortable="@Sortable"
+                        GridHeight="@GridHeight"
+                        GridClass="@GridClass"
+                        InitialEmptyTitle="@EmptyStateTitle"
+                        InitialEmptyDescription="@EmptyStateDescription"
+                        NoResultsTitle="@NoResultsTitle"
+                        NoResultsDescription="@NoResultsDescription"
+                        EmptyStateIcon="@EmptyStateIcon"
+                        NoResultsIcon="@NoResultsIcon" />
+
+    @if (ShowPageFooter)
+    {
+        <p class="text-center text-muted small mt-4 pt-2 mb-0 border-top">@FooterText</p>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public string PageTitle { get; set; } = string.Empty;
+
+    [Parameter]
+    public string? PageDescription { get; set; }
+
+    /// <summary>Optional class for the title block (spacing when tabs sit above).</summary>
+    [Parameter]
+    public string? PageHeaderClass { get; set; }
+
+    [Parameter]
+    public RenderFragment? BreadcrumbBar { get; set; }
+
+    [Parameter]
+    public RenderFragment? TopTabNavigation { get; set; }
+
+    [Parameter]
+    public string FilterLabel { get; set; } = "Search by";
+
+    [Parameter]
+    public string SearchFieldLabel { get; set; } = "Search criteria";
+
+    [Parameter]
+    public IReadOnlyList<string> FilterOptions { get; set; } = [];
+
+    [Parameter]
+    public string SelectedFilter { get; set; } = string.Empty;
+
+    [Parameter]
+    public EventCallback<string> SelectedFilterChanged { get; set; }
+
+    [Parameter]
+    public string SearchText { get; set; } = string.Empty;
+
+    [Parameter]
+    public EventCallback<string> SearchTextChanged { get; set; }
+
+    [Parameter]
+    public string SearchPlaceholder { get; set; } = string.Empty;
+
+    [Parameter]
+    public string SearchButtonText { get; set; } = "Search";
+
+    [Parameter]
+    public EventCallback OnSearch { get; set; }
+
+    [Parameter]
+    public IEnumerable<TItem> Items { get; set; } = [];
+
+    [Parameter]
+    public bool HasSearched { get; set; }
+
+    [Parameter]
+    public RenderFragment GridColumns { get; set; } = null!;
+
+    [Parameter]
+    public bool Pageable { get; set; } = true;
+
+    [Parameter]
+    public int PageSize { get; set; } = 10;
+
+    [Parameter]
+    public bool Sortable { get; set; } = true;
+
+    [Parameter]
+    public string GridHeight { get; set; } = "440px";
+
+    [Parameter]
+    public string? GridClass { get; set; }
+
+    [Parameter]
+    public string EmptyStateTitle { get; set; } = "Search";
+
+    [Parameter]
+    public string EmptyStateDescription { get; set; } = "Enter criteria and run search to see results.";
+
+    [Parameter]
+    public string? NoResultsTitle { get; set; }
+
+    [Parameter]
+    public string? NoResultsDescription { get; set; }
+
+    [Parameter]
+    public RenderFragment? EmptyStateIcon { get; set; }
+
+    [Parameter]
+    public RenderFragment? NoResultsIcon { get; set; }
+
+    [Parameter]
+    public bool ShowResultSummary { get; set; } = true;
+
+    [Parameter]
+    public string ResultSingularLabel { get; set; } = "result";
+
+    [Parameter]
+    public string ResultPluralLabel { get; set; } = "results";
+
+    /// <summary>Trailing phrase after the count and label (e.g. &quot;found&quot;).</summary>
+    [Parameter]
+    public string ResultSummarySuffix { get; set; } = "found";
+
+    [Parameter]
+    public bool ShowPageFooter { get; set; } = true;
+
+    [Parameter]
+    public string FooterText { get; set; } = $"© {DateTime.Now.Year} SingleSource";
+}

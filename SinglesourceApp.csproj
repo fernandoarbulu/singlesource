@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <!-- Fingerprint placeholders in index.html are not reliably rewritten in all publish/watch paths (aspnetcore#65710), which leaves a literal #[.{fingerprint}] URL and breaks boot (404). Use the stable loader name instead. -->
+    <OverrideHtmlAssetPlaceholders>false</OverrideHtmlAssetPlaceholders>
+    <BlazorFingerprintBlazorJs>false</BlazorFingerprintBlazorJs>
+    <!-- Runtime requests fingerprinted _framework/*.wasm paths; dev server only serves label routes (e.g. SinglesourceApp.wasm → 200, SinglesourceApp.{hash}.wasm → 404). Align boot config with served URLs. -->
+    <WasmFingerprintAssets>false</WasmFingerprintAssets>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- LogicalName keeps a stable manifest name across SDK/root-namespace changes -->
+    <EmbeddedResource Include="Data/PropertyMdmV4.json">
+      <LogicalName>PropertyMdmV4.json</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.5" PrivateAssets="all" />
+    <PackageReference Include="Telerik.UI.for.Blazor" Version="12.0.0" />
+  </ItemGroup>
+
+</Project>

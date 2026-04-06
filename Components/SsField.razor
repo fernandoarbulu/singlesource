@@ -1,0 +1,24 @@
+<div class="ss-field">
+    <span class="ss-field-label">@Label</span>
+    <span class="ss-field-value @(_isEmpty ? "ss-field-value--empty" : null)">@_display</span>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public string Label { get; set; } = "";
+
+    [Parameter]
+    public string? Value { get; set; }
+
+    [Parameter]
+    public bool? IsEmpty { get; set; }
+
+    private bool _isEmpty;
+    private string _display = "";
+
+    protected override void OnParametersSet()
+    {
+        _isEmpty = IsEmpty ?? string.IsNullOrWhiteSpace(Value);
+        _display = _isEmpty ? "\u2014" : Value!;
+    }
+}

@@ -1,0 +1,2885 @@
+{
+  "categories": [
+    "Overview",
+    "Inspections",
+    "Structures & Units",
+    "Site & Access",
+    "Maintenance & Field Services",
+    "Conveyance & HUD",
+    "Escalations",
+    "Violations & Compliance",
+    "Workflow & Oversight"
+  ],
+  "fields": [
+    {
+      "id": "f0001",
+      "label": "Eviction Complete Date",
+      "category": "Overview",
+      "subsection": "Eviction & Occupancy",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-04-20"
+    },
+    {
+      "id": "f0002",
+      "label": "Eviction Start Date",
+      "category": "Overview",
+      "subsection": "Eviction & Occupancy",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0003",
+      "label": "Personal Property over $500",
+      "category": "Overview",
+      "subsection": "Eviction & Occupancy",
+      "visibility": "conditional",
+      "kind": "boolean",
+      "rawType": "bool",
+      "value": ""
+    },
+    {
+      "id": "f0004",
+      "label": "Personal Property Present",
+      "category": "Overview",
+      "subsection": "Eviction & Occupancy",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": ""
+    },
+    {
+      "id": "f0005",
+      "label": "PPE Expiration Date",
+      "category": "Overview",
+      "subsection": "Eviction & Occupancy",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0006",
+      "label": "Prior P&P",
+      "category": "Overview",
+      "subsection": "Financials",
+      "visibility": "default",
+      "kind": "text",
+      "rawType": "text",
+      "value": "Sample value 806"
+    },
+    {
+      "id": "f0007",
+      "label": "Total Spent Client",
+      "category": "Overview",
+      "subsection": "Financials",
+      "visibility": "default",
+      "kind": "text",
+      "rawType": "text",
+      "value": "Sample value 393"
+    },
+    {
+      "id": "f0008",
+      "label": "EOB Amount",
+      "category": "Overview",
+      "subsection": "Financials",
+      "visibility": "conditional",
+      "kind": "currency",
+      "rawType": "currency",
+      "value": ""
+    },
+    {
+      "id": "f0009",
+      "label": "Prior HUD reimbursable Non-P and P",
+      "category": "Overview",
+      "subsection": "Financials",
+      "visibility": "default",
+      "kind": "text",
+      "rawType": "text",
+      "value": "Sample value 422"
+    },
+    {
+      "id": "f0010",
+      "label": "Prior HUD reimbursable Non-P&P",
+      "category": "Overview",
+      "subsection": "Financials",
+      "visibility": "default",
+      "kind": "text",
+      "rawType": "text",
+      "value": "Sample value 321"
+    },
+    {
+      "id": "f0011",
+      "label": "Prior Non-HUD reimbursable",
+      "category": "Overview",
+      "subsection": "Financials",
+      "visibility": "default",
+      "kind": "text",
+      "rawType": "text",
+      "value": "Sample value 113"
+    },
+    {
+      "id": "f0012",
+      "label": "Total Expenses",
+      "category": "Overview",
+      "subsection": "Financials",
+      "visibility": "default",
+      "kind": "currency",
+      "rawType": "currency",
+      "value": "$709,572"
+    },
+    {
+      "id": "f0013",
+      "label": "EOB Received Date",
+      "category": "Overview",
+      "subsection": "Financials",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0014",
+      "label": "3rd Party Funds Received Date",
+      "category": "Overview",
+      "subsection": "Foreclosure & Disposition",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-01-13"
+    },
+    {
+      "id": "f0015",
+      "label": "Client SOR Post Sale Status",
+      "category": "Overview",
+      "subsection": "Foreclosure & Disposition",
+      "visibility": "conditional",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": "Pending"
+    },
+    {
+      "id": "f0016",
+      "label": "Close and Bill Date",
+      "category": "Overview",
+      "subsection": "Foreclosure & Disposition",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0017",
+      "label": "Foreclosure Sale Date",
+      "category": "Overview",
+      "subsection": "Foreclosure & Disposition",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-10-10"
+    },
+    {
+      "id": "f0018",
+      "label": "Gov Short Sale Date",
+      "category": "Overview",
+      "subsection": "Foreclosure & Disposition",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0019",
+      "label": "Listing Agent Email",
+      "category": "Overview",
+      "subsection": "Foreclosure & Disposition",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": ""
+    },
+    {
+      "id": "f0020",
+      "label": "Listing Agent Name",
+      "category": "Overview",
+      "subsection": "Foreclosure & Disposition",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": "Sample value 603"
+    },
+    {
+      "id": "f0021",
+      "label": "Listing Agent Phone",
+      "category": "Overview",
+      "subsection": "Foreclosure & Disposition",
+      "visibility": "conditional",
+      "kind": "phone",
+      "rawType": "phone",
+      "value": ""
+    },
+    {
+      "id": "f0022",
+      "label": "Mod Review",
+      "category": "Overview",
+      "subsection": "Foreclosure & Disposition",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": ""
+    },
+    {
+      "id": "f0023",
+      "label": "Post Sale",
+      "category": "Overview",
+      "subsection": "Foreclosure & Disposition",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": ""
+    },
+    {
+      "id": "f0024",
+      "label": "Post Sale Status Age",
+      "category": "Overview",
+      "subsection": "Foreclosure & Disposition",
+      "visibility": "conditional",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": "Tier 2"
+    },
+    {
+      "id": "f0025",
+      "label": "Post Sale Transfer Date",
+      "category": "Overview",
+      "subsection": "Foreclosure & Disposition",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0026",
+      "label": "Post Sale Update",
+      "category": "Overview",
+      "subsection": "Foreclosure & Disposition",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": "Sample value 563"
+    },
+    {
+      "id": "f0027",
+      "label": "Re Disposition",
+      "category": "Overview",
+      "subsection": "Foreclosure & Disposition",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": "Sample value 984"
+    },
+    {
+      "id": "f0028",
+      "label": "Repayment Plan Flag",
+      "category": "Overview",
+      "subsection": "Foreclosure & Disposition",
+      "visibility": "conditional",
+      "kind": "boolean",
+      "rawType": "toggle",
+      "value": ""
+    },
+    {
+      "id": "f0029",
+      "label": "Service Release Scheduled Date",
+      "category": "Overview",
+      "subsection": "Foreclosure & Disposition",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-04-28"
+    },
+    {
+      "id": "f0030",
+      "label": "Service Release Scheduled Status",
+      "category": "Overview",
+      "subsection": "Foreclosure & Disposition",
+      "visibility": "conditional",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": ""
+    },
+    {
+      "id": "f0031",
+      "label": "Third Party Funds Received Date",
+      "category": "Overview",
+      "subsection": "Foreclosure & Disposition",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0032",
+      "label": "FC Attorney",
+      "category": "Overview",
+      "subsection": "Foreclosure & Disposition",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": ""
+    },
+    {
+      "id": "f0033",
+      "label": "First Legal Action Date",
+      "category": "Overview",
+      "subsection": "Foreclosure & Disposition",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0034",
+      "label": "Foreclosure Sale Result",
+      "category": "Overview",
+      "subsection": "Foreclosure & Disposition",
+      "visibility": "conditional",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": "N/A"
+    },
+    {
+      "id": "f0035",
+      "label": "Foreclosure Sale Scheduled Date",
+      "category": "Overview",
+      "subsection": "Foreclosure & Disposition",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0036",
+      "label": "Map Reference For Mail Address",
+      "category": "Overview",
+      "subsection": "Location & Title",
+      "visibility": "clientSpecific",
+      "kind": "textarea",
+      "rawType": "textarea",
+      "value": ""
+    },
+    {
+      "id": "f0037",
+      "label": "Mobile Home VIN Number",
+      "category": "Overview",
+      "subsection": "Location & Title",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": ""
+    },
+    {
+      "id": "f0038",
+      "label": "Active Loan Modification",
+      "category": "Overview",
+      "subsection": "Ownership & Loan",
+      "visibility": "conditional",
+      "kind": "boolean",
+      "rawType": "toggle",
+      "value": "No"
+    },
+    {
+      "id": "f0039",
+      "label": "Bankruptcy Flag",
+      "category": "Overview",
+      "subsection": "Ownership & Loan",
+      "visibility": "conditional",
+      "kind": "boolean",
+      "rawType": "toggle",
+      "value": ""
+    },
+    {
+      "id": "f0040",
+      "label": "Bankruptcy Surrender",
+      "category": "Overview",
+      "subsection": "Ownership & Loan",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": ""
+    },
+    {
+      "id": "f0041",
+      "label": "BK Approval Entered Date LSAMS",
+      "category": "Overview",
+      "subsection": "Ownership & Loan",
+      "visibility": "clientSpecific",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-09-09"
+    },
+    {
+      "id": "f0042",
+      "label": "Days Delinquent",
+      "category": "Overview",
+      "subsection": "Ownership & Loan",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": "Sample value 300"
+    },
+    {
+      "id": "f0043",
+      "label": "FHA Case Number",
+      "category": "Overview",
+      "subsection": "Ownership & Loan",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": ""
+    },
+    {
+      "id": "f0044",
+      "label": "GSE Seller Servicer Number",
+      "category": "Overview",
+      "subsection": "Ownership & Loan",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": ""
+    },
+    {
+      "id": "f0045",
+      "label": "Guarantor Case Number",
+      "category": "Overview",
+      "subsection": "Ownership & Loan",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": "Sample value 596"
+    },
+    {
+      "id": "f0046",
+      "label": "Guarantor Code",
+      "category": "Overview",
+      "subsection": "Ownership & Loan",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": ""
+    },
+    {
+      "id": "f0047",
+      "label": "Guaranty Loan Type",
+      "category": "Overview",
+      "subsection": "Ownership & Loan",
+      "visibility": "conditional",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": ""
+    },
+    {
+      "id": "f0048",
+      "label": "Investor",
+      "category": "Overview",
+      "subsection": "Ownership & Loan",
+      "visibility": "default",
+      "kind": "text",
+      "rawType": "text",
+      "value": "Sample value 989"
+    },
+    {
+      "id": "f0049",
+      "label": "Investor Bucket",
+      "category": "Overview",
+      "subsection": "Ownership & Loan",
+      "visibility": "conditional",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": ""
+    },
+    {
+      "id": "f0050",
+      "label": "Investor Code",
+      "category": "Overview",
+      "subsection": "Ownership & Loan",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": ""
+    },
+    {
+      "id": "f0051",
+      "label": "Investor Description",
+      "category": "Overview",
+      "subsection": "Ownership & Loan",
+      "visibility": "conditional",
+      "kind": "textarea",
+      "rawType": "textarea",
+      "value": ""
+    },
+    {
+      "id": "f0052",
+      "label": "Investor Detail",
+      "category": "Overview",
+      "subsection": "Ownership & Loan",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": ""
+    },
+    {
+      "id": "f0053",
+      "label": "Investor Loan Number",
+      "category": "Overview",
+      "subsection": "Ownership & Loan",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": ""
+    },
+    {
+      "id": "f0054",
+      "label": "Investor Type",
+      "category": "Overview",
+      "subsection": "Ownership & Loan",
+      "visibility": "default",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": "In Progress"
+    },
+    {
+      "id": "f0055",
+      "label": "Loan Deactivation Date",
+      "category": "Overview",
+      "subsection": "Ownership & Loan",
+      "visibility": "default",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-08-08"
+    },
+    {
+      "id": "f0056",
+      "label": "Loan Deactivation Reason",
+      "category": "Overview",
+      "subsection": "Ownership & Loan",
+      "visibility": "default",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": "Tier 2"
+    },
+    {
+      "id": "f0057",
+      "label": "Loan Servicing Status",
+      "category": "Overview",
+      "subsection": "Ownership & Loan",
+      "visibility": "conditional",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": ""
+    },
+    {
+      "id": "f0058",
+      "label": "Loan Transfer Date",
+      "category": "Overview",
+      "subsection": "Ownership & Loan",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-04-20"
+    },
+    {
+      "id": "f0059",
+      "label": "Loan Type",
+      "category": "Overview",
+      "subsection": "Ownership & Loan",
+      "visibility": "default",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": "In Progress"
+    },
+    {
+      "id": "f0060",
+      "label": "New Loan Servicer",
+      "category": "Overview",
+      "subsection": "Ownership & Loan",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": "Sample value 666"
+    },
+    {
+      "id": "f0061",
+      "label": "REO Flag",
+      "category": "Overview",
+      "subsection": "Ownership & Loan",
+      "visibility": "conditional",
+      "kind": "boolean",
+      "rawType": "toggle",
+      "value": ""
+    },
+    {
+      "id": "f0062",
+      "label": "REO Flag Date",
+      "category": "Overview",
+      "subsection": "Ownership & Loan",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0063",
+      "label": "Servicer I.D.",
+      "category": "Overview",
+      "subsection": "Ownership & Loan",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": ""
+    },
+    {
+      "id": "f0064",
+      "label": "Servicer Loan Number",
+      "category": "Overview",
+      "subsection": "Ownership & Loan",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": "Sample value 658"
+    },
+    {
+      "id": "f0065",
+      "label": "Servicer Name",
+      "category": "Overview",
+      "subsection": "Ownership & Loan",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": "Sample value 288"
+    },
+    {
+      "id": "f0066",
+      "label": "UPB",
+      "category": "Overview",
+      "subsection": "Ownership & Loan",
+      "visibility": "conditional",
+      "kind": "currency",
+      "rawType": "currency",
+      "value": ""
+    },
+    {
+      "id": "f0067",
+      "label": "Deed in Lieu Date",
+      "category": "Overview",
+      "subsection": "Ownership & Loan",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-01-17"
+    },
+    {
+      "id": "f0068",
+      "label": "Deed Recorded Date",
+      "category": "Overview",
+      "subsection": "Ownership & Loan",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0069",
+      "label": "Loan Status",
+      "category": "Overview",
+      "subsection": "Property Summary",
+      "visibility": "default",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": "N/A"
+    },
+    {
+      "id": "f0070",
+      "label": "50002 Decision",
+      "category": "Overview",
+      "subsection": "Property Summary",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": ""
+    },
+    {
+      "id": "f0071",
+      "label": "6 Month Date",
+      "category": "Overview",
+      "subsection": "Property Summary",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-07-15"
+    },
+    {
+      "id": "f0072",
+      "label": "Active Loss Mitigation",
+      "category": "Overview",
+      "subsection": "Property Summary",
+      "visibility": "conditional",
+      "kind": "boolean",
+      "rawType": "toggle",
+      "value": ""
+    },
+    {
+      "id": "f0073",
+      "label": "APN",
+      "category": "Overview",
+      "subsection": "Property Summary",
+      "visibility": "default",
+      "kind": "text",
+      "rawType": "text",
+      "value": "Sample value 990"
+    },
+    {
+      "id": "f0074",
+      "label": "Bad Property Address Flag",
+      "category": "Overview",
+      "subsection": "Property Summary",
+      "visibility": "conditional",
+      "kind": "boolean",
+      "rawType": "toggle",
+      "value": "Yes"
+    },
+    {
+      "id": "f0075",
+      "label": "Bankrupcy Surrender",
+      "category": "Overview",
+      "subsection": "Property Summary",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": ""
+    },
+    {
+      "id": "f0076",
+      "label": "Client ID",
+      "category": "Overview",
+      "subsection": "Property Summary",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": ""
+    },
+    {
+      "id": "f0077",
+      "label": "Co-Borrower Name",
+      "category": "Overview",
+      "subsection": "Property Summary",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": ""
+    },
+    {
+      "id": "f0078",
+      "label": "Customer Contact",
+      "category": "Overview",
+      "subsection": "Property Summary",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": ""
+    },
+    {
+      "id": "f0079",
+      "label": "Deal Type",
+      "category": "Overview",
+      "subsection": "Property Summary",
+      "visibility": "conditional",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": ""
+    },
+    {
+      "id": "f0080",
+      "label": "Hybrid or Non-Hybrid",
+      "category": "Overview",
+      "subsection": "Property Summary",
+      "visibility": "clientSpecific",
+      "kind": "text",
+      "rawType": "text",
+      "value": "Sample value 519"
+    },
+    {
+      "id": "f0081",
+      "label": "Legal Approval Entered Date LSAMS",
+      "category": "Overview",
+      "subsection": "Property Summary",
+      "visibility": "clientSpecific",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-05-17"
+    },
+    {
+      "id": "f0082",
+      "label": "Legal Approval Expiration Entered Date LSAMS",
+      "category": "Overview",
+      "subsection": "Property Summary",
+      "visibility": "clientSpecific",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-06-06"
+    },
+    {
+      "id": "f0083",
+      "label": "Mortgagor Name",
+      "category": "Overview",
+      "subsection": "Property Summary",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": ""
+    },
+    {
+      "id": "f0084",
+      "label": "Outstanding Principal Balance",
+      "category": "Overview",
+      "subsection": "Property Summary",
+      "visibility": "conditional",
+      "kind": "currency",
+      "rawType": "currency",
+      "value": "$568,858"
+    },
+    {
+      "id": "f0085",
+      "label": "Processor Code",
+      "category": "Overview",
+      "subsection": "Property Summary",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": ""
+    },
+    {
+      "id": "f0086",
+      "label": "Property HECM Indicator",
+      "category": "Overview",
+      "subsection": "Property Summary",
+      "visibility": "conditional",
+      "kind": "boolean",
+      "rawType": "toggle",
+      "value": ""
+    },
+    {
+      "id": "f0087",
+      "label": "Property Type",
+      "category": "Overview",
+      "subsection": "Property Summary",
+      "visibility": "default",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": "Pending"
+    },
+    {
+      "id": "f0088",
+      "label": "Property Type- client",
+      "category": "Overview",
+      "subsection": "Property Summary",
+      "visibility": "conditional",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": ""
+    },
+    {
+      "id": "f0089",
+      "label": "Property Type Desc",
+      "category": "Overview",
+      "subsection": "Property Summary",
+      "visibility": "default",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": "Tier 2"
+    },
+    {
+      "id": "f0090",
+      "label": "Reactivate Reason",
+      "category": "Overview",
+      "subsection": "Property Summary",
+      "visibility": "conditional",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": ""
+    },
+    {
+      "id": "f0091",
+      "label": "Rekey Deliverable Close Date",
+      "category": "Overview",
+      "subsection": "Property Summary",
+      "visibility": "clientSpecific",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-02-10"
+    },
+    {
+      "id": "f0092",
+      "label": "Removed from DDR Date",
+      "category": "Overview",
+      "subsection": "Property Summary",
+      "visibility": "clientSpecific",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-04-28"
+    },
+    {
+      "id": "f0093",
+      "label": "REO Platform",
+      "category": "Overview",
+      "subsection": "Property Summary",
+      "visibility": "clientSpecific",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": "Pending"
+    },
+    {
+      "id": "f0094",
+      "label": "Requestor Code",
+      "category": "Overview",
+      "subsection": "Property Summary",
+      "visibility": "clientSpecific",
+      "kind": "text",
+      "rawType": "text",
+      "value": "Sample value 373"
+    },
+    {
+      "id": "f0095",
+      "label": "Requestor Department",
+      "category": "Overview",
+      "subsection": "Property Summary",
+      "visibility": "clientSpecific",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": "Tier 2"
+    },
+    {
+      "id": "f0096",
+      "label": "Res.net Task Needed",
+      "category": "Overview",
+      "subsection": "Property Summary",
+      "visibility": "clientSpecific",
+      "kind": "currency",
+      "rawType": "currency",
+      "value": "$714,139"
+    },
+    {
+      "id": "f0097",
+      "label": "Resolution Status",
+      "category": "Overview",
+      "subsection": "Property Summary",
+      "visibility": "conditional",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": ""
+    },
+    {
+      "id": "f0098",
+      "label": "Sales Clean Complete",
+      "category": "Overview",
+      "subsection": "Property Summary",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": ""
+    },
+    {
+      "id": "f0099",
+      "label": "Unpaid Balance",
+      "category": "Overview",
+      "subsection": "Property Summary",
+      "visibility": "conditional",
+      "kind": "currency",
+      "rawType": "currency",
+      "value": ""
+    },
+    {
+      "id": "f0100",
+      "label": "Vacant Lot Reason",
+      "category": "Overview",
+      "subsection": "Property Summary",
+      "visibility": "conditional",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": "In Progress"
+    },
+    {
+      "id": "f0101",
+      "label": "First Known Vacancy Date",
+      "category": "Structures & Units",
+      "subsection": "Occupancy",
+      "visibility": "default",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-05-17"
+    },
+    {
+      "id": "f0102",
+      "label": "Inspection Request Source",
+      "category": "Inspections",
+      "subsection": "Inspections",
+      "visibility": "default",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": "Tier 2"
+    },
+    {
+      "id": "f0103",
+      "label": "Inspection Type",
+      "category": "Inspections",
+      "subsection": "Inspections",
+      "visibility": "default",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": "Complete"
+    },
+    {
+      "id": "f0104",
+      "label": "Inspections Not Allowed",
+      "category": "Inspections",
+      "subsection": "Inspections",
+      "visibility": "default",
+      "kind": "text",
+      "rawType": "text",
+      "value": "Sample value 884"
+    },
+    {
+      "id": "f0105",
+      "label": "Last Inspection Complete Date",
+      "category": "Inspections",
+      "subsection": "Inspections",
+      "visibility": "default",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-10-26"
+    },
+    {
+      "id": "f0106",
+      "label": "Last Inspection Order Date",
+      "category": "Inspections",
+      "subsection": "Inspections",
+      "visibility": "default",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-10-06"
+    },
+    {
+      "id": "f0107",
+      "label": "Electric",
+      "category": "Structures & Units",
+      "subsection": "Buildings & Units",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": ""
+    },
+    {
+      "id": "f0108",
+      "label": "Number of Units",
+      "category": "Structures & Units",
+      "subsection": "Buildings & Units",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": "Sample value 577"
+    },
+    {
+      "id": "f0109",
+      "label": "Damages",
+      "category": "Structures & Units",
+      "subsection": "Damages",
+      "visibility": "default",
+      "kind": "boolean",
+      "rawType": "toggle",
+      "value": "Yes"
+    },
+    {
+      "id": "f0110",
+      "label": "Dehumidifier",
+      "category": "Structures & Units",
+      "subsection": "Mechanicals & Systems",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": "Sample value 360"
+    },
+    {
+      "id": "f0111",
+      "label": "Heating System Type",
+      "category": "Structures & Units",
+      "subsection": "Mechanicals & Systems",
+      "visibility": "conditional",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": "N/A"
+    },
+    {
+      "id": "f0112",
+      "label": "Sump Pump",
+      "category": "Structures & Units",
+      "subsection": "Mechanicals & Systems",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": "Sample value 883"
+    },
+    {
+      "id": "f0113",
+      "label": "Sump Pump Status",
+      "category": "Structures & Units",
+      "subsection": "Mechanicals & Systems",
+      "visibility": "conditional",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": ""
+    },
+    {
+      "id": "f0114",
+      "label": "Description of Partially Vacant",
+      "category": "Structures & Units",
+      "subsection": "Occupancy",
+      "visibility": "conditional",
+      "kind": "textarea",
+      "rawType": "textarea",
+      "value": ""
+    },
+    {
+      "id": "f0115",
+      "label": "First Time Vacant",
+      "category": "Structures & Units",
+      "subsection": "Occupancy",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": ""
+    },
+    {
+      "id": "f0116",
+      "label": "First Time Vacant Date",
+      "category": "Structures & Units",
+      "subsection": "Occupancy",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0117",
+      "label": "FTV Corrected Entered Date LSAMS",
+      "category": "Structures & Units",
+      "subsection": "Occupancy",
+      "visibility": "clientSpecific",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-08-16"
+    },
+    {
+      "id": "f0118",
+      "label": "FTV Failed Date Entered LSAMS",
+      "category": "Structures & Units",
+      "subsection": "Occupancy",
+      "visibility": "clientSpecific",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-11-19"
+    },
+    {
+      "id": "f0119",
+      "label": "FTV Transfer Date",
+      "category": "Structures & Units",
+      "subsection": "Occupancy",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0120",
+      "label": "FTV Verified Date Entered LSAMS",
+      "category": "Structures & Units",
+      "subsection": "Occupancy",
+      "visibility": "clientSpecific",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-10-06"
+    },
+    {
+      "id": "f0121",
+      "label": "FTV Verified Entered Date",
+      "category": "Structures & Units",
+      "subsection": "Occupancy",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0122",
+      "label": "Most Recent Occupancy Status",
+      "category": "Structures & Units",
+      "subsection": "Occupancy",
+      "visibility": "default",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": "Complete"
+    },
+    {
+      "id": "f0123",
+      "label": "Reoccupied",
+      "category": "Structures & Units",
+      "subsection": "Occupancy",
+      "visibility": "conditional",
+      "kind": "boolean",
+      "rawType": "toggle",
+      "value": "No"
+    },
+    {
+      "id": "f0124",
+      "label": "Electricity off as of",
+      "category": "Structures & Units",
+      "subsection": "Utilities",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0125",
+      "label": "Electricity on as of",
+      "category": "Structures & Units",
+      "subsection": "Utilities",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0126",
+      "label": "Utilities",
+      "category": "Structures & Units",
+      "subsection": "Utilities",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": ""
+    },
+    {
+      "id": "f0127",
+      "label": "Dewinterization Date",
+      "category": "Structures & Units",
+      "subsection": "Winterization",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0128",
+      "label": "Most Recent Winterization Date",
+      "category": "Structures & Units",
+      "subsection": "Winterization",
+      "visibility": "default",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-11-27"
+    },
+    {
+      "id": "f0129",
+      "label": "Partial Winterization?",
+      "category": "Structures & Units",
+      "subsection": "Winterization",
+      "visibility": "conditional",
+      "kind": "boolean",
+      "rawType": "toggle",
+      "value": ""
+    },
+    {
+      "id": "f0130",
+      "label": "Pressure Test",
+      "category": "Structures & Units",
+      "subsection": "Winterization",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": ""
+    },
+    {
+      "id": "f0131",
+      "label": "Prior Winterization Date",
+      "category": "Structures & Units",
+      "subsection": "Winterization",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-01-25"
+    },
+    {
+      "id": "f0132",
+      "label": "Winterization Comments",
+      "category": "Structures & Units",
+      "subsection": "Winterization",
+      "visibility": "conditional",
+      "kind": "textarea",
+      "rawType": "textarea",
+      "value": ""
+    },
+    {
+      "id": "f0133",
+      "label": "Winterization Complete",
+      "category": "Structures & Units",
+      "subsection": "Winterization",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": ""
+    },
+    {
+      "id": "f0134",
+      "label": "Winterization Date",
+      "category": "Structures & Units",
+      "subsection": "Winterization",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0135",
+      "label": "Winterization Result",
+      "category": "Structures & Units",
+      "subsection": "Winterization",
+      "visibility": "conditional",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": "N/A"
+    },
+    {
+      "id": "f0136",
+      "label": "Winterization Status",
+      "category": "Structures & Units",
+      "subsection": "Winterization",
+      "visibility": "conditional",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": ""
+    },
+    {
+      "id": "f0137",
+      "label": "Winterization Type",
+      "category": "Structures & Units",
+      "subsection": "Winterization",
+      "visibility": "conditional",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": ""
+    },
+    {
+      "id": "f0138",
+      "label": "Do Not Auto Secure",
+      "category": "Site & Access",
+      "subsection": "Access & Security",
+      "visibility": "clientSpecific",
+      "kind": "boolean",
+      "rawType": "toggle",
+      "value": "Yes"
+    },
+    {
+      "id": "f0139",
+      "label": "Do Not Auto Secure Report Date",
+      "category": "Site & Access",
+      "subsection": "Access & Security",
+      "visibility": "clientSpecific",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-12-24"
+    },
+    {
+      "id": "f0140",
+      "label": "Do Not Secure Reason",
+      "category": "Site & Access",
+      "subsection": "Access & Security",
+      "visibility": "clientSpecific",
+      "kind": "boolean",
+      "rawType": "toggle",
+      "value": "Yes"
+    },
+    {
+      "id": "f0141",
+      "label": "Eligible to Secure Date",
+      "category": "Site & Access",
+      "subsection": "Access & Security",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-01-25"
+    },
+    {
+      "id": "f0142",
+      "label": "Gate Code",
+      "category": "Site & Access",
+      "subsection": "Access & Security",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": ""
+    },
+    {
+      "id": "f0143",
+      "label": "Initial Secure Date",
+      "category": "Site & Access",
+      "subsection": "Access & Security",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-01-17"
+    },
+    {
+      "id": "f0144",
+      "label": "Initial Secure Date Transfer",
+      "category": "Site & Access",
+      "subsection": "Access & Security",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0145",
+      "label": "Key Code",
+      "category": "Site & Access",
+      "subsection": "Access & Security",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": ""
+    },
+    {
+      "id": "f0146",
+      "label": "Last Reported Secure Date",
+      "category": "Site & Access",
+      "subsection": "Access & Security",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-01-21"
+    },
+    {
+      "id": "f0147",
+      "label": "Lock Box Location",
+      "category": "Site & Access",
+      "subsection": "Access & Security",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": "Sample value 945"
+    },
+    {
+      "id": "f0148",
+      "label": "Lock Box Location Other",
+      "category": "Site & Access",
+      "subsection": "Access & Security",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": ""
+    },
+    {
+      "id": "f0149",
+      "label": "Lock Change Complete",
+      "category": "Site & Access",
+      "subsection": "Access & Security",
+      "visibility": "conditional",
+      "kind": "boolean",
+      "rawType": "toggle",
+      "value": ""
+    },
+    {
+      "id": "f0150",
+      "label": "Lock Code",
+      "category": "Site & Access",
+      "subsection": "Access & Security",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": ""
+    },
+    {
+      "id": "f0151",
+      "label": "No Access Reason",
+      "category": "Site & Access",
+      "subsection": "Access & Security",
+      "visibility": "conditional",
+      "kind": "boolean",
+      "rawType": "toggle",
+      "value": ""
+    },
+    {
+      "id": "f0152",
+      "label": "Padlock Code",
+      "category": "Site & Access",
+      "subsection": "Access & Security",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": "Sample value 869"
+    },
+    {
+      "id": "f0153",
+      "label": "Pres Lockout Date",
+      "category": "Site & Access",
+      "subsection": "Access & Security",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0154",
+      "label": "Secured Date",
+      "category": "Site & Access",
+      "subsection": "Access & Security",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0155",
+      "label": "Securing Result",
+      "category": "Site & Access",
+      "subsection": "Access & Security",
+      "visibility": "conditional",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": "N/A"
+    },
+    {
+      "id": "f0156",
+      "label": "Steel Boarding Code",
+      "category": "Site & Access",
+      "subsection": "Access & Security",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": ""
+    },
+    {
+      "id": "f0157",
+      "label": "Steel Securing Date",
+      "category": "Site & Access",
+      "subsection": "Access & Security",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0158",
+      "label": "Steel Securing Date",
+      "category": "Site & Access",
+      "subsection": "Access & Security",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0159",
+      "label": "HOA Maintained",
+      "category": "Site & Access",
+      "subsection": "HOA & Community",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": "Sample value 538"
+    },
+    {
+      "id": "f0160",
+      "label": "HOA Phone Number",
+      "category": "Site & Access",
+      "subsection": "HOA & Community",
+      "visibility": "conditional",
+      "kind": "phone",
+      "rawType": "phone",
+      "value": ""
+    },
+    {
+      "id": "f0161",
+      "label": "Pool",
+      "category": "Site & Access",
+      "subsection": "Water Features",
+      "visibility": "default",
+      "kind": "text",
+      "rawType": "text",
+      "value": "Sample value 706"
+    },
+    {
+      "id": "f0162",
+      "label": "Pool Fence Install Date",
+      "category": "Site & Access",
+      "subsection": "Water Features",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0163",
+      "label": "Pool Securing Type",
+      "category": "Site & Access",
+      "subsection": "Water Features",
+      "visibility": "conditional",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": "In Progress"
+    },
+    {
+      "id": "f0164",
+      "label": "Exclude from Lawn Replan",
+      "category": "Maintenance & Field Services",
+      "subsection": "Lawn & Landscape",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": "Sample value 148"
+    },
+    {
+      "id": "f0165",
+      "label": "Last Cut Date",
+      "category": "Maintenance & Field Services",
+      "subsection": "Lawn & Landscape",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0166",
+      "label": "Lawn Maintenance Comments",
+      "category": "Maintenance & Field Services",
+      "subsection": "Lawn & Landscape",
+      "visibility": "conditional",
+      "kind": "textarea",
+      "rawType": "textarea",
+      "value": ""
+    },
+    {
+      "id": "f0167",
+      "label": "Lawn Maintenance Eligible Date",
+      "category": "Maintenance & Field Services",
+      "subsection": "Lawn & Landscape",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0168",
+      "label": "Lawn Maintenance Result",
+      "category": "Maintenance & Field Services",
+      "subsection": "Lawn & Landscape",
+      "visibility": "conditional",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": "In Progress"
+    },
+    {
+      "id": "f0169",
+      "label": "Lot Size SqFt.",
+      "category": "Maintenance & Field Services",
+      "subsection": "Lawn & Landscape",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": "Sample value 193"
+    },
+    {
+      "id": "f0170",
+      "label": "Paused Replan",
+      "category": "Maintenance & Field Services",
+      "subsection": "Lawn & Landscape",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": "Sample value 523"
+    },
+    {
+      "id": "f0171",
+      "label": "Paused Replan Reason",
+      "category": "Maintenance & Field Services",
+      "subsection": "Lawn & Landscape",
+      "visibility": "conditional",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": ""
+    },
+    {
+      "id": "f0172",
+      "label": "BNMP_Date",
+      "category": "Maintenance & Field Services",
+      "subsection": "Property Summary",
+      "visibility": "clientSpecific",
+      "kind": "text",
+      "rawType": "text",
+      "value": "Sample value 225"
+    },
+    {
+      "id": "f0173",
+      "label": "Missing Applinaces",
+      "category": "Maintenance & Field Services",
+      "subsection": "Property Summary",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": ""
+    },
+    {
+      "id": "f0174",
+      "label": "BSO Date",
+      "category": "Maintenance & Field Services",
+      "subsection": "Repairs & Tasks",
+      "visibility": "clientSpecific",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-04-28"
+    },
+    {
+      "id": "f0175",
+      "label": "BSO Fail Reason",
+      "category": "Maintenance & Field Services",
+      "subsection": "Repairs & Tasks",
+      "visibility": "clientSpecific",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": "Complete"
+    },
+    {
+      "id": "f0176",
+      "label": "BSO Failed Date",
+      "category": "Maintenance & Field Services",
+      "subsection": "Repairs & Tasks",
+      "visibility": "clientSpecific",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-02-18"
+    },
+    {
+      "id": "f0177",
+      "label": "BSO Passed",
+      "category": "Maintenance & Field Services",
+      "subsection": "Repairs & Tasks",
+      "visibility": "clientSpecific",
+      "kind": "text",
+      "rawType": "text",
+      "value": "Sample value 41"
+    },
+    {
+      "id": "f0178",
+      "label": "BSO Passed Date",
+      "category": "Maintenance & Field Services",
+      "subsection": "Repairs & Tasks",
+      "visibility": "clientSpecific",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-01-25"
+    },
+    {
+      "id": "f0179",
+      "label": "BCMP_Date",
+      "category": "Maintenance & Field Services",
+      "subsection": "Repairs & Tasks",
+      "visibility": "clientSpecific",
+      "kind": "text",
+      "rawType": "text",
+      "value": "Sample value 564"
+    },
+    {
+      "id": "f0180",
+      "label": "Demo Reason",
+      "category": "Maintenance & Field Services",
+      "subsection": "Repairs & Tasks",
+      "visibility": "conditional",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": ""
+    },
+    {
+      "id": "f0181",
+      "label": "Maintenance Eligible Date",
+      "category": "Maintenance & Field Services",
+      "subsection": "Repairs & Tasks",
+      "visibility": "default",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-10-02"
+    },
+    {
+      "id": "f0182",
+      "label": "Initial Service Completion Date",
+      "category": "Maintenance & Field Services",
+      "subsection": "Service Lifecycle",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-10-14"
+    },
+    {
+      "id": "f0183",
+      "label": "2nd Chance Closing Approved Date",
+      "category": "Conveyance & HUD",
+      "subsection": "Conveyance Timeline",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0184",
+      "label": "Convey Condition",
+      "category": "Conveyance & HUD",
+      "subsection": "Conveyance Timeline",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": ""
+    },
+    {
+      "id": "f0185",
+      "label": "Conveyance Date",
+      "category": "Conveyance & HUD",
+      "subsection": "Conveyance Timeline",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0186",
+      "label": "Conveyance Deadline Date",
+      "category": "Conveyance & HUD",
+      "subsection": "Conveyance Timeline",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0187",
+      "label": "Conveyance Specialist",
+      "category": "Conveyance & HUD",
+      "subsection": "Conveyance Timeline",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": ""
+    },
+    {
+      "id": "f0188",
+      "label": "Conveyance Start Reason",
+      "category": "Conveyance & HUD",
+      "subsection": "Conveyance Timeline",
+      "visibility": "conditional",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": ""
+    },
+    {
+      "id": "f0189",
+      "label": "Conveyance Timeline Start Date",
+      "category": "Conveyance & HUD",
+      "subsection": "Conveyance Timeline",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0190",
+      "label": "CWCOT",
+      "category": "Conveyance & HUD",
+      "subsection": "Conveyance Timeline",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": ""
+    },
+    {
+      "id": "f0191",
+      "label": "Days from Conveyance Start Date",
+      "category": "Conveyance & HUD",
+      "subsection": "Conveyance Timeline",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-04-24"
+    },
+    {
+      "id": "f0192",
+      "label": "Days Left to Conveyance Deadline Date",
+      "category": "Conveyance & HUD",
+      "subsection": "Conveyance Timeline",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-07-11"
+    },
+    {
+      "id": "f0193",
+      "label": "Original Conveyance Date",
+      "category": "Conveyance & HUD",
+      "subsection": "Conveyance Timeline",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-10-02"
+    },
+    {
+      "id": "f0194",
+      "label": "Second Chance Closing Approved",
+      "category": "Conveyance & HUD",
+      "subsection": "Conveyance Timeline",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": "Sample value 139"
+    },
+    {
+      "id": "f0195",
+      "label": "Second Chance Closing Approved Date",
+      "category": "Conveyance & HUD",
+      "subsection": "Conveyance Timeline",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0196",
+      "label": "Second Chance Active",
+      "category": "Conveyance & HUD",
+      "subsection": "Conveyance Timeline",
+      "visibility": "conditional",
+      "kind": "boolean",
+      "rawType": "toggle",
+      "value": ""
+    },
+    {
+      "id": "f0197",
+      "label": "Second Chance Closing Date",
+      "category": "Conveyance & HUD",
+      "subsection": "Conveyance Timeline",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-01-13"
+    },
+    {
+      "id": "f0198",
+      "label": "Second Chance Entered Date",
+      "category": "Conveyance & HUD",
+      "subsection": "Conveyance Timeline",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-10-10"
+    },
+    {
+      "id": "f0199",
+      "label": "Second Chance Status",
+      "category": "Conveyance & HUD",
+      "subsection": "Conveyance Timeline",
+      "visibility": "conditional",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": "N/A"
+    },
+    {
+      "id": "f0200",
+      "label": "Second Chance Status Date",
+      "category": "Conveyance & HUD",
+      "subsection": "Conveyance Timeline",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0201",
+      "label": "AI Summary- Conveyance Agent",
+      "category": "Conveyance & HUD",
+      "subsection": "Conveyance Timeline",
+      "visibility": "conditional",
+      "kind": "textarea",
+      "rawType": "textarea",
+      "value": ""
+    },
+    {
+      "id": "f0202",
+      "label": "Conveyance Extension Approved Date",
+      "category": "Conveyance & HUD",
+      "subsection": "Extensions",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-10-10"
+    },
+    {
+      "id": "f0203",
+      "label": "Conveyance Extension Denial Reason",
+      "category": "Conveyance & HUD",
+      "subsection": "Extensions",
+      "visibility": "conditional",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": ""
+    },
+    {
+      "id": "f0204",
+      "label": "Conveyance Extension Expiration Date",
+      "category": "Conveyance & HUD",
+      "subsection": "Extensions",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0205",
+      "label": "Conveyance Extension Request Date",
+      "category": "Conveyance & HUD",
+      "subsection": "Extensions",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0206",
+      "label": "Conveyance Extension Requested By",
+      "category": "Conveyance & HUD",
+      "subsection": "Extensions",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": ""
+    },
+    {
+      "id": "f0207",
+      "label": "Extension Expiration Date",
+      "category": "Conveyance & HUD",
+      "subsection": "Extensions",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0208",
+      "label": "Extension Request Date",
+      "category": "Conveyance & HUD",
+      "subsection": "Extensions",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0209",
+      "label": "Investor Extension Status",
+      "category": "Conveyance & HUD",
+      "subsection": "Extensions",
+      "visibility": "conditional",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": ""
+    },
+    {
+      "id": "f0210",
+      "label": "Redemption Expiration Date",
+      "category": "Conveyance & HUD",
+      "subsection": "Extensions",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-07-19"
+    },
+    {
+      "id": "f0211",
+      "label": "FHA VA Claim Paid Date",
+      "category": "Conveyance & HUD",
+      "subsection": "FHA & Redemption",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0212",
+      "label": "FHA VA Stop Work",
+      "category": "Conveyance & HUD",
+      "subsection": "FHA & Redemption",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": "Sample value 262"
+    },
+    {
+      "id": "f0213",
+      "label": "FHA VA Stop Work Date",
+      "category": "Conveyance & HUD",
+      "subsection": "FHA & Redemption",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-04-20"
+    },
+    {
+      "id": "f0214",
+      "label": "Redemption Date",
+      "category": "Conveyance & HUD",
+      "subsection": "FHA & Redemption",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0215",
+      "label": "Redemption Due Date",
+      "category": "Conveyance & HUD",
+      "subsection": "FHA & Redemption",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0216",
+      "label": "ICC Manager Review Result",
+      "category": "Conveyance & HUD",
+      "subsection": "ICC & Reconveyance",
+      "visibility": "conditional",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": ""
+    },
+    {
+      "id": "f0217",
+      "label": "Projected ICC Date",
+      "category": "Conveyance & HUD",
+      "subsection": "ICC & Reconveyance",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0218",
+      "label": "Property ICC",
+      "category": "Conveyance & HUD",
+      "subsection": "ICC & Reconveyance",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": ""
+    },
+    {
+      "id": "f0219",
+      "label": "Property ICC Date",
+      "category": "Conveyance & HUD",
+      "subsection": "ICC & Reconveyance",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0220",
+      "label": "Property NICC Date",
+      "category": "Conveyance & HUD",
+      "subsection": "ICC & Reconveyance",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-01-21"
+    },
+    {
+      "id": "f0221",
+      "label": "Property Reconveyance",
+      "category": "Conveyance & HUD",
+      "subsection": "ICC & Reconveyance",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": "Sample value 636"
+    },
+    {
+      "id": "f0222",
+      "label": "Property Reconveyed Date",
+      "category": "Conveyance & HUD",
+      "subsection": "ICC & Reconveyance",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-07-27"
+    },
+    {
+      "id": "f0223",
+      "label": "Ready for ICC Manager Review",
+      "category": "Conveyance & HUD",
+      "subsection": "ICC & Reconveyance",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": ""
+    },
+    {
+      "id": "f0224",
+      "label": "Reconfirm ICC Date",
+      "category": "Conveyance & HUD",
+      "subsection": "ICC & Reconveyance",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0225",
+      "label": "Reconveyance Reason",
+      "category": "Conveyance & HUD",
+      "subsection": "ICC & Reconveyance",
+      "visibility": "conditional",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": ""
+    },
+    {
+      "id": "f0226",
+      "label": "SS Reported ICC Date",
+      "category": "Conveyance & HUD",
+      "subsection": "ICC & Reconveyance",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0227",
+      "label": "Emergent BATF",
+      "category": "Escalations",
+      "subsection": "Exceptions",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": ""
+    },
+    {
+      "id": "f0228",
+      "label": "Special Instructions",
+      "category": "Escalations",
+      "subsection": "Exceptions",
+      "visibility": "conditional",
+      "kind": "textarea",
+      "rawType": "textarea",
+      "value": ""
+    },
+    {
+      "id": "f0229",
+      "label": "Exception",
+      "category": "Escalations",
+      "subsection": "Exceptions",
+      "visibility": "clientSpecific",
+      "kind": "text",
+      "rawType": "text",
+      "value": "Sample value 954"
+    },
+    {
+      "id": "f0230",
+      "label": "Exception Reason",
+      "category": "Escalations",
+      "subsection": "Exceptions",
+      "visibility": "clientSpecific",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": "N/A"
+    },
+    {
+      "id": "f0231",
+      "label": "Exception Removal Reason",
+      "category": "Escalations",
+      "subsection": "Exceptions",
+      "visibility": "clientSpecific",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": "N/A"
+    },
+    {
+      "id": "f0232",
+      "label": "Weather Exception",
+      "category": "Escalations",
+      "subsection": "Exceptions",
+      "visibility": "clientSpecific",
+      "kind": "text",
+      "rawType": "text",
+      "value": "Sample value 768"
+    },
+    {
+      "id": "f0233",
+      "label": "Demo Scheduled Date",
+      "category": "Violations & Compliance",
+      "subsection": "Demolition & Bonds",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0234",
+      "label": "Late Charge Balance",
+      "category": "Violations & Compliance",
+      "subsection": "Fines & Hearings",
+      "visibility": "conditional",
+      "kind": "currency",
+      "rawType": "currency",
+      "value": "$561,289"
+    },
+    {
+      "id": "f0235",
+      "label": "Bond Paid Amount",
+      "category": "Violations & Compliance",
+      "subsection": "Fines & Hearings",
+      "visibility": "conditional",
+      "kind": "currency",
+      "rawType": "currency",
+      "value": ""
+    },
+    {
+      "id": "f0236",
+      "label": "Bond Refund Request Date",
+      "category": "Violations & Compliance",
+      "subsection": "Fines & Hearings",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-04-04"
+    },
+    {
+      "id": "f0237",
+      "label": "Bond Returned Amount",
+      "category": "Violations & Compliance",
+      "subsection": "Fines & Hearings",
+      "visibility": "conditional",
+      "kind": "currency",
+      "rawType": "currency",
+      "value": "$139,384"
+    },
+    {
+      "id": "f0238",
+      "label": "Fine Accrual Start Date",
+      "category": "Violations & Compliance",
+      "subsection": "Fines & Hearings",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0239",
+      "label": "Fines",
+      "category": "Violations & Compliance",
+      "subsection": "Fines & Hearings",
+      "visibility": "conditional",
+      "kind": "boolean",
+      "rawType": "toggle",
+      "value": ""
+    },
+    {
+      "id": "f0240",
+      "label": "Hearing Required",
+      "category": "Violations & Compliance",
+      "subsection": "Fines & Hearings",
+      "visibility": "conditional",
+      "kind": "boolean",
+      "rawType": "toggle",
+      "value": ""
+    },
+    {
+      "id": "f0241",
+      "label": "Payment Frequency",
+      "category": "Violations & Compliance",
+      "subsection": "Fines & Hearings",
+      "visibility": "conditional",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": ""
+    },
+    {
+      "id": "f0242",
+      "label": "Violation Fine Amount",
+      "category": "Violations & Compliance",
+      "subsection": "Fines & Hearings",
+      "visibility": "conditional",
+      "kind": "currency",
+      "rawType": "currency",
+      "value": ""
+    },
+    {
+      "id": "f0243",
+      "label": "Violation Fine Frequency",
+      "category": "Violations & Compliance",
+      "subsection": "Fines & Hearings",
+      "visibility": "conditional",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": ""
+    },
+    {
+      "id": "f0244",
+      "label": "Compliance Date",
+      "category": "Violations & Compliance",
+      "subsection": "Violation Details",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0245",
+      "label": "Cumulative Violation Amount",
+      "category": "Violations & Compliance",
+      "subsection": "Violation Details",
+      "visibility": "conditional",
+      "kind": "currency",
+      "rawType": "currency",
+      "value": "$817,282"
+    },
+    {
+      "id": "f0246",
+      "label": "Description of Violation",
+      "category": "Violations & Compliance",
+      "subsection": "Violation Details",
+      "visibility": "conditional",
+      "kind": "textarea",
+      "rawType": "textarea",
+      "value": ""
+    },
+    {
+      "id": "f0247",
+      "label": "Violation Issued Date",
+      "category": "Violations & Compliance",
+      "subsection": "Violation Details",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-04-24"
+    },
+    {
+      "id": "f0248",
+      "label": "Violation Items",
+      "category": "Violations & Compliance",
+      "subsection": "Violation Details",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": "Sample value 802"
+    },
+    {
+      "id": "f0249",
+      "label": "Violation Received Date",
+      "category": "Violations & Compliance",
+      "subsection": "Violation Details",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0250",
+      "label": "Violation Type",
+      "category": "Violations & Compliance",
+      "subsection": "Violation Details",
+      "visibility": "conditional",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": "Complete"
+    },
+    {
+      "id": "f0251",
+      "label": "Violations",
+      "category": "Violations & Compliance",
+      "subsection": "Violation Details",
+      "visibility": "default",
+      "kind": "boolean",
+      "rawType": "bool",
+      "value": "No"
+    },
+    {
+      "id": "f0252",
+      "label": "Compliance Confirmed",
+      "category": "Violations & Compliance",
+      "subsection": "Violation Summary",
+      "visibility": "conditional",
+      "kind": "boolean",
+      "rawType": "toggle",
+      "value": ""
+    },
+    {
+      "id": "f0253",
+      "label": "Compliance Confirmed Date",
+      "category": "Violations & Compliance",
+      "subsection": "Violation Summary",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0254",
+      "label": "Compliance Due Date",
+      "category": "Violations & Compliance",
+      "subsection": "Violation Summary",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-01-09"
+    },
+    {
+      "id": "f0255",
+      "label": "Violation Jurisdiction",
+      "category": "Violations & Compliance",
+      "subsection": "Violation Summary",
+      "visibility": "conditional",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": ""
+    },
+    {
+      "id": "f0256",
+      "label": "Violation Root Cause",
+      "category": "Violations & Compliance",
+      "subsection": "Violation Summary",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": ""
+    },
+    {
+      "id": "f0257",
+      "label": "Violation Severity Level",
+      "category": "Violations & Compliance",
+      "subsection": "Violation Summary",
+      "visibility": "conditional",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": ""
+    },
+    {
+      "id": "f0258",
+      "label": "Violation Status",
+      "category": "Violations & Compliance",
+      "subsection": "Violation Summary",
+      "visibility": "conditional",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": ""
+    },
+    {
+      "id": "f0259",
+      "label": "Last Follow Up Date",
+      "category": "Workflow & Oversight",
+      "subsection": "Audit Trail",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-01-13"
+    },
+    {
+      "id": "f0260",
+      "label": "Loan Exempt from Logic Date",
+      "category": "Workflow & Oversight",
+      "subsection": "Audit Trail",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0261",
+      "label": "Loan Exempt from Logic Reason",
+      "category": "Workflow & Oversight",
+      "subsection": "Audit Trail",
+      "visibility": "conditional",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": "Complete"
+    },
+    {
+      "id": "f0262",
+      "label": "Triage Date",
+      "category": "Workflow & Oversight",
+      "subsection": "Audit Trail",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-04-08"
+    },
+    {
+      "id": "f0263",
+      "label": "Days Off DNI File",
+      "category": "Workflow & Oversight",
+      "subsection": "Audit Trail",
+      "visibility": "clientSpecific",
+      "kind": "text",
+      "rawType": "text",
+      "value": "Sample value 495"
+    },
+    {
+      "id": "f0264",
+      "label": "Do Not Inspect File Name",
+      "category": "Workflow & Oversight",
+      "subsection": "Audit Trail",
+      "visibility": "clientSpecific",
+      "kind": "boolean",
+      "rawType": "toggle",
+      "value": "No"
+    },
+    {
+      "id": "f0265",
+      "label": "Do Not Inspect Report Date",
+      "category": "Workflow & Oversight",
+      "subsection": "Audit Trail",
+      "visibility": "clientSpecific",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-04-20"
+    },
+    {
+      "id": "f0266",
+      "label": "Order File Name",
+      "category": "Workflow & Oversight",
+      "subsection": "Audit Trail",
+      "visibility": "clientSpecific",
+      "kind": "text",
+      "rawType": "text",
+      "value": "Sample value 245"
+    },
+    {
+      "id": "f0267",
+      "label": "Order File Report Date",
+      "category": "Workflow & Oversight",
+      "subsection": "Audit Trail",
+      "visibility": "clientSpecific",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-02-06"
+    },
+    {
+      "id": "f0268",
+      "label": "Preservation Status Report Date",
+      "category": "Workflow & Oversight",
+      "subsection": "Audit Trail",
+      "visibility": "clientSpecific",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-06-18"
+    },
+    {
+      "id": "f0269",
+      "label": "Hazard Claim #",
+      "category": "Workflow & Oversight",
+      "subsection": "Claims",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": "Sample value 939"
+    },
+    {
+      "id": "f0270",
+      "label": "Hazard Claim Complete Date",
+      "category": "Workflow & Oversight",
+      "subsection": "Claims",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0271",
+      "label": "Hazard Claim Denial Date",
+      "category": "Workflow & Oversight",
+      "subsection": "Claims",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0272",
+      "label": "Insurance Responsibility",
+      "category": "Workflow & Oversight",
+      "subsection": "Claims",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": "Sample value 30"
+    },
+    {
+      "id": "f0273",
+      "label": "Open Hazard Claim",
+      "category": "Workflow & Oversight",
+      "subsection": "Claims",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": ""
+    },
+    {
+      "id": "f0274",
+      "label": "Ready for Triage",
+      "category": "Workflow & Oversight",
+      "subsection": "Status & SLA",
+      "visibility": "clientSpecific",
+      "kind": "boolean",
+      "rawType": "toggle",
+      "value": "No"
+    },
+    {
+      "id": "f0275",
+      "label": "Status Description",
+      "category": "Workflow & Oversight",
+      "subsection": "Status & SLA",
+      "visibility": "clientSpecific",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": "Tier 2"
+    },
+    {
+      "id": "f0276",
+      "label": "Auto VPR Eligible",
+      "category": "Workflow & Oversight",
+      "subsection": "Vacant Property Registration",
+      "visibility": "conditional",
+      "kind": "boolean",
+      "rawType": "toggle",
+      "value": ""
+    },
+    {
+      "id": "f0277",
+      "label": "Next VPR Date",
+      "category": "Workflow & Oversight",
+      "subsection": "Vacant Property Registration",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0278",
+      "label": "VPR Completed Date",
+      "category": "Workflow & Oversight",
+      "subsection": "Vacant Property Registration",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0279",
+      "label": "VPR De-Registration Date",
+      "category": "Workflow & Oversight",
+      "subsection": "Vacant Property Registration",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": ""
+    },
+    {
+      "id": "f0280",
+      "label": "VPR De-registration required",
+      "category": "Workflow & Oversight",
+      "subsection": "Vacant Property Registration",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": "Sample value 707"
+    },
+    {
+      "id": "f0281",
+      "label": "VPR Needed",
+      "category": "Workflow & Oversight",
+      "subsection": "Vacant Property Registration",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": ""
+    },
+    {
+      "id": "f0282",
+      "label": "VPR Reason for De-Registration",
+      "category": "Workflow & Oversight",
+      "subsection": "Vacant Property Registration",
+      "visibility": "conditional",
+      "kind": "enum",
+      "rawType": "dropdown",
+      "value": ""
+    },
+    {
+      "id": "f0283",
+      "label": "VPR Registration Date",
+      "category": "Workflow & Oversight",
+      "subsection": "Vacant Property Registration",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-01-09"
+    },
+    {
+      "id": "f0284",
+      "label": "VPR Renewal Date",
+      "category": "Workflow & Oversight",
+      "subsection": "Vacant Property Registration",
+      "visibility": "conditional",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-10-02"
+    },
+    {
+      "id": "f0285",
+      "label": "VPR Registered Agent",
+      "category": "Workflow & Oversight",
+      "subsection": "Vacant Property Registration",
+      "visibility": "conditional",
+      "kind": "text",
+      "rawType": "text",
+      "value": "Sample value 987"
+    },
+    {
+      "id": "f0286",
+      "label": "MTE Date",
+      "category": "Workflow & Oversight",
+      "subsection": "MTE",
+      "visibility": "clientSpecific",
+      "kind": "date",
+      "rawType": "date",
+      "value": "2025-01-05"
+    },
+    {
+      "id": "f0287",
+      "label": "Lock Box Code",
+      "category": "Workflow & Oversight",
+      "subsection": "Audit Trail",
+      "visibility": "default",
+      "kind": "text",
+      "rawType": "text",
+      "value": "Sample value 819"
+    }
+  ]
+}

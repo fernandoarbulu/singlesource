@@ -1,0 +1,163 @@
+@page "/properties/portfolio"
+@page "/portfolio"
+@layout PropertyShellLayout
+
+<PageTitle>Portfolio Search</PageTitle>
+
+<header class="pd-topbar">
+    <nav class="pd-topbar-crumb" aria-label="Breadcrumb">
+        <a class="pd-topbar-crumb-link" href="/properties/portfolio">Properties</a>
+        <span class="pd-topbar-crumb-sep" aria-hidden="true">/</span>
+        <span class="pd-topbar-crumb-current">Portfolio</span>
+    </nav>
+</header>
+
+<div class="pd-page">
+    <div class="pd-panel pd-panel--tabs">
+        <div class="pd-primary-row">
+            <div class="pd-primary-tabs" role="tablist">
+                <button type="button"
+                        role="tab"
+                        class="pd-primary-tab @(_activeTab == "overview" ? "is-active" : null)"
+                        aria-selected="@(_activeTab == "overview")"
+                        @onclick="@(() => SetTab("overview"))">
+                    Overview
+                </button>
+                <button type="button"
+                        role="tab"
+                        class="pd-primary-tab @(_activeTab == "queue" ? "is-active" : null)"
+                        aria-selected="@(_activeTab == "queue")"
+                        @onclick="@(() => SetTab("queue"))">
+                    Queue
+                </button>
+                <button type="button"
+                        role="tab"
+                        class="pd-primary-tab @(_activeTab == "activity" ? "is-active" : null)"
+                        aria-selected="@(_activeTab == "activity")"
+                        @onclick="@(() => SetTab("activity"))">
+                    Activity
+                </button>
+            </div>
+        </div>
+    </div>
+
+    @if (_activeTab == "queue")
+    {
+        <SearchResultsPage TItem="PortfolioProperty"
+                           PageTitle="Portfolio Search"
+                           PageDescription="Search for properties by loan number, order number, or address."
+                           PageHeaderClass="mb-3"
+                           FilterOptions="@_searchModes"
+                           @bind-SelectedFilter="_searchMode"
+                           @bind-SearchText="_query"
+                           SearchPlaceholder="@_placeholder"
+                           SearchButtonText="Search"
+                           OnSearch="@RunSearch"
+                           Items="@_results"
+                           HasSearched="@_hasSearched"
+                           EmptyStateTitle="Search for a Property"
+                           EmptyStateDescription="Use the search above to find properties by loan number, order number, or address."
+                           NoResultsTitle="No matching properties"
+                           NoResultsDescription="Nothing in the portfolio matches that criteria. Widen the search, try another field in Search by, or clear the box and search again."
+                           ResultSingularLabel="property"
+                           ResultPluralLabel="properties"
+                           ResultSummarySuffix="found"
+                           GridClass="portfolio-results-grid"
+                           ShowPageFooter="false">
+            <GridColumns>
+                <GridColumn Title="Address" Width="300px">
+                    <Template>
+                        @{
+                            var p = (PortfolioProperty)context;
+                        }
+                        <div class="py-1">
+                            <div class="portfolio-address-line1">@p.Street</div>
+                            <div class="portfolio-address-line2">@p.AddressLine2</div>
+                        </div>
+                    </Template>
+                </GridColumn>
+                <GridColumn Field="@nameof(PortfolioProperty.LoanNumber)" Title="Loan number" Width="168px" />
+                <GridColumn Field="@nameof(PortfolioProperty.LoanRefNumber)" Title="Loan ref number" Width="168px" />
+                <GridColumn Field="@nameof(PortfolioProperty.OrderNumber)" Title="Order number" Width="148px" />
+                <GridColumn Field="@nameof(PortfolioProperty.CustomerName)" Title="Customer name" />
+            </GridColumns>
+        </SearchResultsPage>
+    }
+    else if (_activeTab == "overview")
+    {
+        <div class="pd-shell-placeholder">
+            <h2>Overview</h2>
+            <p>
+                Portfolio summary and KPIs will appear here—the same tab placement as today’s app, ready for charts when data is wired.
+            </p>
+        </div>
+    }
+    else
+    {
+        <div class="pd-shell-placeholder">
+            <h2>Activity</h2>
+            <p>
+                Recent portfolio activity will list here. The prototype highlights the Queue search experience first.
+            </p>
+        </div>
+    }
+</div>
+
+@code {
+    private readonly List<string> _searchModes = ["Order number", "Loan number", "Address"];
+
+    private readonly List<PortfolioProperty> _all = MockPortfolioData.All.ToList();
+
+    private string _activeTab = "queue";
+
+    private string _searchMode = "Order number";
+    private string _query = string.Empty;
+
+    private bool _hasSearched;
+    private List<PortfolioProperty> _results = [];
+
+    private string _placeholder => _searchMode switch
+    {
+        "Loan number" => "Enter loan number…",
+        "Order number" => "Enter order number…",
+        _ => "Street, city, state, or ZIP",
+    };
+
+    private void SetTab(string tab)
+    {
+        _activeTab = tab;
+    }
+
+    private void RunSearch()
+    {
+        _hasSearched = true;
+        var term = _query.Trim();
+
+        if (term.Length == 0)
+        {
+            _results = [];
+            return;
+        }
+
+        IEnumerable<PortfolioProperty> q = _all;
+
+        if (_searchMode == "Address")
+        {
+            q = q.Where(p =>
+                p.Street.Contains(term, StringComparison.OrdinalIgnoreCase)
+                || p.City.Contains(term, StringComparison.OrdinalIgnoreCase)
+                || p.Zip.Contains(term, StringComparison.OrdinalIgnoreCase)
+                || p.State.Contains(term, StringComparison.OrdinalIgnoreCase));
+        }
+        else if (_searchMode == "Loan number")
+        {
+            q = q.Where(p => p.LoanNumber.Contains(term, StringComparison.OrdinalIgnoreCase));
+        }
+        else
+        {
+            q = q.Where(p => p.OrderNumber.Contains(term, StringComparison.OrdinalIgnoreCase));
+        }
+
+        _results = q.OrderBy(p => p.Street).ToList();
+    }
+}

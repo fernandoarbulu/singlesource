@@ -1,0 +1,32 @@
+@* Neutral empty / pre-search block for list pages. *@
+<div class="ss-search-empty text-center py-5 px-3">
+    <div class="ss-search-empty-icon mx-auto mb-3" aria-hidden="true">
+        @if (Icon is not null)
+        {
+            @Icon
+        }
+        else
+        {
+            <svg class="ss-search-empty-svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M12 56V24l20-12 20 12v32" />
+                <path d="M24 56V40h16v16" />
+                <path d="M32 24v8" />
+                <path d="M20 32h8" />
+            </svg>
+        }
+    </div>
+    <h2 class="h5 fw-semibold text-body mb-2">@Title</h2>
+    <p class="text-muted small mb-0 mx-auto ss-search-empty-desc">@Description</p>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired]
+    public string Description { get; set; } = string.Empty;
+
+    /// <summary>Optional icon; default is a simple outline building.</summary>
+    [Parameter]
+    public RenderFragment? Icon { get; set; }
+}

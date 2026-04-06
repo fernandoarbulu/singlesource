@@ -1,0 +1,89 @@
+@typeparam TItem
+
+@* Results container: Telerik Grid when there are rows; shared empty states when there are none. *@
+<div class="ss-results-card">
+    <TelerikGrid TItem="TItem"
+                 Data="@Items"
+                 Pageable="@Pageable"
+                 PageSize="@PageSize"
+                 Sortable="@Sortable"
+                 Height="@GridHeight"
+                 Class="@ComputedGridClass">
+        <GridColumns>
+            @GridColumns
+        </GridColumns>
+        <NoDataTemplate>
+            @if (!HasSearched)
+            {
+                <SearchEmptyState Title="@InitialEmptyTitle"
+                                  Description="@InitialEmptyDescription"
+                                  Icon="@EmptyStateIcon" />
+            }
+            else
+            {
+                <SearchEmptyState Title="@NoResultsTitleComputed"
+                                  Description="@NoResultsDescriptionComputed"
+                                  Icon="@NoResultsEmptyIcon" />
+            }
+        </NoDataTemplate>
+    </TelerikGrid>
+</div>
+
+@code {
+    [Parameter]
+    public IEnumerable<TItem> Items { get; set; } = [];
+
+    /// <summary>When false, empty template shows the &quot;before first search&quot; copy.</summary>
+    [Parameter]
+    public bool HasSearched { get; set; }
+
+    [Parameter]
+    public RenderFragment GridColumns { get; set; } = null!;
+
+    [Parameter]
+    public bool Pageable { get; set; } = true;
+
+    [Parameter]
+    public int PageSize { get; set; } = 10;
+
+    [Parameter]
+    public bool Sortable { get; set; } = true;
+
+    [Parameter]
+    public string GridHeight { get; set; } = "440px";
+
+    [Parameter]
+    public string? GridClass { get; set; }
+
+    [Parameter]
+    public string InitialEmptyTitle { get; set; } = "Search";
+
+    [Parameter]
+    public string InitialEmptyDescription { get; set; } = "Enter criteria and run search to see results.";
+
+    [Parameter]
+    public string? NoResultsTitle { get; set; }
+
+    [Parameter]
+    public string? NoResultsDescription { get; set; }
+
+    [Parameter]
+    public RenderFragment? EmptyStateIcon { get; set; }
+
+    [Parameter]
+    public RenderFragment? NoResultsIcon { get; set; }
+
+    private string ComputedGridClass => string.IsNullOrWhiteSpace(GridClass)
+        ? "w-100 ss-results-grid"
+        : $"w-100 ss-results-grid {GridClass}";
+
+    private string NoResultsTitleComputed => string.IsNullOrWhiteSpace(NoResultsTitle)
+        ? "No results"
+        : NoResultsTitle!;
+
+    private string NoResultsDescriptionComputed => string.IsNullOrWhiteSpace(NoResultsDescription)
+        ? "Try different criteria or clear the search box and search again."
+        : NoResultsDescription!;
+
+    private RenderFragment? NoResultsEmptyIcon => NoResultsIcon ?? EmptyStateIcon;
+}

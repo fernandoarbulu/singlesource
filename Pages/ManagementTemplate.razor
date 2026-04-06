@@ -1,0 +1,227 @@
+@page "/management"
+
+<PageTitle>Management template</PageTitle>
+
+<div class="container-fluid px-0 mgmt-page">
+    <header class="mb-4">
+        <h1 class="h3 mb-2 fw-semibold">Programs</h1>
+        <p class="text-muted small mb-0">
+            In-memory list with search, filters, grid, and add/edit dialog—copy this page as the baseline for new management screens.
+        </p>
+    </header>
+
+    <div class="row g-3 align-items-end mb-3 pb-3 border-bottom">
+        <div class="col-12 col-sm-6 col-lg-4">
+            <label class="form-label small mb-1" for="mgmt-search">Search</label>
+            <TelerikTextBox Id="mgmt-search"
+                            @bind-Value="@_searchText"
+                            Placeholder="Search by name"
+                            Width="100%" />
+        </div>
+        <div class="col-12 col-sm-6 col-lg-3">
+            <label class="form-label small mb-1">Status</label>
+            <TelerikDropDownList Data="@_statusOptions"
+                                 @bind-Value="@_statusFilter"
+                                 Width="100%" />
+        </div>
+        <div class="col-12 col-sm-6 col-lg-3">
+            <label class="form-label small mb-1">Category</label>
+            <TelerikDropDownList Data="@_categoryOptions"
+                                 @bind-Value="@_categoryFilter"
+                                 Width="100%" />
+        </div>
+        <div class="col-12 col-sm-6 col-lg-2 text-lg-end">
+            <TelerikButton ThemeColor="@ThemeConstants.Button.ThemeColor.Primary"
+                           Class="w-100 w-lg-auto"
+                           OnClick="@OpenCreate">
+                Add program
+            </TelerikButton>
+        </div>
+    </div>
+
+    <TelerikGrid Data="@FilteredItems"
+                 Pageable="true"
+                 PageSize="8"
+                 Sortable="true"
+                 Height="400px"
+                 Class="w-100">
+        <GridColumns>
+            <GridColumn Field="@nameof(ManagementRecord.Name)" Title="Name" />
+            <GridColumn Field="@nameof(ManagementRecord.Status)" Title="Status" Width="120px" />
+            <GridColumn Field="@nameof(ManagementRecord.Category)" Title="Category" Width="160px" />
+            <GridColumn Field="@nameof(ManagementRecord.UpdatedAt)" Title="Updated" Width="130px">
+                <Template>
+                    @{
+                        var row = (ManagementRecord)context;
+                    }
+                    @row.UpdatedAt.ToString("d")
+                </Template>
+            </GridColumn>
+            <GridColumn Title="" Width="88px">
+                <Template>
+                    @{
+                        var row = (ManagementRecord)context;
+                    }
+                    <TelerikButton Size="@ThemeConstants.Button.Size.Small"
+                                   FillMode="@ThemeConstants.Button.FillMode.Flat"
+                                   OnClick="@(() => OpenEdit(row))">
+                        Edit
+                    </TelerikButton>
+                </Template>
+            </GridColumn>
+        </GridColumns>
+        <NoDataTemplate>
+            <div class="text-center py-5 px-3">
+                <div class="fw-semibold text-body mb-1">No programs match your filters</div>
+                <div class="text-muted small">
+                    Clear the search box or set Status and Category to <strong>All</strong>.
+                </div>
+            </div>
+        </NoDataTemplate>
+    </TelerikGrid>
+</div>
+
+<TelerikWindow @bind-Visible="@_dialogVisible"
+               Modal="true"
+               Width="440px"
+               Draggable="false"
+               Resizable="false"
+               FooterLayoutAlign="WindowFooterLayoutAlign.End">
+    <WindowTitle>@(_isEdit ? "Edit program" : "Add program")</WindowTitle>
+    <WindowActions>
+        <WindowAction Name="Close" />
+    </WindowActions>
+    <WindowContent>
+        <div class="mb-3">
+            <label class="form-label" for="dlg-name">Name <span class="text-danger">*</span></label>
+            <TelerikTextBox Id="dlg-name"
+                            @bind-Value="@_formName"
+                            Placeholder="Program name"
+                            Width="100%" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Status</label>
+            <TelerikDropDownList Data="@_statusValues" @bind-Value="@_formStatus" Width="100%" />
+        </div>
+        <div>
+            <label class="form-label">Category</label>
+            <TelerikDropDownList Data="@_categoryValues" @bind-Value="@_formCategory" Width="100%" />
+        </div>
+    </WindowContent>
+    <WindowFooter>
+        <TelerikButton FillMode="@ThemeConstants.Button.FillMode.Outline" OnClick="@CloseDialog">Cancel</TelerikButton>
+        <TelerikButton ThemeColor="@ThemeConstants.Button.ThemeColor.Primary"
+                       Enabled="@CanSave"
+                       OnClick="@SaveDialog">
+            Save
+        </TelerikButton>
+    </WindowFooter>
+</TelerikWindow>
+
+@code {
+    private readonly List<string> _statusOptions = ["All", "Active", "Inactive"];
+    private readonly List<string> _categoryOptions = ["All", "Operations", "Compliance", "Finance"];
+    private readonly List<string> _statusValues = ["Active", "Inactive"];
+    private readonly List<string> _categoryValues = ["Operations", "Compliance", "Finance"];
+
+    private List<ManagementRecord> _items = MockManagementData.Seed();
+
+    private string _searchText = string.Empty;
+    private string _statusFilter = "All";
+    private string _categoryFilter = "All";
+
+    private bool _dialogVisible;
+    private bool _isEdit;
+    private Guid? _editingId;
+
+    private string _formName = string.Empty;
+    private string _formStatus = "Active";
+    private string _formCategory = "Operations";
+
+    private bool CanSave => !string.IsNullOrWhiteSpace(_formName);
+
+    private IEnumerable<ManagementRecord> FilteredItems => GetFiltered();
+
+    private IEnumerable<ManagementRecord> GetFiltered()
+    {
+        IEnumerable<ManagementRecord> query = _items;
+
+        var term = _searchText.Trim();
+        if (term.Length > 0)
+        {
+            query = query.Where(x => x.Name.Contains(term, StringComparison.OrdinalIgnoreCase));
+        }
+
+        if (_statusFilter != "All")
+        {
+            query = query.Where(x => x.Status == _statusFilter);
+        }
+
+        if (_categoryFilter != "All")
+        {
+            query = query.Where(x => x.Category == _categoryFilter);
+        }
+
+        return query.OrderBy(x => x.Name).ToList();
+    }
+
+    private void OpenCreate()
+    {
+        _isEdit = false;
+        _editingId = null;
+        _formName = string.Empty;
+        _formStatus = "Active";
+        _formCategory = "Operations";
+        _dialogVisible = true;
+    }
+
+    private void OpenEdit(ManagementRecord row)
+    {
+        _isEdit = true;
+        _editingId = row.Id;
+        _formName = row.Name;
+        _formStatus = row.Status;
+        _formCategory = row.Category;
+        _dialogVisible = true;
+    }
+
+    private void CloseDialog()
+    {
+        _dialogVisible = false;
+    }
+
+    private void SaveDialog()
+    {
+        if (!CanSave)
+        {
+            return;
+        }
+
+        var name = _formName.Trim();
+
+        if (_isEdit && _editingId is { } id)
+        {
+            var existing = _items.FirstOrDefault(x => x.Id == id);
+            if (existing is not null)
+            {
+                existing.Name = name;
+                existing.Status = _formStatus;
+                existing.Category = _formCategory;
+                existing.UpdatedAt = DateTime.Today;
+            }
+        }
+        else
+        {
+            _items.Add(new ManagementRecord
+            {
+                Id = Guid.NewGuid(),
+                Name = name,
+                Status = _formStatus,
+                Category = _formCategory,
+                UpdatedAt = DateTime.Today,
+            });
+        }
+
+        _dialogVisible = false;
+    }
+}

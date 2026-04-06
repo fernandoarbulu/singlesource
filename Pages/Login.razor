@@ -1,0 +1,78 @@
+@page "/login"
+@layout LandingLayout
+@inject NavigationManager Nav
+
+<PageTitle>Sign in — HOME</PageTitle>
+
+<div class="login-page">
+    <div class="login-bg" aria-hidden="true">
+        <div class="login-bg-shape login-bg-shape--1"></div>
+        <div class="login-bg-shape login-bg-shape--2"></div>
+    </div>
+
+    <div class="login-wrap">
+
+        <a href="/" class="login-wordmark" aria-label="HOME">HOME</a>
+
+        <div class="login-card">
+            <h1 class="login-title">Sign in to your account</h1>
+
+            <EditForm Model="@_model" OnValidSubmit="HandleLogin">
+                <div class="login-field">
+                    <label class="login-label" for="login-email">Email</label>
+                    <input id="login-email"
+                           type="email"
+                           class="login-input"
+                           placeholder="you@company.com"
+                           @bind="@_model.Email"
+                           autocomplete="email" />
+                </div>
+
+                <div class="login-field">
+                    <div class="login-label-row">
+                        <label class="login-label" for="login-password">Password</label>
+                        <a class="login-forgot" href="#">Forgot your password?</a>
+                    </div>
+                    <input id="login-password"
+                           type="password"
+                           class="login-input"
+                           placeholder="••••••••••••"
+                           @bind="@_model.Password"
+                           autocomplete="current-password" />
+                </div>
+
+                <label class="login-remember">
+                    <input type="checkbox" class="login-check" @bind="@_model.Remember" />
+                    <span>Stay signed in for a week</span>
+                </label>
+
+                <button type="submit" class="login-btn">Continue</button>
+            </EditForm>
+
+            <div class="login-sso">
+                <a href="#" class="login-sso-link">Use single sign-on (SSO) instead</a>
+            </div>
+        </div>
+
+        <p class="login-signup">
+            Don't have an account? <a class="login-signup-link" href="#">Contact your administrator</a>
+        </p>
+
+    </div>
+</div>
+
+@code {
+    private LoginModel _model = new();
+
+    private void HandleLogin()
+    {
+        Nav.NavigateTo("/property-details");
+    }
+
+    private class LoginModel
+    {
+        public string Email    { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+        public bool   Remember { get; set; }
+    }
+}

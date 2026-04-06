@@ -1,0 +1,526 @@
+@page "/properties/work-orders/123-main-st"
+@page "/property-details"
+@layout PropertyShellLayout
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+@inject IPropertyDetailsService PropertyDetailsService
+@using SinglesourceApp.Data
+@using SinglesourceApp.Models
+@using SinglesourceApp.Services
+
+<PageTitle>@(_payload?.AddressLine1 ?? "Property") — Work Orders</PageTitle>
+
+<header class="pd-topbar">
+    <nav class="pd-topbar-crumb" aria-label="Breadcrumb">
+        <a class="pd-topbar-crumb-link" href="/properties/portfolio">Properties</a>
+        <span class="pd-topbar-crumb-sep" aria-hidden="true">/</span>
+        <a class="pd-topbar-crumb-link" href="/property-details">Work Orders</a>
+        <span class="pd-topbar-crumb-sep" aria-hidden="true">/</span>
+        <span class="pd-topbar-crumb-current">@(_payload?.AddressLine1 ?? "…")</span>
+    </nav>
+</header>
+
+<div class="pd-page @(_layoutViewId == 2 ? "pd-page--compact" : null)">
+
+    <section class="pd-hero">
+        <div class="pd-hero-inner">
+            <div class="pd-hero-layout">
+                <div class="pd-hero-thumb">
+                    <img src="images/property-house-crop.jpg" alt="Property at @(_payload?.AddressLine1 ?? "this address")" width="220" height="160" loading="lazy" />
+                </div>
+                <div class="pd-hero-center">
+                    <div class="pd-hero-titles">
+                        <div class="pd-hero-title-line">
+                            <h1 class="pd-hero-title">@(_payload?.AddressLine1 ?? "…")</h1>
+                            @if (_payload is not null)
+                            {
+                                <StatusBadge Text="@_payload.HeroStatusLabel" Variant="@ParseStatusKind(_payload.HeroStatusKind)" />
+                            }
+                            else
+                            {
+                                <StatusBadge Text="—" Variant="@StatusBadgeVariant.Neutral" />
+                            }
+                        </div>
+                        <p class="pd-hero-sub">@(_payload?.CityStateZip ?? "")</p>
+                    </div>
+                    <div class="pd-hero-metadata pd-hero-metadata--summary" role="group" aria-label="Property summary">
+                        @if (_mdmReady)
+                        {
+                            @foreach (var h in _heroFields)
+                            {
+                                <div class="pd-hero-field @(h.IsKey ? "pd-hero-field--key" : null)">
+                                    <span class="pd-hero-k">@h.Label</span>
+                                    <span class="pd-hero-v @(h.ValueClass) @(h.IsEmpty ? "pd-hero-v--empty" : null)">@h.Value</span>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="pd-hero-metadata-skeleton" aria-hidden="true">
+                                <span class="pd-hero-skel-line"></span>
+                                <span class="pd-hero-skel-line pd-hero-skel-line--short"></span>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <aside class="pd-work-orders-block" aria-label="Work orders summary">
+                    <div class="pd-work-orders-heading">Work orders</div>
+                    <div class="pd-metrics pd-metrics--wo" role="group" aria-label="Work order counts">
+                        <button type="button" class="pd-metric pd-metric--action" title="View open work orders" @onclick="@(() => SetPrimaryTab("Work Order"))">
+                            <div class="pd-metric-copy">
+                                <span class="pd-metric-lbl">Open</span>
+                                <span class="pd-metric-num pd-metric-num--blue">@(_payload?.WorkOrdersSummary.Open ?? 0)</span>
+                            </div>
+                        </button>
+                        <button type="button" class="pd-metric pd-metric--action" title="View billed work orders" @onclick="@(() => SetPrimaryTab("Work Order"))">
+                            <div class="pd-metric-copy">
+                                <span class="pd-metric-lbl">Billed</span>
+                                <span class="pd-metric-num pd-metric-num--navy">@(_payload?.WorkOrdersSummary.Billed ?? 0)</span>
+                            </div>
+                        </button>
+                        <button type="button" class="pd-metric pd-metric--action" title="View cancelled work orders" @onclick="@(() => SetPrimaryTab("Work Order"))">
+                            <div class="pd-metric-copy">
+                                <span class="pd-metric-lbl">Cancelled</span>
+                                <span class="pd-metric-num pd-metric-num--muted">@(_payload?.WorkOrdersSummary.Cancelled ?? 0)</span>
+                            </div>
+                        </button>
+                    </div>
+                </aside>
+            </div>
+            <button type="button" class="pd-hero-caret" aria-label="More actions">
+                <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41Z"/></svg>
+            </button>
+        </div>
+    </section>
+
+    <div class="pd-panel pd-panel--tabs">
+        <div class="pd-primary-row">
+            <div class="pd-primary-tabs" role="tablist">
+                @foreach (var tab in _primaryTabs)
+                {
+                    <button type="button"
+                            role="tab"
+                            class="pd-primary-tab @(tab == _activePrimary ? "is-active" : null)"
+                            aria-selected="@(tab == _activePrimary)"
+                            @onclick="@(() => _activePrimary = tab)">@tab</button>
+                }
+            </div>
+            <div class="pd-default-dd">
+                <label class="visually-hidden" for="pd-layout-view">Layout</label>
+                <select id="pd-layout-view" class="pd-dd-native" value="@_layoutViewId" @onchange="OnLayoutViewChange">
+                    @foreach (var v in _layoutViews)
+                    {
+                        <option value="@v.Id">@v.Name</option>
+                    }
+                </select>
+            </div>
+        </div>
+    </div>
+
+    @if (_loadError is not null)
+    {
+        <div class="pd-mdm-error" role="alert">@_loadError</div>
+    }
+    else if (!_mdmReady)
+    {
+        <div class="pd-mdm-loading" role="status">Loading property fields…</div>
+    }
+    else
+    {
+        <div class="pd-splitview">
+
+            <aside class="pd-nav-panel" aria-label="Category navigation">
+                <div class="pd-nav-search-wrap">
+                    <label class="visually-hidden" for="pd-field-search">Search fields</label>
+                    <div class="pd-nav-search-input-wrap">
+                        <svg class="pd-nav-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="10.5" cy="10.5" r="7"/><path d="M16 16l4.5 4.5" stroke-linecap="round"/></svg>
+                        <input id="pd-field-search"
+                               type="search"
+                               class="pd-nav-search-input"
+                               placeholder="Search fields…"
+                               autocomplete="off"
+                               value="@_fieldSearch"
+                               @oninput="OnSearchInput" />
+                        @if (_searchHits.Count > 0 && !string.IsNullOrWhiteSpace(_fieldSearch))
+                        {
+                        <ul class="pd-nav-search-results" role="listbox" aria-label="Matching fields">
+                            @foreach (var hit in _searchHits.Take(20))
+                            {
+                                <li role="option">
+                                    <button type="button" class="pd-nav-search-result" @onclick="@(() => JumpToHitAsync(hit))">
+                                        <span class="pd-nav-result-field">@hit.FieldLabel</span>
+                                        <span class="pd-nav-result-meta">@hit.CategoryTitle · @hit.SubsectionTitle</span>
+                                    </button>
+                                </li>
+                            }
+                        </ul>
+                        }
+                    </div>
+                </div>
+
+                <div class="pd-nav-group">
+                    @foreach (var cat in _categories)
+                    {
+                        <button type="button"
+                                class="pd-nav-item @(cat.AnchorId == _activeSectionId ? "is-active" : null)"
+                                @onclick="@(() => SelectSection(cat.AnchorId))"
+                                aria-current="@(cat.AnchorId == _activeSectionId ? "page" : null)">
+                            <div class="pd-nav-item-text">
+                                <span class="pd-nav-item-title">@cat.Title</span>
+                            </div>
+                        </button>
+                    }
+                </div>
+            </aside>
+
+            <div class="pd-inspector-right" id="pd-inspector-right">
+                @{ var active = _categories.FirstOrDefault(c => c.AnchorId == _activeSectionId); }
+                @if (active is not null)
+                {
+                    <div @key="@($"hdr-{_activeSectionId}")"
+                         class="pd-insp-header">
+                        <div class="pd-insp-header-text">
+                            <h2 class="pd-insp-header-title">@active.Title</h2>
+                        </div>
+                        <div class="pd-insp-header-actions">
+                            <label class="pd-switch-native">
+                                <input type="checkbox" @bind="_clientFields" @bind:event="onchange" />
+                                <span class="pd-switch-label">Client fields</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div @key="_activeSectionId" class="pd-insp-body pd-mdm-body">
+                        @foreach (var sub in active.Subsections)
+                        {
+                            var visibleInSub = sub.Fields.Where(ShouldShowField).ToList();
+                            var open = visibleInSub.Count <= 14 || _forceExpandSubs.Contains(sub.Key);
+                            var compactSub = visibleInSub.Count <= 3;
+                            var useSsField = IsSsFieldSubsection(sub);
+                            <details class="pd-mdm-subcard @(compactSub ? "pd-mdm-subcard--compact" : null) @(useSsField ? "pd-mdm-subcard--ss-field" : null)" open="@open">
+                                <summary class="pd-mdm-subcard-summary">
+                                    <span class="pd-mdm-subcard-title">@sub.Title</span>
+                                </summary>
+                                <div class="pd-mdm-grid">
+                                    @foreach (var field in visibleInSub)
+                                    {
+                                        var fid = FieldDomId(field);
+                                        var q = _fieldSearch?.Trim();
+                                        var isHit = !string.IsNullOrEmpty(q) &&
+                                                    (field.Label.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                                                     (field.Value ?? "").Contains(q, StringComparison.OrdinalIgnoreCase));
+                                        <div id="@fid"
+                                             class="@FieldRowClass(field, field.Kind == "textarea", isHit, fid)">
+                                            @if (useSsField)
+                                            {
+                                                <div class="pd-mdm-sf-wrap @ValueClass(field)">
+                                                    <SsField Label="@field.Label"
+                                                             Value="@field.Value"
+                                                             IsEmpty="@IsFieldDisplayEmpty(field)" />
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <span class="pd-mdm-k">@field.Label</span>
+                                                <span class="pd-mdm-v @ValueClass(field) @(IsFieldDisplayEmpty(field) ? "pd-mdm-v--empty" : null)">@FormatDisplay(field)</span>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                            </details>
+                        }
+                    </div>
+                }
+            </div>
+
+        </div>
+    }
+</div>
+
+@code {
+    private readonly string[] _primaryTabs =
+    [
+        "Overview", "Tasks", "Work Order", "Bids", "Conveyance", "Financials", "Photos", "Files", "Audit"
+    ];
+
+    private string _activePrimary = "Overview";
+
+    private readonly List<PropertyMdmCategoryVm> _categories = [];
+
+    private string? _loadError;
+
+    private bool _mdmReady;
+
+    private string _activeSectionId = "pd-overview";
+
+    private string? _fieldSearch;
+
+    private readonly List<SearchHit> _searchHits = [];
+
+    private string? _pendingFieldId;
+
+    private string? _flashFieldId;
+
+    private DotNetObjectReference<PropertyWorkOrderDetails>? _dotNetRef;
+
+    private bool _clientFields = true;
+
+    private readonly HashSet<string> _forceExpandSubs = [];
+
+    private int _layoutViewId = 1;
+
+    private readonly List<NamedItem> _layoutViews =
+    [
+        new NamedItem(1, "Default"),
+        new NamedItem(2, "Compact")
+    ];
+
+    private sealed record NamedItem(int Id, string Name);
+
+    private sealed record SearchHit(
+        string AnchorId,
+        string CategoryTitle,
+        string SubsectionKey,
+        string SubsectionTitle,
+        string FieldLabel,
+        string FieldElementId);
+
+    private sealed record HeroField(string Label, string Value, bool IsKey = false, string ValueClass = "", bool IsEmpty = false);
+
+    private readonly List<HeroField> _heroFields = [];
+
+    /// <summary>Single property-details payload from <see cref="IPropertyDetailsService"/> (mock today).</summary>
+    private PropertyDetailsDto? _payload;
+
+    private void OnLayoutViewChange(ChangeEventArgs e)
+    {
+        if (e.Value is string s && int.TryParse(s, out var id))
+            _layoutViewId = id;
+    }
+
+    private void BuildHero(PropertyDetailsDto dto)
+    {
+        _heroFields.Clear();
+        var keyLabels = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "Loan status",
+            "Occupancy",
+            "Days delinquent",
+            "Loan type",
+            "UPB",
+            "Last inspection"
+        };
+        var valueClassByLabel = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["Loan status"] = "pd-hero-v--status",
+            ["UPB"] = "pd-hero-v--hero-currency",
+            ["Last inspection"] = "pd-hero-v--hero-date"
+        };
+
+        foreach (var f in dto.HeroSummaryFields)
+        {
+            var empty = string.IsNullOrWhiteSpace(f.Value);
+            var display = empty ? "—" : f.Value!;
+            var label = f.Label;
+            var isKey = keyLabels.Contains(label);
+            valueClassByLabel.TryGetValue(label, out var vc);
+            vc ??= "";
+            _heroFields.Add(new HeroField(Label: label, Value: display, IsKey: isKey, ValueClass: vc, IsEmpty: empty));
+        }
+    }
+
+    private static StatusBadgeVariant ParseStatusKind(string? kind)
+    {
+        if (string.IsNullOrWhiteSpace(kind))
+            return StatusBadgeVariant.Neutral;
+        if (string.Equals(kind, "success", StringComparison.OrdinalIgnoreCase))
+            return StatusBadgeVariant.Active;
+        return Enum.TryParse<StatusBadgeVariant>(kind, ignoreCase: true, out var v)
+            ? v
+            : StatusBadgeVariant.Neutral;
+    }
+
+    private static string FieldDomId(PropertyMdmFieldJson f) => $"pd-mdm-{f.Id}";
+
+    private static readonly HashSet<string> SsFieldSubsectionTitles = new(StringComparer.Ordinal)
+    {
+        "Financials",
+        "Ownership & Loan",
+    };
+
+    private static bool IsSsFieldSubsection(PropertyMdmSubsectionVm sub) =>
+        SsFieldSubsectionTitles.Contains(sub.Title);
+
+    /// <summary>Only client-only fields respect the toggle; never hide rows for missing values.</summary>
+    private bool ShouldShowField(PropertyMdmFieldJson f)
+    {
+        if (string.Equals(f.Visibility, "clientSpecific", StringComparison.OrdinalIgnoreCase) && !_clientFields)
+            return false;
+        return true;
+    }
+
+    private static string ValueClass(PropertyMdmFieldJson f) => f.Kind switch
+    {
+        "currency" => "pd-mdm-v--currency",
+        "date" => "pd-mdm-v--date",
+        "boolean" => "pd-mdm-v--bool",
+        "phone" => "pd-mdm-v--phone",
+        "email" => "pd-mdm-v--email",
+        "textarea" => "pd-mdm-v--textarea",
+        _ => ""
+    };
+
+    private static string FormatDisplay(PropertyMdmFieldJson f)
+    {
+        var v = f.Value;
+        if (string.IsNullOrWhiteSpace(v))
+            return "—";
+        return v;
+    }
+
+    private static bool IsFieldDisplayEmpty(PropertyMdmFieldJson f)
+    {
+        var v = f.Value;
+        if (string.IsNullOrWhiteSpace(v))
+            return true;
+        return v.Trim().Equals("N/A", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private void SetPrimaryTab(string tab) => _activePrimary = tab;
+
+    private string FieldRowClass(PropertyMdmFieldJson field, bool isTextarea, bool isHit, string fid)
+    {
+        var parts = new List<string> { "pd-mdm-field" };
+        if (isTextarea)
+            parts.Add("pd-mdm-field--full");
+        if (isHit)
+            parts.Add("pd-field-row--hit");
+        if (_flashFieldId == fid)
+            parts.Add("pd-field-row--flash");
+        return string.Join(' ', parts);
+    }
+
+    private void SelectSection(string anchorId)
+    {
+        if (_activeSectionId == anchorId) return;
+        _flashFieldId = null;
+        _searchHits.Clear();
+        _activeSectionId = anchorId;
+    }
+
+    private void OnSearchInput(ChangeEventArgs e)
+    {
+        _fieldSearch = e.Value?.ToString();
+        RecomputeSearch();
+        StateHasChanged();
+    }
+
+    private void RecomputeSearch()
+    {
+        var q = _fieldSearch?.Trim();
+        _searchHits.Clear();
+        if (string.IsNullOrEmpty(q)) return;
+
+        foreach (var cat in _categories)
+        {
+            foreach (var sub in cat.Subsections)
+            {
+                foreach (var field in sub.Fields)
+                {
+                    if (!ShouldShowField(field)) continue;
+                    if (field.Label.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                        (field.Value ?? "").Contains(q, StringComparison.OrdinalIgnoreCase))
+                    {
+                        _searchHits.Add(new SearchHit(
+                            cat.AnchorId,
+                            cat.Title,
+                            sub.Key,
+                            sub.Title,
+                            field.Label,
+                            FieldDomId(field)));
+                    }
+                }
+            }
+        }
+    }
+
+    private async Task JumpToHitAsync(SearchHit hit)
+    {
+        _searchHits.Clear();
+        _activeSectionId = hit.AnchorId;
+        _pendingFieldId = hit.FieldElementId;
+        _flashFieldId = hit.FieldElementId;
+        _forceExpandSubs.Add(hit.SubsectionKey);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    [JSInvokable]
+    public void ClearFlashField()
+    {
+        if (_flashFieldId is null) return;
+        _flashFieldId = null;
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _dotNetRef = DotNetObjectReference.Create(this);
+            try
+            {
+                await Task.Yield();
+                var dto = await PropertyDetailsService.GetPropertyDetailsAsync("123-main-st", CancellationToken.None);
+                _payload = dto;
+
+                _categories.Clear();
+                _categories.AddRange(PropertyMdmCatalog.BuildCategories(PropertyDetailsDtoMapper.ToMdmRoot(dto)));
+                if (_categories.Count == 0)
+                {
+                    _loadError =
+                        "Property MDM schema loaded but no categories were built (field categories may be empty).";
+                }
+                else
+                {
+                    _loadError = null;
+                    _activeSectionId = _categories[0].AnchorId;
+                }
+
+                BuildHero(dto);
+            }
+            catch (Exception ex)
+            {
+                _loadError = $"Could not load property data: {ex}";
+                _categories.Clear();
+                _heroFields.Clear();
+                _payload = null;
+            }
+            finally
+            {
+                _mdmReady = true;
+            }
+
+            await InvokeAsync(StateHasChanged);
+        }
+
+        if (_pendingFieldId is not null)
+        {
+            var fieldId = _pendingFieldId;
+            _pendingFieldId = null;
+            await Task.Delay(80);
+            try
+            {
+                await JS.InvokeVoidAsync("propertyOverview.scrollToField", fieldId, _dotNetRef);
+            }
+            catch (JSDisconnectedException) { }
+            catch { }
+        }
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        _dotNetRef?.Dispose();
+        _dotNetRef = null;
+        return ValueTask.CompletedTask;
+    }
+}

@@ -1,0 +1,23 @@
+@page "/telerik-smoke"
+
+<PageTitle>Telerik smoke test</PageTitle>
+
+<h1>Telerik smoke test</h1>
+
+<p>
+    <TelerikButton OnClick="@HandleClick">Telerik button</TelerikButton>
+</p>
+
+@if (!string.IsNullOrEmpty(_message))
+{
+    <p class="text-muted">@_message</p>
+}
+
+@code {
+    private string? _message;
+
+    private void HandleClick()
+    {
+        _message = "Clicked at " + DateTime.Now.ToLongTimeString();
+    }
+}

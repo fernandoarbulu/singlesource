@@ -1,0 +1,282 @@
+@page "/"
+@layout LandingLayout
+
+<PageTitle>HOME — Modern Operations Platform</PageTitle>
+
+<!-- ── Navigation ── -->
+<header class="lp-nav">
+    <div class="lp-nav-inner">
+        <a href="/" class="lp-wordmark" aria-label="HOME">HOME</a>
+        <nav class="lp-nav-links" aria-label="Site navigation">
+            <a class="lp-nav-link" href="#">Product</a>
+            <a class="lp-nav-link" href="#">Solutions</a>
+            <a class="lp-nav-link" href="#">Platform</a>
+            <a class="lp-nav-link" href="#">Contact</a>
+        </nav>
+        <div class="lp-nav-actions">
+            <a class="lp-nav-signin" href="/login">Sign in</a>
+            <a class="lp-btn lp-btn--primary" href="#">Request a demo</a>
+        </div>
+    </div>
+</header>
+
+<!-- ── Hero ── -->
+<section class="lp-hero">
+    <div class="lp-hero-bg" aria-hidden="true">
+        <div class="lp-hero-bg-shape lp-hero-bg-shape--1"></div>
+        <div class="lp-hero-bg-shape lp-hero-bg-shape--2"></div>
+    </div>
+    <div class="lp-hero-inner">
+        <div class="lp-hero-text">
+            <div class="lp-eyebrow">Operational clarity at scale</div>
+            <h1 class="lp-hero-headline">Replace complexity<br>with one clean system.</h1>
+            <p class="lp-hero-sub">HOME brings your work orders, property data, and field teams into one structured platform — built for clarity, speed, and full auditability.</p>
+            <div class="lp-hero-ctas">
+                <a class="lp-btn lp-btn--primary lp-btn--lg" href="#">Request a demo</a>
+                <a class="lp-btn lp-btn--ghost lp-btn--lg" href="/property-details">Explore the platform&thinsp;→</a>
+            </div>
+            <div class="lp-hero-trust">
+                <span class="lp-trust-item">Enterprise-ready</span>
+                <span class="lp-trust-sep" aria-hidden="true">·</span>
+                <span class="lp-trust-item">SOC 2 compliant</span>
+                <span class="lp-trust-sep" aria-hidden="true">·</span>
+                <span class="lp-trust-item">Deployed in days</span>
+            </div>
+        </div>
+
+        <div class="lp-hero-preview" aria-hidden="true">
+            <div class="lp-preview-frame">
+                <div class="lp-preview-chrome">
+                    <span class="lp-chrome-dot lp-chrome-dot--red"></span>
+                    <span class="lp-chrome-dot lp-chrome-dot--yellow"></span>
+                    <span class="lp-chrome-dot lp-chrome-dot--green"></span>
+                    <span class="lp-chrome-url">home.app / properties / 123-main-st</span>
+                </div>
+                <div class="lp-preview-body">
+                    <div class="lp-mock">
+                        <!-- Sidebar -->
+                        <div class="lp-mock-sidebar">
+                            <div class="lp-mock-logo">HOME</div>
+                            <div class="lp-mock-nav-items">
+                                <div class="lp-mock-ni">Dashboard</div>
+                                <div class="lp-mock-ni">Tasks</div>
+                                <div class="lp-mock-ni lp-mock-ni--parent">Properties</div>
+                                <div class="lp-mock-ni lp-mock-ni--child lp-mock-ni--active">Work Orders</div>
+                                <div class="lp-mock-ni lp-mock-ni--child">Bids</div>
+                                <div class="lp-mock-ni">Management</div>
+                                <div class="lp-mock-ni">Resources</div>
+                            </div>
+                        </div>
+                        <!-- Main -->
+                        <div class="lp-mock-main">
+                            <!-- Topbar -->
+                            <div class="lp-mock-topbar">
+                                <span class="lp-mock-crumb">Properties</span>
+                                <span class="lp-mock-crumb-sep">/</span>
+                                <span class="lp-mock-crumb">Work Orders</span>
+                                <span class="lp-mock-crumb-sep">/</span>
+                                <span class="lp-mock-crumb lp-mock-crumb--current">123 Main St</span>
+                            </div>
+                            <!-- Hero card -->
+                            <div class="lp-mock-hero">
+                                <div class="lp-mock-hero-img"></div>
+                                <div class="lp-mock-hero-body">
+                                    <div class="lp-mock-hero-title">123 Main St</div>
+                                    <div class="lp-mock-hero-addr">Los Angeles, CA 90001</div>
+                                    <div class="lp-mock-kv-row">
+                                        <div class="lp-mock-kv"><span class="lp-mock-k">Loan No.</span><span class="lp-mock-v">LN-2024-001</span></div>
+                                        <div class="lp-mock-kv"><span class="lp-mock-k">Investor</span><span class="lp-mock-v">VWH</span></div>
+                                        <div class="lp-mock-kv"><span class="lp-mock-k">Type</span><span class="lp-mock-v">FHA</span></div>
+                                    </div>
+                                </div>
+                                <div class="lp-mock-hero-wo">
+                                    <div class="lp-mock-wo-lbl">Work orders</div>
+                                    <div class="lp-mock-wo-row">
+                                        <div class="lp-mock-stat"><span class="lp-mock-stat-n lp-mock-stat-n--blue">3</span><span class="lp-mock-stat-l">Open</span></div>
+                                        <div class="lp-mock-stat"><span class="lp-mock-stat-n">2</span><span class="lp-mock-stat-l">Billed</span></div>
+                                        <div class="lp-mock-stat"><span class="lp-mock-stat-n lp-mock-stat-n--muted">11</span><span class="lp-mock-stat-l">Cancelled</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Tabs -->
+                            <div class="lp-mock-tabs">
+                                <span class="lp-mock-tab lp-mock-tab--active">Overview</span>
+                                <span class="lp-mock-tab">Tasks</span>
+                                <span class="lp-mock-tab">Work Order</span>
+                                <span class="lp-mock-tab">Financials</span>
+                                <span class="lp-mock-tab">Photos</span>
+                            </div>
+                            <!-- Split view -->
+                            <div class="lp-mock-split">
+                                <div class="lp-mock-rail">
+                                    <div class="lp-mock-rail-hd lp-mock-rail-hd--risk">Needs Attention</div>
+                                    <div class="lp-mock-rail-row lp-mock-rail-row--active">
+                                        <span class="lp-mock-rail-name">Overview</span>
+                                        <span class="lp-mock-rail-badge lp-mock-rail-badge--bad">Delayed</span>
+                                    </div>
+                                    <div class="lp-mock-rail-row">
+                                        <span class="lp-mock-rail-name">Escalations</span>
+                                        <span class="lp-mock-rail-badge lp-mock-rail-badge--bad">Delayed</span>
+                                    </div>
+                                    <div class="lp-mock-rail-hd lp-mock-rail-hd--mt">Healthy</div>
+                                    <div class="lp-mock-rail-row">
+                                        <span class="lp-mock-rail-name">Inspections</span>
+                                    </div>
+                                    <div class="lp-mock-rail-row">
+                                        <span class="lp-mock-rail-name">Site &amp; Access</span>
+                                    </div>
+                                    <div class="lp-mock-rail-row">
+                                        <span class="lp-mock-rail-name">Maintenance</span>
+                                    </div>
+                                </div>
+                                <div class="lp-mock-insp">
+                                    <div class="lp-mock-insp-hdr">
+                                        <div>
+                                            <div class="lp-mock-insp-title">Overview</div>
+                                            <div class="lp-mock-insp-sub">Delayed — 90 days delinquent · UPB $250,000</div>
+                                        </div>
+                                        <span class="lp-mock-insp-badge">Delayed</span>
+                                    </div>
+                                    <div class="lp-mock-insp-body">
+                                        <div class="lp-mock-group-title">Financial</div>
+                                        <div class="lp-mock-fields">
+                                            <div class="lp-mock-field"><div class="lp-mock-fk">UPB</div><div class="lp-mock-fv">$250,000</div></div>
+                                            <div class="lp-mock-field"><div class="lp-mock-fk">ESCROW</div><div class="lp-mock-fv">$1,240</div></div>
+                                            <div class="lp-mock-field"><div class="lp-mock-fk">RESERVE</div><div class="lp-mock-fv">$500</div></div>
+                                            <div class="lp-mock-field"><div class="lp-mock-fk">DETAIL</div><div class="lp-mock-fv">Value 001</div></div>
+                                        </div>
+                                        <div class="lp-mock-group-title lp-mock-group-title--mt">Loan</div>
+                                        <div class="lp-mock-fields">
+                                            <div class="lp-mock-field"><div class="lp-mock-fk">TYPE</div><div class="lp-mock-fv">FHA</div></div>
+                                            <div class="lp-mock-field"><div class="lp-mock-fk">RATE</div><div class="lp-mock-fv">6.25%</div></div>
+                                            <div class="lp-mock-field"><div class="lp-mock-fk">MATURITY</div><div class="lp-mock-fv">2035-04-01</div></div>
+                                            <div class="lp-mock-field"><div class="lp-mock-fk">DETAIL</div><div class="lp-mock-fv">Value 001</div></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── Value props ── -->
+<section class="lp-values">
+    <div class="lp-section-inner">
+        <div class="lp-section-hd">
+            <h2 class="lp-section-title">Built for the teams who keep operations moving</h2>
+            <p class="lp-section-sub">Every feature is designed to reduce friction and give your team the clarity they need to act fast.</p>
+        </div>
+        <div class="lp-value-grid">
+            <div class="lp-value-card">
+                <div class="lp-value-ico">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                </div>
+                <h3 class="lp-value-title">Task-first workflows</h3>
+                <p class="lp-value-body">Assign, track, and complete work orders without losing context. Every task is tied to a property, a team, and a timeline.</p>
+            </div>
+            <div class="lp-value-card">
+                <div class="lp-value-ico">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
+                <h3 class="lp-value-title">Full auditability</h3>
+                <p class="lp-value-body">Every action is logged. Every change is traceable. Compliance and accountability are built into the platform, not bolted on.</p>
+            </div>
+            <div class="lp-value-card">
+                <div class="lp-value-ico">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+                </div>
+                <h3 class="lp-value-title">Photo &amp; document management</h3>
+                <p class="lp-value-body">Capture, attach, and organize evidence directly to properties and tasks — from the field or the office, in real time.</p>
+            </div>
+            <div class="lp-value-card">
+                <div class="lp-value-ico">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <h3 class="lp-value-title">Faster approvals</h3>
+                <p class="lp-value-body">Review and approve work directly in the platform. No inbox juggling, no status chasing, no missed SLAs.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── Feature strip ── -->
+<section class="lp-feature">
+    <div class="lp-section-inner lp-feature-inner">
+        <div class="lp-feature-text">
+            <div class="lp-eyebrow lp-eyebrow--dark">Property intelligence</div>
+            <h2 class="lp-feature-title">Everything you need to know about a property — in one view.</h2>
+            <p class="lp-feature-body">Get the full picture instantly. Loan details, work order history, inspection records, and field data — all structured, searchable, and always current.</p>
+            <ul class="lp-feature-list">
+                <li>Structured field data across 200+ property attributes</li>
+                <li>Split-view inspector for fast data navigation</li>
+                <li>Real-time status indicators and attention flags</li>
+                <li>Search any field in the entire dataset instantly</li>
+            </ul>
+            <a class="lp-btn lp-btn--outline" href="/property-details">See a live example&thinsp;→</a>
+        </div>
+        <div class="lp-feature-visual">
+            <div class="lp-feature-screen">
+                <div class="lp-fs-hdr">
+                    <div class="lp-fs-ico">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/><path d="M14 2v6h6"/></svg>
+                    </div>
+                    <div class="lp-fs-hdr-text">
+                        <div class="lp-fs-title">Overview</div>
+                        <div class="lp-fs-sub">Delayed — 90 days delinquent · UPB $250,000</div>
+                    </div>
+                    <span class="lp-fs-badge">Delayed</span>
+                </div>
+                <div class="lp-fs-body">
+                    <div class="lp-fs-grp-title">Financial</div>
+                    <div class="lp-fs-grid">
+                        <div class="lp-fs-cell"><div class="lp-fs-k">UPB</div><div class="lp-fs-v">$250,000</div></div>
+                        <div class="lp-fs-cell"><div class="lp-fs-k">ESCROW BALANCE</div><div class="lp-fs-v">$1,240</div></div>
+                        <div class="lp-fs-cell"><div class="lp-fs-k">RESERVE HELD</div><div class="lp-fs-v">$500</div></div>
+                        <div class="lp-fs-cell"><div class="lp-fs-k">FINANCIAL · DETAIL 1</div><div class="lp-fs-v">Value 001</div></div>
+                        <div class="lp-fs-cell"><div class="lp-fs-k">FINANCIAL · DETAIL 2</div><div class="lp-fs-v">Value 002</div></div>
+                        <div class="lp-fs-cell"><div class="lp-fs-k">FINANCIAL · DETAIL 3</div><div class="lp-fs-v">Pending</div></div>
+                    </div>
+                    <div class="lp-fs-grp-title lp-fs-grp-title--mt">Loan</div>
+                    <div class="lp-fs-grid">
+                        <div class="lp-fs-cell"><div class="lp-fs-k">LOAN TYPE</div><div class="lp-fs-v">FHA</div></div>
+                        <div class="lp-fs-cell"><div class="lp-fs-k">INTEREST RATE</div><div class="lp-fs-v">6.25%</div></div>
+                        <div class="lp-fs-cell"><div class="lp-fs-k">MATURITY DATE</div><div class="lp-fs-v">2035-04-01</div></div>
+                        <div class="lp-fs-cell"><div class="lp-fs-k">LOAN · DETAIL 1</div><div class="lp-fs-v">Value 001</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── Closing CTA ── -->
+<section class="lp-closing">
+    <div class="lp-section-inner lp-closing-inner">
+        <h2 class="lp-closing-title">See HOME in action.</h2>
+        <p class="lp-closing-sub">Built for the teams who keep operations running. Designed to be the last platform you need.</p>
+        <div class="lp-closing-ctas">
+            <a class="lp-btn lp-btn--white lp-btn--lg" href="#">Talk to the team</a>
+            <a class="lp-btn lp-btn--ghost-white lp-btn--lg" href="/property-details">Explore the platform&thinsp;→</a>
+        </div>
+    </div>
+</section>
+
+<!-- ── Footer ── -->
+<footer class="lp-footer">
+    <div class="lp-footer-inner">
+        <span class="lp-footer-brand">HOME</span>
+        <nav class="lp-footer-links" aria-label="Footer links">
+            <a class="lp-footer-link" href="#">Product</a>
+            <a class="lp-footer-link" href="#">Solutions</a>
+            <a class="lp-footer-link" href="#">Security</a>
+            <a class="lp-footer-link" href="#">Privacy</a>
+            <a class="lp-footer-link" href="#">Terms</a>
+            <a class="lp-footer-link" href="#">Contact</a>
+        </nav>
+        <span class="lp-footer-copy">© 2026 HOME. All rights reserved.</span>
+    </div>
+</footer>

@@ -1,0 +1,23 @@
+<div class="ss-section">
+    <div class="ss-section-header">
+        <span class="ss-section-title">@Title</span>
+        @if (FieldCount.HasValue)
+        {
+            <span class="ss-section-meta">@FieldCount fields</span>
+        }
+    </div>
+    <div class="ss-section-body">
+        @ChildContent
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = "";
+
+    [Parameter]
+    public int? FieldCount { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}

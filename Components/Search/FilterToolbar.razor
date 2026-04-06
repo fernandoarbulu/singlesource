@@ -1,0 +1,75 @@
+@* Compact filter selector + search field + primary action for list/search pages. *@
+<div class="ss-filter-toolbar mb-3">
+    <div class="row g-2 align-items-end">
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+            <label class="form-label small fw-medium mb-1 text-body-secondary" for="@($"{_idPrefix}-filter")">@FilterLabel</label>
+            <TelerikDropDownList Id="@($"{_idPrefix}-filter")"
+                                 Data="@FilterOptions"
+                                 Value="@SelectedFilter"
+                                 ValueChanged="@(async (string v) => await SelectedFilterChanged.InvokeAsync(v))"
+                                 Width="100%" />
+        </div>
+        <div class="col-12 col-sm-6 col-md">
+            <label class="form-label small fw-medium mb-1 text-body-secondary" for="@($"{_idPrefix}-q")">@SearchFieldLabel</label>
+            <TelerikTextBox Id="@($"{_idPrefix}-q")"
+                            Value="@SearchText"
+                            ValueChanged="@(async (string v) => await SearchTextChanged.InvokeAsync(v))"
+                            Placeholder="@SearchPlaceholder"
+                            Width="100%" />
+        </div>
+        <div class="col-12 col-md-auto d-grid d-md-block">
+            <span class="d-none d-md-block small fw-medium mb-1 text-body-secondary">&nbsp;</span>
+            <TelerikButton ThemeColor="@ThemeConstants.Button.ThemeColor.Secondary"
+                           FillMode="@ThemeConstants.Button.FillMode.Outline"
+                           Class="ss-filter-toolbar-btn w-100"
+                           OnClick="@OnSearchClicked">
+                <span class="ss-filter-toolbar-btn-inner">
+                    <svg class="ss-filter-toolbar-search-ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <circle cx="11" cy="11" r="7" />
+                        <path d="M20 20l-3-3" />
+                    </svg>
+                    <span>@SearchButtonText</span>
+                </span>
+            </TelerikButton>
+        </div>
+    </div>
+</div>
+
+@code {
+    private readonly string _idPrefix = $"ss-ft-{Guid.NewGuid():N}".Substring(0, 12);
+
+    [Parameter]
+    public string FilterLabel { get; set; } = "Search by";
+
+    [Parameter]
+    public string SearchFieldLabel { get; set; } = "Search criteria";
+
+    [Parameter]
+    public IReadOnlyList<string> FilterOptions { get; set; } = [];
+
+    [Parameter]
+    public string SelectedFilter { get; set; } = string.Empty;
+
+    [Parameter]
+    public EventCallback<string> SelectedFilterChanged { get; set; }
+
+    [Parameter]
+    public string SearchText { get; set; } = string.Empty;
+
+    [Parameter]
+    public EventCallback<string> SearchTextChanged { get; set; }
+
+    [Parameter]
+    public string SearchPlaceholder { get; set; } = string.Empty;
+
+    [Parameter]
+    public string SearchButtonText { get; set; } = "Search";
+
+    [Parameter]
+    public EventCallback OnSearch { get; set; }
+
+    private async Task OnSearchClicked()
+    {
+        await OnSearch.InvokeAsync();
+    }
+}

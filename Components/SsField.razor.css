@@ -1,0 +1,30 @@
+.ss-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    min-width: 0;
+    min-height: 34px;
+}
+
+.ss-field-label {
+    font-size: var(--font-size-xs);
+    line-height: 16px;
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-text-label);
+    margin: 0 0 2px;
+}
+
+.ss-field-value {
+    font-size: var(--font-size-md);
+    line-height: 20px;
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+    word-break: break-word;
+}
+
+.ss-field-value.ss-field-value--empty {
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-muted);
+}

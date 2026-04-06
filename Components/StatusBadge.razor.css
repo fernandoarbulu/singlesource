@@ -1,0 +1,37 @@
+/* App-wide status pill — reuse for property header, lists, etc. */
+.ss-status-badge {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    padding: 4px 8px;
+    border-radius: 999px;
+    font-family: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+    font-size: var(--font-size-sm, 12px);
+    font-weight: var(--font-weight-medium, 500);
+    line-height: 1.25;
+    white-space: nowrap;
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+/* Active: subtle green surface + darker green label */
+.ss-status-badge--active {
+    background-color: var(--ss-status-badge-active-bg, #e6f4ea);
+    color: var(--ss-status-badge-active-fg, #1e7e34);
+}
+
+.ss-status-badge--inactive {
+    background-color: var(--ss-neutral-bg, #f1f3f4);
+    color: var(--ss-neutral-text, #5f6368);
+}
+
+.ss-status-badge--pending {
+    background-color: var(--ss-warn-bg, #fef7e0);
+    color: var(--ss-warn-text, #b06000);
+}
+
+.ss-status-badge--neutral {
+    background-color: var(--color-bg-subtle, #f3f4f6);
+    color: var(--color-text-secondary, #4b5563);
+}

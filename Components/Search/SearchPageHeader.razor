@@ -1,0 +1,21 @@
+<header class="ss-search-page-header @HeaderClass">
+    <h1 class="h3 mb-1 fw-semibold">@Title</h1>
+    @if (!string.IsNullOrWhiteSpace(Description))
+    {
+        <p class="text-muted small mb-0">@Description</p>
+    }
+</header>
+
+@code {
+    /// <summary>Visible page title (e.g. Portfolio Search).</summary>
+    [Parameter, EditorRequired]
+    public string Title { get; set; } = string.Empty;
+
+    /// <summary>Optional subtitle under the title.</summary>
+    [Parameter]
+    public string? Description { get; set; }
+
+    /// <summary>Optional extra layout class (e.g. spacing).</summary>
+    [Parameter]
+    public string? HeaderClass { get; set; }
+}

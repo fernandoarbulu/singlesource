@@ -1,0 +1,166 @@
+@inherits LayoutComponentBase
+@inject NavigationManager Nav
+
+<TelerikRootComponent>
+    <div class="psh @(_collapsed ? "psh--collapsed" : null)">
+
+        <aside class="psh-sidebar" aria-label="Main navigation">
+            <div class="psh-inner">
+
+                <!-- ── Brand row ── -->
+                <header class="psh-brand">
+                    <a href="/" class="psh-brand-link" aria-label="Home">
+                        <span class="psh-logo">HOME</span>
+                    </a>
+                    <button type="button" class="psh-collapse-btn"
+                            @onclick="ToggleSidebar"
+                            title="@(_collapsed ? "Expand sidebar" : "Collapse sidebar")"
+                            aria-expanded="@(!_collapsed)">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2.5"
+                             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            @if (_collapsed)
+                            {<path d="M9 18l6-6-6-6"/>}
+                            else
+                            {<path d="M15 18l-6-6 6-6"/>}
+                        </svg>
+                    </button>
+                </header>
+
+                <!-- ── Search ── -->
+                <div class="psh-search-wrap">
+                    <svg class="psh-search-ico" width="14" height="14" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" aria-hidden="true">
+                        <circle cx="10.5" cy="10.5" r="7"/>
+                        <path d="M16 16l4.5 4.5"/>
+                    </svg>
+                    <input type="search" class="psh-search" placeholder="Search" autocomplete="off" />
+                </div>
+
+                <!-- ── Navigation ── -->
+                <nav class="psh-nav" aria-label="Main">
+
+                    <!-- Dashboard -->
+                    <div class="@Grp("dashboard")">
+                        <button type="button" class="psh-parent" @onclick='() => Toggle("dashboard")'>
+                            <span class="psh-ico psh-ico--dashboard" aria-hidden="true"></span>
+                            <span class="psh-label">Dashboard</span>
+                            <svg class="psh-chev" width="12" height="12" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2.5"
+                                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M6 9l6 6 6-6"/>
+                            </svg>
+                        </button>
+                        <div class="psh-children">
+                            <a class="psh-child @(IsActive("/dashboard/insights") ? "is-active" : null)"
+                               href="/dashboard/insights">Insights</a>
+                        </div>
+                    </div>
+
+                    <!-- Tasks -->
+                    <a class="psh-item @(IsActive("/tasks") ? "is-active" : null)" href="/tasks">
+                        <span class="psh-ico psh-ico--tasks" aria-hidden="true"></span>
+                        <span class="psh-label">Tasks</span>
+                    </a>
+
+                    <!-- Properties -->
+                    <div class="@Grp("properties")">
+                        <button type="button" class="psh-parent" @onclick='() => Toggle("properties")'>
+                            <span class="psh-ico psh-ico--properties" aria-hidden="true"></span>
+                            <span class="psh-label">Properties</span>
+                            <svg class="psh-chev" width="12" height="12" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2.5"
+                                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M6 9l6 6 6-6"/>
+                            </svg>
+                        </button>
+                        <div class="psh-children">
+                            <a class="psh-child @(IsActive("/properties/portfolio") ? "is-active" : null)"
+                               href="/properties/portfolio">Portfolio</a>
+                            <a class="psh-child @(IsActive("/property-details") ? "is-active" : null)"
+                               href="/property-details">Work Orders</a>
+                            <a class="psh-child @(IsActive("/properties/bids") ? "is-active" : null)"
+                               href="/properties/bids">Bids</a>
+                            <a class="psh-child @(IsActive("/properties/conveyance") ? "is-active" : null)"
+                               href="/properties/conveyance">Conveyance</a>
+                            <a class="psh-child @(IsActive("/properties/financials") ? "is-active" : null)"
+                               href="/properties/financials">Financials</a>
+                        </div>
+                    </div>
+
+                    <!-- Management -->
+                    <div class="@Grp("management")">
+                        <button type="button" class="psh-parent" @onclick='() => Toggle("management")'>
+                            <span class="psh-ico psh-ico--mgmt" aria-hidden="true"></span>
+                            <span class="psh-label">Management</span>
+                            <svg class="psh-chev" width="12" height="12" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2.5"
+                                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M6 9l6 6 6-6"/>
+                            </svg>
+                        </button>
+                        <div class="psh-children">
+                            <a class="psh-child @(IsActive("/management/customers") ? "is-active" : null)"
+                               href="/management/customers">Customers</a>
+                            <a class="psh-child @(IsActive("/management/vendors") ? "is-active" : null)"
+                               href="/management/vendors">Vendors</a>
+                            <a class="psh-child @(IsActive("/management/reports") ? "is-active" : null)"
+                               href="/management/reports">Reports</a>
+                        </div>
+                    </div>
+
+                    <!-- Resources -->
+                    <a class="psh-item @(IsActive("/resources") ? "is-active" : null)" href="/resources">
+                        <span class="psh-ico psh-ico--resources" aria-hidden="true"></span>
+                        <span class="psh-label">Resources</span>
+                    </a>
+
+                </nav>
+
+                <!-- ── Footer ── -->
+                <footer class="psh-footer">
+                    <a class="psh-footer-item @(IsActive("/admin") ? "is-active" : null)" href="/admin">
+                        <span class="psh-ico psh-ico--admin" aria-hidden="true"></span>
+                        <span class="psh-label">Admin</span>
+                    </a>
+                    <a class="psh-footer-item @(IsActive("/notifications") ? "is-active" : null)" href="/notifications">
+                        <span class="psh-ico psh-ico--notif" aria-hidden="true"></span>
+                        <span class="psh-label">Notifications</span>
+                        <span class="psh-badge" aria-label="1 notification">1</span>
+                    </a>
+                    <button type="button" class="psh-footer-item psh-logout" @onclick="Logout">
+                        <span class="psh-ico psh-ico--logout" aria-hidden="true"></span>
+                        <span class="psh-label">Logout</span>
+                    </button>
+                </footer>
+
+            </div>
+        </aside>
+
+        <div class="psh-main property-shell-main">
+            @Body
+        </div>
+
+    </div>
+</TelerikRootComponent>
+
+@code {
+    private readonly HashSet<string> _open = ["dashboard", "properties", "management"];
+    private bool _collapsed;
+
+    private void Toggle(string key)
+    {
+        if (!_open.Remove(key)) _open.Add(key);
+    }
+
+    private void ToggleSidebar() => _collapsed = !_collapsed;
+
+    private void Logout() => Nav.NavigateTo("/login");
+
+    private string Grp(string key) =>
+        _open.Contains(key) ? "psh-group is-open" : "psh-group";
+
+    private bool IsActive(string href) =>
+        Nav.Uri.Contains(href, StringComparison.OrdinalIgnoreCase);
+}
