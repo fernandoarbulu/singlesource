@@ -12,10 +12,13 @@
                     <a href="/" class="psh-brand-link" aria-label="Home">
                         <span class="psh-logo">HOME</span>
                     </a>
-                    <button type="button" class="psh-collapse-btn"
-                            @onclick="ToggleSidebar"
-                            title="@(_collapsed ? "Expand sidebar" : "Collapse sidebar")"
-                            aria-expanded="@(!_collapsed)">
+                    <TelerikButton ButtonType="@Telerik.Blazor.ButtonType.Button"
+                                   FillMode="@ThemeConstants.Button.FillMode.Flat"
+                                   ThemeColor="@ThemeConstants.Button.ThemeColor.Base"
+                                   Class="psh-collapse-btn"
+                                   OnClick="@ToggleSidebar"
+                                   Title="@(_collapsed ? "Expand sidebar" : "Collapse sidebar")"
+                                   @attributes="@CollapseAriaAttributes">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
                              stroke="currentColor" stroke-width="2.5"
                              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -24,7 +27,7 @@
                             else
                             {<path d="M15 18l-6-6 6-6"/>}
                         </svg>
-                    </button>
+                    </TelerikButton>
                 </header>
 
                 <!-- ── Search ── -->
@@ -35,7 +38,13 @@
                         <circle cx="10.5" cy="10.5" r="7"/>
                         <path d="M16 16l4.5 4.5"/>
                     </svg>
-                    <input type="search" class="psh-search" placeholder="Search" autocomplete="off" />
+                    <TelerikTextBox Id="psh-search"
+                                    @bind-Value="@_sidebarSearch"
+                                    Placeholder="Search"
+                                    AutoComplete="off"
+                                    Width="100%"
+                                    DebounceDelay="0"
+                                    Class="psh-search" />
                 </div>
 
                 <!-- ── Navigation ── -->
@@ -43,7 +52,11 @@
 
                     <!-- Dashboard -->
                     <div class="@Grp("dashboard")">
-                        <button type="button" class="psh-parent" @onclick='() => Toggle("dashboard")'>
+                        <TelerikButton ButtonType="@Telerik.Blazor.ButtonType.Button"
+                                       FillMode="@ThemeConstants.Button.FillMode.Flat"
+                                       ThemeColor="@ThemeConstants.Button.ThemeColor.Base"
+                                       Class="psh-parent"
+                                       OnClick="@(() => Toggle("dashboard"))">
                             <span class="psh-ico psh-ico--dashboard" aria-hidden="true"></span>
                             <span class="psh-label">Dashboard</span>
                             <svg class="psh-chev" width="12" height="12" viewBox="0 0 24 24"
@@ -51,7 +64,7 @@
                                  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                 <path d="M6 9l6 6 6-6"/>
                             </svg>
-                        </button>
+                        </TelerikButton>
                         <div class="psh-children">
                             <a class="psh-child @(IsActive("/dashboard/insights") ? "is-active" : null)"
                                href="/dashboard/insights">Insights</a>
@@ -66,7 +79,11 @@
 
                     <!-- Properties -->
                     <div class="@Grp("properties")">
-                        <button type="button" class="psh-parent" @onclick='() => Toggle("properties")'>
+                        <TelerikButton ButtonType="@Telerik.Blazor.ButtonType.Button"
+                                       FillMode="@ThemeConstants.Button.FillMode.Flat"
+                                       ThemeColor="@ThemeConstants.Button.ThemeColor.Base"
+                                       Class="psh-parent"
+                                       OnClick="@(() => Toggle("properties"))">
                             <span class="psh-ico psh-ico--properties" aria-hidden="true"></span>
                             <span class="psh-label">Properties</span>
                             <svg class="psh-chev" width="12" height="12" viewBox="0 0 24 24"
@@ -74,7 +91,7 @@
                                  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                 <path d="M6 9l6 6 6-6"/>
                             </svg>
-                        </button>
+                        </TelerikButton>
                         <div class="psh-children">
                             <a class="psh-child @(IsActive("/properties/portfolio") ? "is-active" : null)"
                                href="/properties/portfolio">Portfolio</a>
@@ -91,7 +108,11 @@
 
                     <!-- Management -->
                     <div class="@Grp("management")">
-                        <button type="button" class="psh-parent" @onclick='() => Toggle("management")'>
+                        <TelerikButton ButtonType="@Telerik.Blazor.ButtonType.Button"
+                                       FillMode="@ThemeConstants.Button.FillMode.Flat"
+                                       ThemeColor="@ThemeConstants.Button.ThemeColor.Base"
+                                       Class="psh-parent"
+                                       OnClick="@(() => Toggle("management"))">
                             <span class="psh-ico psh-ico--mgmt" aria-hidden="true"></span>
                             <span class="psh-label">Management</span>
                             <svg class="psh-chev" width="12" height="12" viewBox="0 0 24 24"
@@ -99,7 +120,7 @@
                                  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                 <path d="M6 9l6 6 6-6"/>
                             </svg>
-                        </button>
+                        </TelerikButton>
                         <div class="psh-children">
                             <a class="psh-child @(IsActive("/management/customers") ? "is-active" : null)"
                                href="/management/customers">Customers</a>
@@ -127,12 +148,22 @@
                     <a class="psh-footer-item @(IsActive("/notifications") ? "is-active" : null)" href="/notifications">
                         <span class="psh-ico psh-ico--notif" aria-hidden="true"></span>
                         <span class="psh-label">Notifications</span>
-                        <span class="psh-badge" aria-label="1 notification">1</span>
+                        <TelerikBadge Text="1"
+                                      ThemeColor="@ThemeConstants.Badge.ThemeColor.Error"
+                                      FillMode="@ThemeConstants.Badge.FillMode.Solid"
+                                      Size="@ThemeConstants.Badge.Size.Small"
+                                      Rounded="@ThemeConstants.Badge.Rounded.Full"
+                                      Class="psh-badge"
+                                      AriaLabel="1 notification" />
                     </a>
-                    <button type="button" class="psh-footer-item psh-logout" @onclick="Logout">
+                    <TelerikButton ButtonType="@Telerik.Blazor.ButtonType.Button"
+                                   FillMode="@ThemeConstants.Button.FillMode.Flat"
+                                   ThemeColor="@ThemeConstants.Button.ThemeColor.Base"
+                                   Class="psh-footer-item psh-logout"
+                                   OnClick="@Logout">
                         <span class="psh-ico psh-ico--logout" aria-hidden="true"></span>
                         <span class="psh-label">Logout</span>
-                    </button>
+                    </TelerikButton>
                 </footer>
 
             </div>
@@ -148,6 +179,11 @@
 @code {
     private readonly HashSet<string> _open = ["dashboard", "properties", "management"];
     private bool _collapsed;
+
+    private string _sidebarSearch = string.Empty;
+
+    private IReadOnlyDictionary<string, object> CollapseAriaAttributes =>
+        new Dictionary<string, object>(1) { ["aria-expanded"] = (!_collapsed).ToString().ToLowerInvariant() };
 
     private void Toggle(string key)
     {

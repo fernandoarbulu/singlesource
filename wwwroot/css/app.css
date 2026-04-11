@@ -1,5 +1,14 @@
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    width: 100%;
+    margin: 0;
+}
+
+/* Blazor host fills viewport width (property shell + full-width pages rely on this) */
+#app {
+    width: 100%;
+    min-height: 100vh;
+    box-sizing: border-box;
 }
 
 h1:focus {

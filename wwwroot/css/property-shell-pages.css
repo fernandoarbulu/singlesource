@@ -4,7 +4,48 @@
   Tokens: branding.css (:root).
 */
 
-/* ── Top header bar (sticky below shell chrome) ── */
+/* Full-width app canvas: shared horizontal inset (aligns topbar + body with sidebar edge) */
+:root {
+    --pd-page-inline: clamp(16px, 2.2vw, 24px);
+}
+
+/* PD layout utilities (avoid Bootstrap utility classes on shell pages) */
+.pd-w-full {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.pd-flex-grow {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.pd-mt-1 {
+    margin-top: 0.25rem;
+}
+
+.pd-mt-3 {
+    margin-top: 1rem;
+}
+
+.pd-m-0 {
+    margin: 0;
+}
+
+.pd-mb-0 {
+    margin-bottom: 0;
+}
+
+.pd-py-2 {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+.pd-pt-0 {
+    padding-top: 0;
+}
+
+/* ── Top header bar (TelerikAppBar + breadcrumb; sticky below shell chrome) ── */
 .pd-topbar {
     position: sticky;
     top: 0;
@@ -14,54 +55,244 @@
     box-shadow: none;
     display: flex;
     align-items: center;
-    padding: 0 24px;
-    height: 2.75rem;
+    padding: 0 var(--pd-page-inline);
+    min-height: 2.75rem;
     flex-shrink: 0;
     font-family: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
     font-size: var(--font-size-md);
     line-height: 20px;
 }
 
-.pd-topbar-crumb {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
+/* When top bar was TelerikAppBar (.k-appbar), radius was cleared; plain <header.pd-topbar> is fine */
+
+/* Breadcrumb: TelerikBreadcrumb (k-breadcrumb) inside top bar */
+.pd-topbar .k-breadcrumb {
     font-size: var(--font-size-sm);
+    background: transparent;
+    border: none;
+    box-shadow: none;
 }
 
-.pd-topbar-crumb-link {
+.pd-topbar .k-breadcrumb-link,
+.pd-topbar .k-breadcrumb-root-link {
     color: var(--color-text-secondary);
-    text-decoration: none;
     font-weight: var(--font-weight-regular);
-    transition: color 0.12s ease;
 }
 
-.pd-topbar-crumb-link:hover {
+.pd-topbar .k-breadcrumb-link:hover,
+.pd-topbar .k-breadcrumb-root-link:hover {
     color: var(--color-accent-primary);
 }
 
-.pd-topbar-crumb-sep {
-    color: var(--color-text-label);
-    font-size: var(--font-size-sm);
-}
-
-.pd-topbar-crumb-current {
+.pd-topbar .k-breadcrumb-item:last-child .k-breadcrumb-link,
+.pd-topbar .k-breadcrumb-item:last-child .k-breadcrumb-root-link {
     color: var(--color-text-primary);
     font-weight: var(--font-weight-medium);
+    pointer-events: none;
 }
 
-/* ── Page container ── */
+/* ── Page container (full width of .psh-main; no max-width column) ── */
 .pd-page {
     box-sizing: border-box;
     width: 100%;
-    max-width: 1440px;
-    margin: 0 auto;
-    padding: 16px;
+    max-width: none;
+    margin: 0;
+    padding: clamp(12px, 1.4vw, 16px) var(--pd-page-inline) clamp(16px, 2vw, 24px);
     background: var(--color-bg-page);
     font-family: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
     font-size: var(--font-size-md);
     line-height: 20px;
     color: var(--color-text-primary);
+}
+
+/*
+  Property shell main column: force full-bleed next to the sidebar.
+  Property details wraps header + .pd-page in .pd-route-root so flex height splits correctly.
+*/
+.psh-main > .pd-route-root {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+    max-width: none !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    box-sizing: border-box;
+}
+
+.psh-main > .pd-route-root > .pd-topbar,
+.psh-main > .pd-route-root > .pd-page {
+    width: 100% !important;
+    max-width: none !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    box-sizing: border-box;
+}
+
+.psh-main > .pd-route-root > .pd-topbar {
+    flex: 0 0 auto;
+}
+
+.psh-main > .pd-route-root > .pd-page {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Portfolio search and other shell pages: .pd-page is the only main child (no .pd-route-root) */
+.psh-main > .pd-page {
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+.psh-main .pd-page .k-gridlayout,
+.psh-main .pd-page .k-tabstrip,
+.psh-main .pd-page .k-splitter {
+    max-width: none !important;
+    width: 100% !important;
+    box-sizing: border-box;
+}
+
+/*
+  MDM inspector body: must establish the named query container in a GLOBAL stylesheet.
+  Blazor scoped *.razor.css does not apply container-type / container-name (computed style
+  stays "normal"/"none"), so @container pd-insp rules never matched.
+*/
+.pd-insp-body {
+    container-type: inline-size;
+    container-name: pd-insp;
+}
+
+/*
+  MDM subsection grid — 2 columns when `pd-insp` container is wide enough.
+  @container rules live here so they are not dropped by the scoped CSS bundler.
+*/
+@container pd-insp (min-width: 34rem) {
+    .pd-page:not(.pd-page--compact) .pd-mdm-subgrid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        column-gap: 1rem !important;
+        row-gap: 1rem !important;
+    }
+
+    /* Dense subsection: span both columns when markup includes modifier class */
+    .pd-page:not(.pd-page--compact) .pd-mdm-subgrid .pd-mdm-subcard--span-full {
+        grid-column: 1 / -1 !important;
+    }
+}
+
+@supports not (container-type: inline-size) {
+    @media (min-width: 1024px) {
+        .pd-page:not(.pd-page--compact) .pd-mdm-subgrid {
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            column-gap: 1rem !important;
+            row-gap: 1rem !important;
+        }
+
+        .pd-page:not(.pd-page--compact) .pd-mdm-subgrid .pd-mdm-subcard--span-full {
+            grid-column: 1 / -1 !important;
+        }
+    }
+}
+
+/*
+  PD read-only data fields — single source for hero summary + MDM inspector + search hits.
+  Global (not Blazor-scoped) so hero and body share identical computed typography/gap;
+  avoids duplicate .pd-mdm-subbody paths that only matched grid cells.
+*/
+.pd-data-field {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.35rem;
+    min-width: 0;
+}
+
+.pd-data-field__lbl {
+    display: block;
+    font-size: 10px;
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    line-height: 1.2;
+}
+
+.pd-data-field__lbl--key {
+    color: var(--color-text-secondary);
+    font-weight: var(--font-weight-semibold);
+}
+
+.pd-data-field__val {
+    display: block;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-regular);
+    color: var(--color-text-primary);
+    line-height: 1.5;
+    word-break: break-word;
+}
+
+.pd-data-field__val--multiline {
+    white-space: pre-wrap;
+    font-weight: var(--font-weight-regular);
+    line-height: 1.55;
+    color: var(--color-text-secondary);
+}
+
+.pd-data-field__val--empty {
+    color: var(--color-text-muted);
+    font-weight: var(--font-weight-regular);
+}
+
+.pd-data-field--compact {
+    gap: 0.2rem;
+}
+
+.pd-data-field__meta {
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-regular);
+    color: var(--color-text-secondary);
+    line-height: 1.35;
+}
+
+/* Hero KPI value accents (optional classes from BuildHero) */
+.pd-data-field__val.pd-hero-v--status {
+    font-weight: var(--font-weight-semibold);
+    color: var(--ss-status-badge-active-fg);
+    letter-spacing: 0.01em;
+}
+
+.pd-data-field__val.pd-hero-v--hero-currency {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+}
+
+.pd-data-field__val.pd-hero-v--hero-date {
+    font-variant-numeric: tabular-nums;
+    color: var(--color-text-secondary);
+}
+
+/* Search hit list: sentence-case primary line */
+.pd-search-hit-grid .pd-data-field__lbl {
+    text-transform: none;
+    letter-spacing: normal;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+}
+
+/*
+  Hero summary (3 columns): vertical rhythm — global so it always applies after bundles.
+  Telerik StackLayout often sets inline gap; flex gap can also fail to show. Sibling
+  margin-top between .pd-data-field blocks is reliable. MDM inspector is not under .pd-hero-summary.
+*/
+.pd-page .pd-hero-summary .pd-data-field {
+    gap: 0.42rem !important;
+}
+
+.pd-page .pd-hero-summary-group .pd-data-field + .pd-data-field {
+    margin-top: 1rem;
 }
 
 .visually-hidden {
