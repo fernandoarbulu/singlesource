@@ -445,11 +445,23 @@
                                                                              ThemeColor="@ThemeConstants.Card.ThemeColor.Light"
                                                                              Width="100%">
                                                                     <CardHeader Class="pd-mdm-subhead">
-                                                                        <CardTitle Class="pd-mdm-subtitle">@sub.Title</CardTitle>
+                                                                        <button class="pd-mdm-toggle-btn"
+                                                                                type="button"
+                                                                                @onclick="@(() => ToggleSubsection(sub.Key))"
+                                                                                aria-expanded="@IsExpanded(sub.Key).ToString().ToLower()">
+                                                                            <span class="pd-mdm-subtitle">@sub.Title</span>
+                                                                            <TelerikSvgIcon Icon="@(IsExpanded(sub.Key) ? SvgIcon.ChevronUp : SvgIcon.ChevronDown)"
+                                                                                            Class="pd-mdm-chevron" />
+                                                                        </button>
                                                                     </CardHeader>
                                                                     <CardBody Class="pd-mdm-subbody">
+                                                                        @{
+                                                                            var displayFields = IsExpanded(sub.Key)
+                                                                                ? visibleInSub
+                                                                                : visibleInSub.Take(PreviewFieldCount).ToList();
+                                                                        }
                                                                         <TelerikGrid TItem="PropertyMdmFieldJson"
-                                                                                     Data="@visibleInSub"
+                                                                                     Data="@displayFields"
                                                                                      Pageable="false"
                                                                                      Sortable="false"
                                                                                      Resizable="false"
@@ -475,6 +487,14 @@
                                                                                 </GridColumn>
                                                                             </GridColumns>
                                                                         </TelerikGrid>
+                                                                        @if (!IsExpanded(sub.Key) && visibleInSub.Count > PreviewFieldCount)
+                                                                        {
+                                                                            <button class="pd-mdm-view-all"
+                                                                                    type="button"
+                                                                                    @onclick="@(() => ToggleSubsection(sub.Key))">
+                                                                                View all @visibleInSub.Count fields
+                                                                            </button>
+                                                                        }
                                                                     </CardBody>
                                                                 </TelerikCard>
                                                             </GridLayoutItem>
@@ -546,6 +566,17 @@
     private readonly HashSet<string> _searchHitFieldIds = new(StringComparer.Ordinal);
 
     private const int SearchHitLimit = 200;
+    private const int PreviewFieldCount = 4;
+
+    private readonly HashSet<string> _expandedSubsections = new(StringComparer.Ordinal);
+
+    private bool IsExpanded(string subKey) => _expandedSubsections.Contains(subKey);
+
+    private void ToggleSubsection(string subKey)
+    {
+        if (!_expandedSubsections.Remove(subKey))
+            _expandedSubsections.Add(subKey);
+    }
 
     private bool _searchHitsTruncated;
 
@@ -794,6 +825,9 @@
     {
         _activeSectionId = hit.AnchorId;
         _selectedSearchFieldId = hit.FieldElementId;
+        // Ensure the target subsection is expanded so the field exists in the DOM
+        // before OnAfterRenderAsync calls scrollAndHighlightField.
+        _expandedSubsections.Add(hit.SubsectionKey);
         _pendingJumpFieldId = hit.FieldElementId; // consumed by OnAfterRenderAsync
         await InvokeAsync(StateHasChanged);
     }
@@ -835,6 +869,11 @@
                 {
                     _loadError = null;
                     _activeSectionId = _categories[0].AnchorId;
+                    // Expand the first 2 subsections of every category so top content
+                    // is immediately visible; everything else starts collapsed.
+                    foreach (var cat in _categories)
+                        foreach (var sub in cat.Subsections.Take(2))
+                            _expandedSubsections.Add(sub.Key);
                 }
 
                 BuildHero(dto);

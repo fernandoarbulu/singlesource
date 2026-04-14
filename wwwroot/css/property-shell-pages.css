@@ -483,6 +483,61 @@
     padding: 0.5rem 0 0.25rem;
 }
 
+/* ── Subsection collapse / expand ─────────────────────────────────────────────
+   Toggle button replaces CardTitle inside .pd-mdm-subhead so the entire header
+   is clickable. View-all sits below the preview grid in collapsed state.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+.pd-mdm-toggle-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font: inherit;
+    color: inherit;
+    text-align: left;
+    gap: 0.5rem;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.pd-mdm-toggle-btn:focus-visible {
+    outline: 2px solid rgba(37, 99, 235, 0.35);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+.pd-mdm-chevron {
+    flex-shrink: 0;
+    color: var(--color-text-muted);
+}
+
+.pd-mdm-view-all {
+    display: block;
+    width: 100%;
+    padding: 0.4rem 0 0;
+    margin-top: 0.4rem;
+    background: none;
+    border: none;
+    border-top: 1px solid var(--color-border-subtle);
+    cursor: pointer;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-accent-primary);
+    text-align: left;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.pd-mdm-view-all:hover {
+    color: var(--color-text-primary);
+}
+
 /* ── Left navigation pane (search + section nav) ──────────────────────────────
    Moved here from PropertyWorkOrderDetails.razor.css so these styles are never
    lost to Blazor scoped-CSS bundle truncation.
