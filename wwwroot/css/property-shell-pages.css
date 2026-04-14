@@ -474,6 +474,15 @@
     100% { box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 10px 20px rgba(15, 23, 42, 0.04); }
 }
 
+/* Content controls bar: view-mode tools between hero and tabs */
+.pd-content-controls {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding: 0.5rem 0 0.25rem;
+}
+
 /* ── Left navigation pane (search + section nav) ──────────────────────────────
    Moved here from PropertyWorkOrderDetails.razor.css so these styles are never
    lost to Blazor scoped-CSS bundle truncation.
