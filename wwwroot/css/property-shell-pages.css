@@ -484,16 +484,21 @@
 }
 
 /* ── Subsection collapse / expand ─────────────────────────────────────────────
-   Toggle button replaces CardTitle inside .pd-mdm-subhead so the entire header
-   is clickable. View-all sits below the preview grid in collapsed state.
+   The toggle button carries the header padding so hover fills the full header
+   area, not just the text. property-shell-pages.css loads after the scoped
+   bundle so the !important here wins cleanly.
    ─────────────────────────────────────────────────────────────────────────── */
+
+.pd-mdm-subhead {
+    padding: 0 !important;
+}
 
 .pd-mdm-toggle-btn {
     display: flex;
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    padding: 0;
+    padding: 0.55rem 0.8rem;
     margin: 0;
     background: none;
     border: none;
@@ -504,6 +509,11 @@
     gap: 0.5rem;
     -webkit-appearance: none;
     appearance: none;
+    transition: background-color 0.12s ease;
+}
+
+.pd-mdm-toggle-btn:hover {
+    background: rgba(15, 23, 42, 0.035);
 }
 
 .pd-mdm-toggle-btn:focus-visible {
@@ -512,30 +522,25 @@
     border-radius: 4px;
 }
 
+/* Single chevron — rotates on expand rather than swapping icons */
 .pd-mdm-chevron {
     flex-shrink: 0;
     color: var(--color-text-muted);
+    transition: transform 0.2s ease;
 }
 
+.pd-mdm-chevron--open {
+    transform: rotate(180deg);
+}
+
+/* TelerikButton FillMode.Flat — just adds separator and stretches to full width */
 .pd-mdm-view-all {
-    display: block;
+    margin-top: 0.5rem;
     width: 100%;
-    padding: 0.4rem 0 0;
-    margin-top: 0.4rem;
-    background: none;
-    border: none;
+    justify-content: flex-start;
     border-top: 1px solid var(--color-border-subtle);
-    cursor: pointer;
+    padding-top: 0.4rem;
     font-size: var(--font-size-xs);
-    font-weight: var(--font-weight-medium);
-    color: var(--color-accent-primary);
-    text-align: left;
-    -webkit-appearance: none;
-    appearance: none;
-}
-
-.pd-mdm-view-all:hover {
-    color: var(--color-text-primary);
 }
 
 /* ── Left navigation pane (search + section nav) ──────────────────────────────

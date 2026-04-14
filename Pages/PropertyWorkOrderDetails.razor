@@ -450,8 +450,8 @@
                                                                                 @onclick="@(() => ToggleSubsection(sub.Key))"
                                                                                 aria-expanded="@IsExpanded(sub.Key).ToString().ToLower()">
                                                                             <span class="pd-mdm-subtitle">@sub.Title</span>
-                                                                            <TelerikSvgIcon Icon="@(IsExpanded(sub.Key) ? SvgIcon.ChevronUp : SvgIcon.ChevronDown)"
-                                                                                            Class="pd-mdm-chevron" />
+                                                                            <TelerikSvgIcon Icon="@SvgIcon.ChevronDown"
+                                                                                            Class="@($"pd-mdm-chevron{(IsExpanded(sub.Key) ? " pd-mdm-chevron--open" : "")}")" />
                                                                         </button>
                                                                     </CardHeader>
                                                                     <CardBody Class="pd-mdm-subbody">
@@ -489,11 +489,14 @@
                                                                         </TelerikGrid>
                                                                         @if (!IsExpanded(sub.Key) && visibleInSub.Count > PreviewFieldCount)
                                                                         {
-                                                                            <button class="pd-mdm-view-all"
-                                                                                    type="button"
-                                                                                    @onclick="@(() => ToggleSubsection(sub.Key))">
+                                                                            <TelerikButton FillMode="@ThemeConstants.Button.FillMode.Flat"
+                                                                                           ThemeColor="@ThemeConstants.Button.ThemeColor.Primary"
+                                                                                           Size="@ThemeConstants.Button.Size.Small"
+                                                                                           ButtonType="@Telerik.Blazor.ButtonType.Button"
+                                                                                           Class="pd-mdm-view-all"
+                                                                                           OnClick="@(() => ToggleSubsection(sub.Key))">
                                                                                 View all @visibleInSub.Count fields
-                                                                            </button>
+                                                                            </TelerikButton>
                                                                         }
                                                                     </CardBody>
                                                                 </TelerikCard>
