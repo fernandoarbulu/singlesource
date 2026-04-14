@@ -483,22 +483,52 @@
     padding: 0.5rem 0 0.25rem;
 }
 
-/* ── Subsection collapse / expand ─────────────────────────────────────────────
-   The toggle button carries the header padding so hover fills the full header
-   area, not just the text. property-shell-pages.css loads after the scoped
-   bundle so the !important here wins cleanly.
+/* ── Subsection card visual foundation ────────────────────────────────────────
+   These rules are in global CSS because the Blazor scoped-CSS bundle is
+   unreliable; without these the cards render flat with no border, background,
+   or header gradient. Global loads last so these always win.
    ─────────────────────────────────────────────────────────────────────────── */
 
+.pd-mdm-subcard {
+    border-radius: 10px;
+    border: 1px solid var(--color-border-default);
+    background: var(--color-bg-card);
+    box-shadow:
+        0 1px 2px rgba(15, 23, 42, 0.05),
+        0 6px 16px rgba(15, 23, 42, 0.04);
+    overflow: hidden;
+}
+
+/* Header: tinted gradient + bottom separator; padding zeroed so the toggle
+   button carries it and hover fills the full header area (not just text). */
 .pd-mdm-subhead {
     padding: 0 !important;
+    background: linear-gradient(to bottom, rgba(248, 250, 252, 0.95), rgba(241, 245, 249, 0.55)) !important;
+    border-bottom: 1px solid var(--color-border-default) !important;
 }
+
+.pd-mdm-subtitle {
+    margin: 0;
+    font-size: var(--font-size-md);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--color-text-primary);
+    line-height: 1.25;
+}
+
+.pd-mdm-subbody {
+    padding: 0.6rem 0.75rem 0.75rem !important;
+    background: transparent;
+}
+
+/* ── Collapse / expand toggle ───────────────────────────────────────────────── */
 
 .pd-mdm-toggle-btn {
     display: flex;
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    padding: 0.55rem 0.8rem;
+    padding: 0.6rem 0.85rem;
     margin: 0;
     background: none;
     border: none;
@@ -513,7 +543,7 @@
 }
 
 .pd-mdm-toggle-btn:hover {
-    background: rgba(15, 23, 42, 0.035);
+    background: rgba(15, 23, 42, 0.04);
 }
 
 .pd-mdm-toggle-btn:focus-visible {
@@ -522,7 +552,7 @@
     border-radius: 4px;
 }
 
-/* Single chevron — rotates on expand rather than swapping icons */
+/* Single chevron rotates 180° on expand — CSS transition, no icon swap */
 .pd-mdm-chevron {
     flex-shrink: 0;
     color: var(--color-text-muted);
@@ -533,14 +563,30 @@
     transform: rotate(180deg);
 }
 
-/* TelerikButton FillMode.Flat — just adds separator and stretches to full width */
+/* Preview mode: fade the last two rows so the truncation reads as intentional */
+.pd-mdm-field-grid--preview .k-table-tbody tr:last-child td {
+    opacity: 0.4;
+    border-bottom: none;
+}
+
+.pd-mdm-field-grid--preview .k-table-tbody tr:nth-last-child(2) td {
+    opacity: 0.65;
+}
+
+/* "View all" affordance — secondary neutral style, not a primary CTA */
 .pd-mdm-view-all {
-    margin-top: 0.5rem;
+    margin-top: 0.4rem;
     width: 100%;
     justify-content: flex-start;
     border-top: 1px solid var(--color-border-subtle);
-    padding-top: 0.4rem;
+    padding-top: 0.35rem;
     font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+}
+
+.pd-mdm-view-all:hover {
+    color: var(--color-text-primary);
+    background: transparent;
 }
 
 /* ── Left navigation pane (search + section nav) ──────────────────────────────

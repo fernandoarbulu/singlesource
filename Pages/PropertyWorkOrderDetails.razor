@@ -465,7 +465,7 @@
                                                                                      Pageable="false"
                                                                                      Sortable="false"
                                                                                      Resizable="false"
-                                                                                     Class="pd-mdm-field-grid pd-w-full">
+                                                                                     Class="@($"pd-mdm-field-grid pd-w-full{(!IsExpanded(sub.Key) ? " pd-mdm-field-grid--preview" : null)}")")
                                                                             <GridColumns>
                                                                                 <GridColumn Title="">
                                                                                     <Template>
@@ -490,7 +490,7 @@
                                                                         @if (!IsExpanded(sub.Key) && visibleInSub.Count > PreviewFieldCount)
                                                                         {
                                                                             <TelerikButton FillMode="@ThemeConstants.Button.FillMode.Flat"
-                                                                                           ThemeColor="@ThemeConstants.Button.ThemeColor.Primary"
+                                                                                           ThemeColor="@ThemeConstants.Button.ThemeColor.Base"
                                                                                            Size="@ThemeConstants.Button.Size.Small"
                                                                                            ButtonType="@Telerik.Blazor.ButtonType.Button"
                                                                                            Class="pd-mdm-view-all"
