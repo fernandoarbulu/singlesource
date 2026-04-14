@@ -14,14 +14,42 @@
 @* Single root wrapper: .psh-main is a flex column; this column fills height and splits top bar + scrollable body. *@
 <div class="pd-route-root">
     <header class="pd-topbar" role="banner">
-        <TelerikBreadcrumb Data="@_breadcrumbTrail"
-                             TextField="@nameof(BreadcrumbLink.Text)"
-                             UrlField="@nameof(BreadcrumbLink.Url)"
-                             DisabledField="@nameof(BreadcrumbLink.Disabled)"
-                             CollapseMode="@BreadcrumbCollapseMode.Auto"
-                             Size="@ThemeConstants.Breadcrumb.Size.Medium"
-                             Width="100%"
-                             AriaLabel="Breadcrumb" />
+        <TelerikGridLayout Width="100%" ColumnSpacing="16px" RowSpacing="0" Class="pd-topbar-grid">
+            <GridLayoutRows>
+                <GridLayoutRow Height="auto" />
+            </GridLayoutRows>
+            <GridLayoutColumns>
+                <GridLayoutColumn Width="1fr" />
+                <GridLayoutColumn Width="280px" />
+            </GridLayoutColumns>
+            <GridLayoutItems>
+                <GridLayoutItem Row="1" Column="1">
+                    <TelerikBreadcrumb Data="@_breadcrumbTrail"
+                                       TextField="@nameof(BreadcrumbLink.Text)"
+                                       UrlField="@nameof(BreadcrumbLink.Url)"
+                                       DisabledField="@nameof(BreadcrumbLink.Disabled)"
+                                       CollapseMode="@BreadcrumbCollapseMode.Auto"
+                                       Size="@ThemeConstants.Breadcrumb.Size.Medium"
+                                       Width="100%"
+                                       AriaLabel="Breadcrumb" />
+                </GridLayoutItem>
+                <GridLayoutItem Row="1" Column="2">
+                    <TelerikStackLayout Orientation="@StackLayoutOrientation.Vertical"
+                                        Spacing="6px"
+                                        Class="pd-layout-stack pd-layout-stack--topbar"
+                                        HorizontalAlign="@StackLayoutHorizontalAlign.Stretch">
+                        <label class="pd-field-label" for="pd-layout-view">Layout</label>
+                        <TelerikDropDownList Id="pd-layout-view"
+                                             Data="@_layoutViewOptions"
+                                             @bind-Value="@_layoutViewId"
+                                             TextField="@nameof(LayoutViewOption.Name)"
+                                             ValueField="@nameof(LayoutViewOption.Id)"
+                                             Width="100%"
+                                             Class="pd-layout-ddl" />
+                    </TelerikStackLayout>
+                </GridLayoutItem>
+            </GridLayoutItems>
+        </TelerikGridLayout>
     </header>
 
     <div class="pd-page @(_layoutViewId == 2 ? "pd-page--compact" : null)">
@@ -185,230 +213,330 @@
         </CardBody>
     </TelerikCard>
 
-    <TelerikGridLayout Class="pd-tab-toolbar pd-w-full"
-                       RowSpacing="12px"
-                       ColumnSpacing="20px"
-                       Width="100%">
-        <GridLayoutRows>
-            <GridLayoutRow Height="auto" />
-        </GridLayoutRows>
-        <GridLayoutColumns>
-            <GridLayoutColumn Width="1fr" />
-            <GridLayoutColumn Width="160px" />
-        </GridLayoutColumns>
-        <GridLayoutItems>
-            <GridLayoutItem Row="1" Column="1">
-                <TelerikTabStrip @bind-ActiveTabIndex="@_activePrimaryTabIndex"
-                                 Class="pd-tabstrip"
-                                 Width="100%"
-                                 Scrollable="true"
-                                 PersistTabContent="true"
-                                 TabAlignment="@TabStripTabAlignment.Start"
-                                 Size="@ThemeConstants.TabStrip.Size.Medium">
-                    @for (var i = 0; i < _primaryTabs.Length; i++)
+    <TelerikTabStrip @bind-ActiveTabIndex="@_activePrimaryTabIndex"
+                     Class="pd-tabstrip pd-w-full"
+                     Width="100%"
+                     Scrollable="true"
+                     PersistTabContent="true"
+                     TabAlignment="@TabStripTabAlignment.Start"
+                     Size="@ThemeConstants.TabStrip.Size.Medium">
+        @for (var i = 0; i < _primaryTabs.Length; i++)
+        {
+            var idx = i;
+            var title = _primaryTabs[i];
+            <TabStripTab Title="@title">
+                @if (idx == 0)
+                {
+                    @if (_loadError is not null)
                     {
-                        var idx = i;
-                        var title = _primaryTabs[i];
-                        <TabStripTab Title="@title">
-                            @if (idx == 0)
-                            {
-                                @if (_loadError is not null)
-                                {
-                                    <TelerikCard ThemeColor="@ThemeConstants.Card.ThemeColor.Error" Class="pd-load-error pd-mt-1">
-                                        <CardBody Class="pd-load-error-body" role="alert">
-                                            @_loadError
-                                        </CardBody>
-                                    </TelerikCard>
-                                }
-                                else if (!_mdmReady)
-                                {
-                                    <TelerikStackLayout Orientation="@StackLayoutOrientation.Horizontal"
-                                                        Spacing="12px"
-                                                        VerticalAlign="@StackLayoutVerticalAlign.Center"
-                                                        Class="pd-mdm-loading">
-                                        <TelerikLoader Visible="true"
-                                                       Type="@LoaderType.ConvergingSpinner"
-                                                       ThemeColor="@ThemeConstants.Loader.ThemeColor.Primary"
-                                                       Size="@ThemeConstants.Loader.Size.Medium" />
-                                        <span class="pd-mdm-loading-text" role="status">Loading property fields…</span>
-                                    </TelerikStackLayout>
-                                }
-                                else
-                                {
-                                    <TelerikSplitter Class="pd-splitter pd-mt-3"
-                                                     Orientation="@SplitterOrientation.Horizontal"
-                                                     Width="100%"
-                                                     AriaLabel="Property details">
-                                        <SplitterPanes>
-                                            <SplitterPane Size="288px" Min="200px" Collapsible="true" Scrollable="true" Class="pd-split-pane-nav">
-                                                <TelerikStackLayout Orientation="@StackLayoutOrientation.Vertical" Spacing="14px" Class="pd-nav-stack">
-                                                    <TelerikFloatingLabel Text="Search fields"
-                                                                          Class="pd-field-search-fl">
-                                                        <TelerikTextBox Id="pd-field-search"
-                                                                        Value="@_fieldSearch"
-                                                                        ValueChanged="@OnFieldSearchChanged"
-                                                                        Placeholder=" "
-                                                                        Width="100%" />
-                                                    </TelerikFloatingLabel>
-                                                    @if (_searchHits.Count > 0 && !string.IsNullOrWhiteSpace(_fieldSearch))
-                                                    {
-                                                        <TelerikGrid TItem="SearchHit"
-                                                                     Data="@_searchHits.Take(20).ToList()"
-                                                                     Pageable="false"
-                                                                     Sortable="false"
-                                                                     Height="220px"
-                                                                     OnRowClick="@OnSearchHitRowClick"
-                                                                     Class="pd-search-hit-grid pd-w-full">
-                                                            <GridColumns>
-                                                                <GridColumn Title="Match">
-                                                                    <Template>
-                                                                        @{
-                                                                            var hit = (SearchHit)context;
+                        <TelerikCard ThemeColor="@ThemeConstants.Card.ThemeColor.Error" Class="pd-load-error pd-mt-1">
+                            <CardBody Class="pd-load-error-body" role="alert">
+                                @_loadError
+                            </CardBody>
+                        </TelerikCard>
+                    }
+                    else if (!_mdmReady)
+                    {
+                        <TelerikStackLayout Orientation="@StackLayoutOrientation.Horizontal"
+                                            Spacing="12px"
+                                            VerticalAlign="@StackLayoutVerticalAlign.Center"
+                                            Class="pd-mdm-loading">
+                            <TelerikLoader Visible="true"
+                                           Type="@LoaderType.ConvergingSpinner"
+                                           ThemeColor="@ThemeConstants.Loader.ThemeColor.Primary"
+                                           Size="@ThemeConstants.Loader.Size.Medium" />
+                            <span class="pd-mdm-loading-text" role="status">Loading property fields…</span>
+                        </TelerikStackLayout>
+                    }
+                    else
+                    {
+                        <TelerikSplitter Class="pd-splitter pd-mt-3"
+                                         Orientation="@SplitterOrientation.Horizontal"
+                                         Width="100%"
+                                         AriaLabel="Property details">
+                            <SplitterPanes>
+                                <SplitterPane Size="288px"
+                                              Min="288px"
+                                              Max="288px"
+                                              Collapsible="false"
+                                              Resizable="false"
+                                              Scrollable="true"
+                                              Class="pd-split-pane-nav">
+                                    <TelerikStackLayout Orientation="@StackLayoutOrientation.Vertical" Spacing="0" Class="pd-nav-stack">
+                                        <div class="pd-nav-pane">
+                                            <div class="pd-search-block">
+                                                <div class="pd-search-block__inner">
+                                                    <div class="pd-search-panel">
+                                                        <TelerikFloatingLabel Text="Search fields"
+                                                                              Class="pd-field-search-fl">
+                                                            <TelerikTextBox Id="pd-field-search"
+                                                                            Value="@_fieldSearch"
+                                                                            ValueChanged="@OnFieldSearchChanged"
+                                                                            Placeholder="Search labels, values, sections…"
+                                                                            Width="100%" />
+                                                        </TelerikFloatingLabel>
+                                                        @if (!string.IsNullOrWhiteSpace(_fieldSearch))
+                                                        {
+                                                            <div class="pd-search-below-input">
+                                                                <div class="pd-search-rail-meta" role="status">
+                                                                    @if (_searchHits.Count == 0)
+                                                                    {
+                                                                        <span class="pd-search-rail-empty">No matches</span>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <span class="pd-search-rail-count">@_searchHits.Count match@(_searchHits.Count == 1 ? "" : "es")@(_searchHitsTruncated ? $" (showing first {SearchHitLimit})" : "")</span>
+                                                                    }
+                                                                    <TelerikButton FillMode="@ThemeConstants.Button.FillMode.Flat"
+                                                                                   ThemeColor="@ThemeConstants.Button.ThemeColor.Base"
+                                                                                   Size="@ThemeConstants.Button.Size.Small"
+                                                                                   Class="pd-search-clear"
+                                                                                   ButtonType="@Telerik.Blazor.ButtonType.Button"
+                                                                                   OnClick="@ClearFieldSearchAsync">
+                                                                        Clear
+                                                                    </TelerikButton>
+                                                                </div>
+                                                                @if (_searchHits.Count > 0)
+                                                                {
+                                                                    <div class="pd-search-nav" role="group" aria-label="Jump to field">
+                                                                        @foreach (var hit in _searchHits)
+                                                                        {
+                                                                            <button type="button"
+                                                                                    class="@($"pd-search-nav__item{(hit.FieldElementId == _selectedSearchFieldId ? " pd-search-nav__item--active" : "")}")"
+                                                                                    title="Jump to field"
+                                                                                    @onclick="@(() => JumpToHitAsync(hit))">
+                                                                                <span class="pd-search-nav__text">
+                                                                                    <span class="pd-search-nav__label">@hit.FieldLabel</span>
+                                                                                    <span class="pd-search-nav__meta">@hit.CategoryTitle › @hit.SubsectionTitle</span>
+                                                                                </span>
+                                                                            </button>
                                                                         }
-                                                                        <div class="pd-data-field pd-data-field--compact">
-                                                                            <span class="pd-data-field__lbl">@hit.FieldLabel</span>
-                                                                            <span class="pd-data-field__val pd-data-field__meta">@hit.CategoryTitle · @hit.SubsectionTitle</span>
-                                                                        </div>
-                                                                    </Template>
-                                                                </GridColumn>
-                                                            </GridColumns>
-                                                        </TelerikGrid>
-                                                    }
-                                                    <TelerikGrid TItem="PropertyMdmCategoryVm"
-                                                                 Data="@_categories"
-                                                                 Pageable="false"
-                                                                 Sortable="false"
-                                                                 Height="380px"
-                                                                 OnRowClick="@OnCategoryRowClick"
-                                                                 OnRowRender="@OnCategoryRowRender"
-                                                                 Class="pd-category-grid pd-w-full">
-                                                        <GridColumns>
-                                                            <GridColumn Field="@nameof(PropertyMdmCategoryVm.Title)" Title="Sections" />
-                                                        </GridColumns>
-                                                    </TelerikGrid>
-                                                </TelerikStackLayout>
-                                            </SplitterPane>
-                                            <SplitterPane Scrollable="true" Class="pd-split-pane-detail">
-                                                @{
-                                                    var active = _categories.FirstOrDefault(c => c.AnchorId == _activeSectionId);
-                                                }
-                                                @if (active is not null)
-                                                {
-                                                    <TelerikCard @key="@($"hdr-{_activeSectionId}")"
-                                                                 Class="pd-inspector-card"
-                                                                 ThemeColor="@ThemeConstants.Card.ThemeColor.Light"
-                                                                 Width="100%">
-                                                        <CardHeader Class="pd-insp-header">
-                                                            <TelerikGridLayout ColumnSpacing="12px"
-                                                                               RowSpacing="0"
-                                                                               Width="100%">
-                                                                <GridLayoutRows>
-                                                                    <GridLayoutRow Height="auto" />
-                                                                </GridLayoutRows>
-                                                                <GridLayoutColumns>
-                                                                    <GridLayoutColumn Width="1fr" />
-                                                                    <GridLayoutColumn Width="auto" />
-                                                                </GridLayoutColumns>
-                                                                <GridLayoutItems>
-                                                                    <GridLayoutItem Row="1" Column="1">
-                                                                        <CardTitle Class="pd-insp-title">@active.Title</CardTitle>
-                                                                    </GridLayoutItem>
-                                                                    <GridLayoutItem Row="1" Column="2">
-                                                                        <TelerikSwitch @bind-Value="@_clientFields"
+                                                                    </div>
+                                                                }
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            @if (string.IsNullOrWhiteSpace(_fieldSearch))
+                                            {
+                                                <div class="pd-nav-sections">
+                                                    <p class="pd-section-nav-label" aria-hidden="true">Sections</p>
+                                                    <nav class="pd-section-nav" aria-label="Property sections">
+                                                        @foreach (var cat in _categories)
+                                                        {
+                                                            <button type="button"
+                                                                    class="@($"pd-section-nav-item{(cat.AnchorId == _activeSectionId ? " pd-section-nav-item--active" : "")}")"
+                                                                    @onclick="@(() => SelectSectionAsync(cat.AnchorId))">
+                                                                @cat.Title
+                                                            </button>
+                                                        }
+                                                    </nav>
+                                                </div>
+                                            }
+                                        </div>
+                                    </TelerikStackLayout>
+                                </SplitterPane>
+                                <SplitterPane Resizable="false" Scrollable="true" Class="pd-split-pane-detail">
+                                    @{
+                                        var active = _categories.FirstOrDefault(c => c.AnchorId == _activeSectionId);
+                                    }
+                                    @if (active is not null)
+                                    {
+                                        <TelerikCard Class="pd-inspector-card"
+                                                     ThemeColor="@ThemeConstants.Card.ThemeColor.Light"
+                                                     Width="100%">
+                                            <CardHeader Class="pd-insp-header">
+                                                <TelerikGridLayout ColumnSpacing="12px"
+                                                                   RowSpacing="0"
+                                                                   Width="100%">
+                                                    <GridLayoutRows>
+                                                        <GridLayoutRow Height="auto" />
+                                                    </GridLayoutRows>
+                                                    <GridLayoutColumns>
+                                                        <GridLayoutColumn Width="1fr" />
+                                                        <GridLayoutColumn Width="auto" />
+                                                    </GridLayoutColumns>
+                                                    <GridLayoutItems>
+                                                        <GridLayoutItem Row="1" Column="1">
+                                                            <CardTitle Class="pd-insp-title">@active.Title</CardTitle>
+                                                        </GridLayoutItem>
+                                                        <GridLayoutItem Row="1" Column="2">
+                                                                        <TelerikSwitch @bind-Value="@ClientFields"
                                                                                        OnLabel="Client fields"
                                                                                        OffLabel="Client fields"
                                                                                        Width="auto" />
-                                                                    </GridLayoutItem>
-                                                                </GridLayoutItems>
-                                                            </TelerikGridLayout>
-                                                        </CardHeader>
-                                                        <CardBody Class="pd-insp-body">
-                                                            <div class="pd-mdm-subgrid">
-                                                                @{
-                                                                    var subsectionList = active.Subsections.ToList();
-                                                                }
-                                                                @for (var si = 0; si < subsectionList.Count; si++)
-                                                                {
-                                                                    var sub = subsectionList[si];
-                                                                    var visibleInSub = sub.Fields.Where(ShouldShowField).ToList();
-                                                                    var spanDenseFull = ShouldSubsectionSpanFullWidth(subsectionList, si, visibleInSub.Count);
-                                                                    <TelerikCard @key="@($"{_activeSectionId}-{sub.Key}")"
-                                                                                 Class="@($"pd-mdm-subcard{(spanDenseFull ? " pd-mdm-subcard--span-full" : "")}")"
-                                                                                 ThemeColor="@ThemeConstants.Card.ThemeColor.Light"
-                                                                                 Width="100%">
-                                                                        <CardHeader Class="pd-mdm-subhead">
-                                                                            <CardTitle Class="pd-mdm-subtitle">@sub.Title</CardTitle>
-                                                                        </CardHeader>
-                                                                        <CardBody Class="pd-mdm-subbody">
-                                                                            <TelerikGrid TItem="PropertyMdmFieldJson"
-                                                                                         Data="@visibleInSub"
-                                                                                         Pageable="false"
-                                                                                         Sortable="false"
-                                                                                         Resizable="false"
-                                                                                         OnRowRender="@OnFieldRowRender"
-                                                                                         Class="pd-mdm-field-grid pd-w-full">
-                                                                                <GridColumns>
-                                                                                    <GridColumn Title="">
-                                                                                        <Template>
-                                                                                            @{
-                                                                                                var f = (PropertyMdmFieldJson)context;
-                                                                                            }
-                                                                                            <div class="pd-data-field" id="@FieldDomId(f)">
-                                                                                                <span class="pd-data-field__lbl">@f.Label</span>
-                                                                                                @if (f.Kind == "textarea")
-                                                                                                {
-                                                                                                    <div class="pd-data-field__val pd-data-field__val--multiline">@FormatDisplay(f)</div>
-                                                                                                }
-                                                                                                else
-                                                                                                {
-                                                                                                    <div class="pd-data-field__val">@FormatDisplay(f)</div>
-                                                                                                }
-                                                                                            </div>
-                                                                                        </Template>
-                                                                                    </GridColumn>
-                                                                                </GridColumns>
-                                                                            </TelerikGrid>
-                                                                        </CardBody>
-                                                                    </TelerikCard>
-                                                                }
-                                                            </div>
-                                                        </CardBody>
-                                                    </TelerikCard>
+                                                        </GridLayoutItem>
+                                                    </GridLayoutItems>
+                                                </TelerikGridLayout>
+                                            </CardHeader>
+                                            <CardBody Class="pd-insp-body">
+                                                @{
+                                                    var subsectionList = active.Subsections.ToList();
+                                                    var isCompact = _layoutViewId == 2;
+                                                    // Base layout: 2 columns (except Compact). Use ColumnSpan to control width per section.
+                                                    var useTwoCols = !isCompact;
+                                                    var columnCount = useTwoCols ? 2 : 1;
+                                                    var row = 1;
+                                                    var col = 1;
+
+                                                    static bool TitleIn(string? title, params string[] expected)
+                                                    {
+                                                        if (string.IsNullOrWhiteSpace(title)) return false;
+                                                        var t = title.Trim();
+                                                        foreach (var e in expected)
+                                                        {
+                                                            if (string.Equals(t, e, StringComparison.OrdinalIgnoreCase))
+                                                                return true;
+                                                        }
+                                                        return false;
+                                                    }
                                                 }
-                                            </SplitterPane>
-                                        </SplitterPanes>
-                                    </TelerikSplitter>
-                                }
-                            }
-                            else
-                            {
-                                <TelerikCard Class="pd-tab-placeholder pd-mt-3" ThemeColor="@ThemeConstants.Card.ThemeColor.Light">
-                                    <CardBody Class="pd-tab-placeholder-body">
-                                        <p class="pd-tab-placeholder-text">This section is not available in the prototype shell. Content will appear here when the workflow is connected.</p>
-                                    </CardBody>
-                                </TelerikCard>
-                            }
-                        </TabStripTab>
+
+                                                <TelerikGridLayout Class="pd-mdm-subgrid"
+                                                                   Width="100%"
+                                                                   ColumnSpacing="14px"
+                                                                   RowSpacing="16px">
+                                                    <GridLayoutRows>
+                                                        @for (var r = 0; r < subsectionList.Count + 2; r++)
+                                                        {
+                                                            <GridLayoutRow Height="auto" />
+                                                        }
+                                                    </GridLayoutRows>
+                                                    <GridLayoutColumns>
+                                                        @if (columnCount == 1)
+                                                        {
+                                                            <GridLayoutColumn Width="1fr" />
+                                                        }
+                                                        else
+                                                        {
+                                                            <GridLayoutColumn Width="1fr" />
+                                                            <GridLayoutColumn Width="1fr" />
+                                                        }
+                                                    </GridLayoutColumns>
+                                                    <GridLayoutItems>
+                                                        @for (var si = 0; si < subsectionList.Count; si++)
+                                                        {
+                                                            var sub = subsectionList[si];
+                                                            var visibleInSub = sub.Fields.Where(ShouldShowField).ToList();
+                                                            var isLast = si == subsectionList.Count - 1;
+                                                            var spanDenseFull = false;
+
+                                                            if (useTwoCols)
+                                                            {
+                                                                // Explicit content-aware layout (requested):
+                                                                // - Eviction & Occupancy → half
+                                                                // - Financials → half
+                                                                // - Foreclosure → full
+                                                                // - Location & Title → half
+                                                                // - Ownership & Loan → half
+                                                                // - Property Summary → full
+                                                                //
+                                                                // For any other sections, fall back to density-based spanning.
+                                                                var title = sub.Title;
+                                                                spanDenseFull =
+                                                                    TitleIn(title, "Foreclosure", "Property Summary") ||
+                                                                    visibleInSub.Count >= 14 ||
+                                                                    ShouldSubsectionSpanFullWidth(subsectionList, si, visibleInSub.Count);
+                                                            }
+
+                                                            // Avoid a single narrow card stranded on the last row.
+                                                            if (useTwoCols && isLast && col == 1 && !spanDenseFull)
+                                                            {
+                                                                spanDenseFull = true;
+                                                            }
+
+                                                            if (spanDenseFull && col != 1)
+                                                            {
+                                                                row++;
+                                                                col = 1;
+                                                            }
+
+                                                            var columnSpan = spanDenseFull ? 2 : 1;
+
+                                                            <GridLayoutItem Row="@row"
+                                                                            Column="@col"
+                                                                            ColumnSpan="@columnSpan">
+                                                                <TelerikCard @key="@($"{_activeSectionId}-{sub.Key}")"
+                                                                             Class="pd-mdm-subcard"
+                                                                             ThemeColor="@ThemeConstants.Card.ThemeColor.Light"
+                                                                             Width="100%">
+                                                                    <CardHeader Class="pd-mdm-subhead">
+                                                                        <CardTitle Class="pd-mdm-subtitle">@sub.Title</CardTitle>
+                                                                    </CardHeader>
+                                                                    <CardBody Class="pd-mdm-subbody">
+                                                                        <TelerikGrid TItem="PropertyMdmFieldJson"
+                                                                                     Data="@visibleInSub"
+                                                                                     Pageable="false"
+                                                                                     Sortable="false"
+                                                                                     Resizable="false"
+                                                                                     Class="pd-mdm-field-grid pd-w-full">
+                                                                            <GridColumns>
+                                                                                <GridColumn Title="">
+                                                                                    <Template>
+                                                                                        @{
+                                                                                            var f = (PropertyMdmFieldJson)context;
+                                                                                        }
+                                                                                        <div class="pd-data-field" id="@FieldDomId(f)">
+                                                                                            <span class="pd-data-field__lbl">@f.Label</span>
+                                                                                            @if (f.Kind == "textarea")
+                                                                                            {
+                                                                                                <div class="pd-data-field__val pd-data-field__val--multiline">@FormatDisplay(f)</div>
+                                                                                            }
+                                                                                            else
+                                                                                            {
+                                                                                                <div class="pd-data-field__val">@FormatDisplay(f)</div>
+                                                                                            }
+                                                                                        </div>
+                                                                                    </Template>
+                                                                                </GridColumn>
+                                                                            </GridColumns>
+                                                                        </TelerikGrid>
+                                                                    </CardBody>
+                                                                </TelerikCard>
+                                                            </GridLayoutItem>
+
+                                                            if (spanDenseFull)
+                                                            {
+                                                                row++;
+                                                                col = 1;
+                                                            }
+                                                            else if (columnCount == 1)
+                                                            {
+                                                                row++;
+                                                                col = 1;
+                                                            }
+                                                            else if (col == 1)
+                                                            {
+                                                                col = 2;
+                                                            }
+                                                            else
+                                                            {
+                                                                row++;
+                                                                col = 1;
+                                                            }
+                                                        }
+                                                    </GridLayoutItems>
+                                                </TelerikGridLayout>
+                                            </CardBody>
+                                        </TelerikCard>
+                                    }
+                                </SplitterPane>
+                            </SplitterPanes>
+                        </TelerikSplitter>
                     }
-                </TelerikTabStrip>
-            </GridLayoutItem>
-            <GridLayoutItem Row="1" Column="2">
-                <TelerikStackLayout Orientation="@StackLayoutOrientation.Vertical"
-                                    Spacing="6px"
-                                    Class="pd-layout-stack"
-                                    HorizontalAlign="@StackLayoutHorizontalAlign.Stretch">
-                    <label class="pd-field-label" for="pd-layout-view">Layout</label>
-                    <TelerikDropDownList Id="pd-layout-view"
-                                         Data="@_layoutViewOptions"
-                                         @bind-Value="@_layoutViewId"
-                                         TextField="@nameof(LayoutViewOption.Name)"
-                                         ValueField="@nameof(LayoutViewOption.Id)"
-                                         Width="100%"
-                                         Class="pd-layout-ddl" />
-                </TelerikStackLayout>
-            </GridLayoutItem>
-        </GridLayoutItems>
-    </TelerikGridLayout>
+                }
+                else
+                {
+                    <TelerikCard Class="pd-tab-placeholder pd-mt-3" ThemeColor="@ThemeConstants.Card.ThemeColor.Light">
+                        <CardBody Class="pd-tab-placeholder-body">
+                            <p class="pd-tab-placeholder-text">This section is not available in the prototype shell. Content will appear here when the workflow is connected.</p>
+                        </CardBody>
+                    </TelerikCard>
+                }
+            </TabStripTab>
+        }
+    </TelerikTabStrip>
     </div>
 </div>
 
@@ -432,13 +560,33 @@
 
     private readonly List<SearchHit> _searchHits = [];
 
-    private string? _pendingFieldId;
+    private readonly HashSet<string> _searchHitFieldIds = new(StringComparer.Ordinal);
 
-    private string? _flashFieldId;
+    private const int SearchHitLimit = 200;
 
-    private DotNetObjectReference<PropertyWorkOrderDetails>? _dotNetRef;
+    private bool _searchHitsTruncated;
+
+    private string? _selectedSearchFieldId;
+
+    /// <summary>
+    /// Field ID to highlight after the next render cycle completes.
+    /// Set by JumpToHitAsync; consumed and cleared by OnAfterRenderAsync.
+    /// Latest click always wins — if set twice before a render, only the second is processed.
+    /// </summary>
+    private string? _pendingJumpFieldId;
 
     private bool _clientFields = true;
+
+    private bool ClientFields
+    {
+        get => _clientFields;
+        set
+        {
+            if (_clientFields == value) return;
+            _clientFields = value;
+            RecomputeSearch();
+        }
+    }
 
     private int _layoutViewId = 1;
 
@@ -482,52 +630,27 @@
 
     private PropertyDetailsDto? _payload;
 
-    private Task OnFieldSearchChanged(string v)
+    private async Task OnFieldSearchChanged(string v)
     {
         _fieldSearch = v;
+        _selectedSearchFieldId = null;
+        _pendingJumpFieldId = null;
         RecomputeSearch();
-        return Task.CompletedTask;
+        try { await JS.InvokeVoidAsync("propertyOverview.clearFieldHighlight"); }
+        catch (JSDisconnectedException) { }
+        catch { }
     }
 
-    private void OnCategoryRowRender(GridRowRenderEventArgs args)
+    private async Task ClearFieldSearchAsync()
     {
-        if (args.Item is PropertyMdmCategoryVm c)
-        {
-            if (c.AnchorId == _activeSectionId)
-                args.Class = "pd-grid-row-active";
-        }
-    }
-
-    private void OnFieldRowRender(GridRowRenderEventArgs args)
-    {
-        if (args.Item is not PropertyMdmFieldJson f)
-            return;
-        var id = FieldDomId(f);
-        var q = _fieldSearch?.Trim();
-        var isHit = !string.IsNullOrEmpty(q) &&
-                    (f.Label.Contains(q, StringComparison.OrdinalIgnoreCase) ||
-                     (f.Value ?? "").Contains(q, StringComparison.OrdinalIgnoreCase));
-        var parts = new List<string>();
-        if (isHit)
-            parts.Add("pd-field-row--hit");
-        if (_flashFieldId == id)
-            parts.Add("pd-field-row--flash");
-        if (parts.Count > 0)
-            args.Class = string.Join(' ', parts);
-    }
-
-    private void OnCategoryRowClick(GridRowClickEventArgs args)
-    {
-        if (args.Item is not PropertyMdmCategoryVm cat)
-            return;
-        SelectSection(cat.AnchorId);
-    }
-
-    private async Task OnSearchHitRowClick(GridRowClickEventArgs args)
-    {
-        if (args.Item is not SearchHit hit)
-            return;
-        await JumpToHitAsync(hit);
+        _fieldSearch = null;
+        _selectedSearchFieldId = null;
+        _pendingJumpFieldId = null;
+        RecomputeSearch();
+        try { await JS.InvokeVoidAsync("propertyOverview.clearFieldHighlight"); }
+        catch (JSDisconnectedException) { }
+        catch { }
+        await InvokeAsync(StateHasChanged);
     }
 
     private static string HeroChipTheme(string? kind)
@@ -628,29 +751,44 @@
             _activePrimaryTabIndex = idx;
     }
 
-    private void SelectSection(string anchorId)
+    private async Task SelectSectionAsync(string anchorId)
     {
         if (_activeSectionId == anchorId) return;
-        _flashFieldId = null;
-        _searchHits.Clear();
         _activeSectionId = anchorId;
+        try
+        {
+            await JS.InvokeVoidAsync("propertyOverview.scrollDetailToTop");
+        }
+        catch (JSDisconnectedException) { }
+        catch { }
     }
 
     private void RecomputeSearch()
     {
         var q = _fieldSearch?.Trim();
         _searchHits.Clear();
+        _searchHitFieldIds.Clear();
+        _searchHitsTruncated = false;
         if (string.IsNullOrEmpty(q)) return;
 
         foreach (var cat in _categories)
         {
+            var catMatches = cat.Title.Contains(q, StringComparison.OrdinalIgnoreCase);
             foreach (var sub in cat.Subsections)
             {
+                var subMatches = sub.Title.Contains(q, StringComparison.OrdinalIgnoreCase);
                 foreach (var field in sub.Fields)
                 {
                     if (!ShouldShowField(field)) continue;
-                    if (field.Label.Contains(q, StringComparison.OrdinalIgnoreCase) ||
-                        (field.Value ?? "").Contains(q, StringComparison.OrdinalIgnoreCase))
+                    var fieldLabelMatch = field.Label.Contains(q, StringComparison.OrdinalIgnoreCase);
+                    var valueMatch = (field.Value ?? "").Contains(q, StringComparison.OrdinalIgnoreCase);
+                    if (!catMatches && !subMatches && !fieldLabelMatch && !valueMatch)
+                        continue;
+
+                    var id = FieldDomId(field);
+                    _searchHitFieldIds.Add(id);
+
+                    if (_searchHits.Count < SearchHitLimit)
                     {
                         _searchHits.Add(new SearchHit(
                             cat.AnchorId,
@@ -658,7 +796,11 @@
                             sub.Key,
                             sub.Title,
                             field.Label,
-                            FieldDomId(field)));
+                            id));
+                    }
+                    else
+                    {
+                        _searchHitsTruncated = true;
                     }
                 }
             }
@@ -667,19 +809,10 @@
 
     private async Task JumpToHitAsync(SearchHit hit)
     {
-        _searchHits.Clear();
         _activeSectionId = hit.AnchorId;
-        _pendingFieldId = hit.FieldElementId;
-        _flashFieldId = hit.FieldElementId;
+        _selectedSearchFieldId = hit.FieldElementId;
+        _pendingJumpFieldId = hit.FieldElementId; // consumed by OnAfterRenderAsync
         await InvokeAsync(StateHasChanged);
-    }
-
-    [JSInvokable]
-    public void ClearFlashField()
-    {
-        if (_flashFieldId is null) return;
-        _flashFieldId = null;
-        _ = InvokeAsync(StateHasChanged);
     }
 
     private void RebuildBreadcrumb()
@@ -701,7 +834,6 @@
     {
         if (firstRender)
         {
-            _dotNetRef = DotNetObjectReference.Create(this);
             RebuildBreadcrumb();
             try
             {
@@ -741,24 +873,18 @@
             await InvokeAsync(StateHasChanged);
         }
 
-        if (_pendingFieldId is not null)
+        // Consume a pending field jump queued by JumpToHitAsync.
+        // Running here guarantees the target element exists in the DOM before we
+        // call into JS. Latest click always wins — rapid clicks overwrite _pendingJumpFieldId
+        // and only the final value is processed when the batched render completes.
+        if (_pendingJumpFieldId is { } fieldId)
         {
-            var fieldId = _pendingFieldId;
-            _pendingFieldId = null;
-            await Task.Delay(80);
-            try
-            {
-                await JS.InvokeVoidAsync("propertyOverview.scrollToField", fieldId, _dotNetRef);
-            }
+            _pendingJumpFieldId = null;
+            try { await JS.InvokeVoidAsync("propertyOverview.scrollAndHighlightField", fieldId); }
             catch (JSDisconnectedException) { }
             catch { }
         }
     }
 
-    public ValueTask DisposeAsync()
-    {
-        _dotNetRef?.Dispose();
-        _dotNetRef = null;
-        return ValueTask.CompletedTask;
-    }
+    public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 }

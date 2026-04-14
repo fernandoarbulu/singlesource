@@ -1,19 +1,15 @@
-/* Property / work order details — Telerik-first; presentation via ::deep Kendo hooks + design tokens */
-/* Main canvas + .pd-data-field* tokens: wwwroot/css/property-shell-pages.css (--pd-page-inline) */
+/* Property / work order details — favor Telerik components for structure.
+   Keep scoped CSS lightweight: typography, spacing, and a few Kendo hooks that
+   cannot be expressed via component parameters. */
 
-/* Fill page column — beats any Kendo default max-width on cards/layout roots */
-::deep(.pd-page > .k-card) {
-    width: 100% !important;
-    max-width: none !important;
+/* Use a bit more of the viewport: reduce side padding slightly for this page. */
+.pd-page {
+    --pd-page-inline: clamp(12px, 1.6vw, 20px);
 }
 
-::deep(.pd-tab-toolbar.k-gridlayout) {
-    width: 100% !important;
-    max-width: none !important;
-}
-
-.pd-page--compact ::deep(.pd-mdm-subcard .k-card-body) {
-    padding-top: 0.5rem;
+/* Compact mode: slightly tighter subsection padding */
+.pd-page--compact .pd-mdm-subbody {
+    padding-top: 0.5rem !important;
 }
 
 /* ── Hero summary band (dashboard-style summary strip) ── */
@@ -32,39 +28,7 @@
     padding: 1.35rem 1.4rem 1rem;
 }
 
-/* Image / narrative / metrics — shared rhythm; columns top-aligned as one band */
-::deep(.pd-hero-dashboard-grid.k-gridlayout) {
-    column-gap: 1.75rem !important;
-    row-gap: 0 !important;
-    align-items: start;
-}
-
-::deep(.pd-hero-dashboard-grid .k-grid-layout-item) {
-    min-width: 0;
-    align-self: start;
-    display: flex;
-    flex-direction: column;
-}
-
-::deep(.pd-hero-dashboard-grid .k-grid-layout-item > *) {
-    flex-shrink: 0;
-}
-
-/* Title + status chip row: optical alignment with address + KPI grid below */
-/* Telerik renders k-stack-layout (hyphenated); .k-stacklayout alone does not match — use our class */
-::deep(.pd-hero-text-col.k-stack-layout),
-::deep(.pd-hero-text-col.k-stacklayout) {
-    gap: 0.875rem !important;
-}
-
-::deep(.pd-hero-text-col.k-stack-layout > .k-stack-layout:first-of-type),
-::deep(.pd-hero-text-col.k-stack-layout > .k-stacklayout:first-of-type),
-::deep(.pd-hero-text-col.k-stacklayout > .k-stack-layout:first-of-type),
-::deep(.pd-hero-text-col.k-stacklayout > .k-stacklayout:first-of-type) {
-    gap: 0.875rem !important;
-    align-items: center !important;
-    padding-block: 0.15rem;
-}
+/* Hero grid + stack spacing is handled via Telerik component parameters. */
 
 ::deep(.pd-hero-text-col .k-chip) {
     flex-shrink: 0;
@@ -120,7 +84,6 @@
 
 /* Data field typography/gap: global — wwwroot/css/property-shell-pages.css (single source; hero + MDM) */
 
-/* Hero summary shell — layout only; Telerik uses k-stack-layout */
 ::deep(.pd-hero-summary) {
     flex-wrap: nowrap;
     align-items: flex-start;
@@ -244,10 +207,7 @@
     }
 }
 
-/* ── Tabs + layout picker ── */
-::deep(.pd-tab-toolbar.k-gridlayout) {
-    margin-top: 0.25rem;
-}
+/* ── Tabs ── */
 
 ::deep(.pd-tabstrip.k-tabstrip) {
     background: transparent;
@@ -319,6 +279,10 @@
     padding-bottom: 2px;
 }
 
+.pd-layout-stack--topbar {
+    max-width: 280px;
+}
+
 .pd-field-label {
     font-size: var(--font-size-xs);
     font-weight: var(--font-weight-semibold);
@@ -354,105 +318,273 @@
     font-weight: var(--font-weight-medium);
 }
 
-/* Splitter */
-::deep(.pd-splitter.k-splitter) {
-    border: none;
-    border-radius: 0 0 10px 10px;
-    background: transparent;
-}
-
-::deep(.pd-splitter .k-splitbar) {
-    width: 6px;
-    background: var(--color-border-subtle);
-}
-
-::deep(.pd-splitter .k-splitbar:hover) {
-    background: rgba(37, 99, 235, 0.2);
-}
-
-.pd-split-pane-nav {
-    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
-    border-right: 1px solid var(--color-border-default) !important;
-}
+/* Splitter pane flex + splitbar: see wwwroot/css/property-shell-pages.css — .k-pane is rendered
+   inside TelerikSplitter so scoped rules here do not apply to those nodes. */
 
 .pd-nav-stack {
-    padding: 0.75rem 0.85rem 1rem;
+    padding: 0;
+    box-sizing: border-box;
+    height: 100%;
+    min-height: 0;
+}
+
+/* Left column: search tool + section nav */
+.pd-nav-pane {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    min-height: 0;
+    flex: 1 1 auto;
+    padding: 0.75rem 0 1rem;
+    box-sizing: border-box;
+}
+
+.pd-search-block {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    margin-bottom: 14px;
+}
+
+/* Horizontal padding: textbox is full width inside this padded column */
+.pd-search-block__inner {
+    padding: 0 0.875rem;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.pd-nav-sections {
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: 0 0.5rem;
+    box-sizing: border-box;
+}
+
+/* Unified search module: label + input + meta + results (single vertical rhythm). */
+.pd-search-panel {
+    padding: 0;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+/* Tight block directly under the input when searching (no large gap before results). */
+.pd-search-below-input {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-top: 0.1rem;
+    width: 100%;
+    min-width: 0;
 }
 
 /* TelerikFloatingLabel + field search — full width in nav column */
 ::deep(.pd-field-search-fl.k-floating-label-container) {
     width: 100%;
     max-width: 100%;
+    display: block;
 }
 
-/* Detail pane: use full splitter width; min-width allows flex/grid to shrink correctly */
-.pd-split-pane-detail {
-    background: var(--color-bg-card);
+/* Force full-width textbox inside floating label (avoid short centered input). */
+::deep(.pd-search-panel .k-floating-label-container .k-input),
+::deep(.pd-search-panel .k-floating-label-container .k-textbox),
+::deep(.pd-search-panel .k-floating-label-container span.k-input-inner),
+::deep(.pd-search-panel .k-floating-label-container input.k-input-inner) {
+    width: 100% !important;
+    max-width: 100% !important;
     box-sizing: border-box;
-    width: 100%;
-    max-width: 100%;
-    min-width: 0;
 }
 
-/* Tight horizontal inset so subsection container query sees more inline size (2-col activates sooner) */
+::deep(.pd-nav-stack.k-stack-layout) {
+    gap: 0.5rem !important;
+}
+
+/* Detail pane surface: global rules in property-shell-pages.css (.k-pane.pd-split-pane-detail). */
+
+/* Detail pane card: stable top padding matches left nav top so both panels align visually.
+   Never conditional — this value must NOT change between sections. */
 ::deep(.pd-split-pane-detail .pd-inspector-card) {
-    padding: 0 0.5rem 1rem;
+    padding: 0.75rem 0.5rem 1rem;
 }
 
 ::deep(.pd-nav-stack .k-textbox) {
     border-radius: 8px;
 }
 
-/* Search hit grid */
-::deep(.pd-search-hit-grid.k-grid) {
-    border-radius: 8px;
-    border: 1px solid var(--color-border-default);
-    font-size: var(--font-size-sm);
+/* Search rail — matches list + meta */
+.pd-search-rail-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    padding: 0;
+    margin: 0;
 }
 
-/* Search hit field label overrides: property-shell-pages.css */
+.pd-search-rail-count {
+    font-weight: var(--font-weight-medium);
+}
 
-::deep(.pd-search-hit-grid .k-table-thead th) {
+.pd-search-rail-empty {
+    color: var(--color-text-muted);
+}
+
+/* Jump-to navigation (search matches): list semantics, not a data table */
+.pd-search-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 0.5rem 0 0;
+    margin: 0;
+    border: none;
+    border-top: 1px solid var(--color-border-subtle);
+    max-height: 320px;
+    overflow: auto;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+button.pd-search-nav__item {
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 0.75rem 1rem;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.55);
+    box-sizing: border-box;
+    cursor: pointer;
+    font: inherit;
+    text-align: left;
+    color: inherit;
+    transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+button.pd-search-nav__item:hover {
+    background: rgba(37, 99, 235, 0.07);
+    border-color: color-mix(in srgb, var(--color-border-default) 45%, transparent);
+}
+
+button.pd-search-nav__item:active {
+    background: rgba(37, 99, 235, 0.1);
+}
+
+button.pd-search-nav__item:focus-visible {
+    outline: 2px solid rgba(37, 99, 235, 0.35);
+    outline-offset: 2px;
+}
+
+button.pd-search-nav__item--active {
+    background: rgba(254, 243, 199, 0.70);
+    border-color: rgba(234, 179, 8, 0.40);
+}
+
+button.pd-search-nav__item--active:hover {
+    background: rgba(254, 243, 199, 0.75);
+    border-color: rgba(234, 179, 8, 0.45);
+}
+
+.pd-search-nav__text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-width: 0;
+    width: 100%;
+    text-align: left;
+    align-items: flex-start;
+}
+
+.pd-search-nav__label {
+    font-weight: 700;
+    font-size: var(--font-size-md);
+    color: var(--color-text-primary);
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    width: 100%;
+}
+
+.pd-search-nav__meta {
     font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    letter-spacing: 0.02em;
+    color: var(--color-text-secondary);
+    line-height: 1.35;
+    width: 100%;
+}
+
+/* Section navigation rail */
+.pd-section-nav-label {
+    margin: 0 0 6px;
+    padding: 0 10px;
+    font-size: 11px;
+    font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: var(--color-text-label);
+    line-height: 1.2;
 }
 
-/* Category list — sidebar */
-::deep(.pd-category-grid.k-grid) {
-    border-radius: 8px;
-    border: 1px solid var(--color-border-default);
-    background: var(--color-bg-card);
-    font-size: var(--font-size-md);
+.pd-section-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
 }
 
-::deep(.pd-category-grid .k-table-thead th) {
-    font-size: var(--font-size-xs);
-    font-weight: var(--font-weight-semibold);
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
-    color: var(--color-text-label);
-    padding: 0.45rem 0.65rem;
-    background: rgba(255, 255, 255, 0.85);
-    border-bottom: 1px solid var(--color-border-subtle);
-}
-
-::deep(.pd-category-grid .k-table-tbody td) {
-    padding: 0.5rem 0.65rem;
-    border-bottom: 1px solid var(--color-border-subtle);
+button.pd-section-nav-item {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 36px;
+    padding: 0 10px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    box-sizing: border-box;
     cursor: pointer;
+    font: inherit;
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: background-color 0.12s ease, color 0.12s ease;
+    -webkit-appearance: none;
+    appearance: none;
 }
 
-::deep(.pd-category-grid .k-table-tbody tr:hover td) {
-    background: rgba(37, 99, 235, 0.06);
-}
-
-::deep(.pd-category-grid tr.pd-grid-row-active td) {
-    background: var(--color-bg-hover);
-    box-shadow: inset 3px 0 0 var(--color-accent-primary);
-    font-weight: var(--font-weight-semibold);
+button.pd-section-nav-item:hover {
+    background: rgba(15, 23, 42, 0.05);
     color: var(--color-text-primary);
+}
+
+button.pd-section-nav-item:active {
+    background: rgba(15, 23, 42, 0.08);
+}
+
+button.pd-section-nav-item:focus-visible {
+    outline: 2px solid rgba(37, 99, 235, 0.35);
+    outline-offset: -2px;
+}
+
+button.pd-section-nav-item--active {
+    background: rgba(37, 99, 235, 0.09);
+    color: var(--color-text-primary);
+    font-weight: var(--font-weight-semibold);
+}
+
+button.pd-section-nav-item--active:hover {
+    background: rgba(37, 99, 235, 0.12);
 }
 
 /* Inspector */
@@ -464,9 +596,9 @@
 }
 
 .pd-insp-header {
-    padding: 1.1rem 0 1.15rem !important;
+    padding: 0 0 1rem !important;
     border-bottom: 1px solid var(--color-border-default);
-    background: transparent !important;
+    background: linear-gradient(to bottom, rgba(248, 250, 252, 0.85), rgba(255, 255, 255, 0)) !important;
 }
 
 /* Major section title (category / inspector) — clearest level below page chrome */
@@ -486,52 +618,39 @@
     padding: 1.15rem 0 1.25rem !important;
 }
 
-/* Subsection cards: responsive 2-column grid on large detail pane; 1 column when narrow */
-.pd-mdm-subgrid {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 0.95rem 0.85rem;
-    width: 100%;
-    max-width: 100%;
-    min-width: 0;
-    align-items: start;
-}
-
-/* 2-column @container rules: see wwwroot/css/property-shell-pages.css (global; scoped bundles omit CQ reliably). */
-
-/* Compact page mode: keep a single column for scan density */
-.pd-page--compact .pd-mdm-subgrid {
-    grid-template-columns: minmax(0, 1fr) !important;
-}
+/* Subsection layout is handled by TelerikGridLayout in markup (no CSS grid). */
 
 /* Subsection cards */
-::deep(.pd-mdm-subcard.k-card) {
+.pd-mdm-subcard {
     border-radius: 10px;
     border: 1px solid var(--color-border-default);
-    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    background: var(--color-bg-card);
+    box-shadow:
+        0 1px 2px rgba(15, 23, 42, 0.05),
+        0 10px 20px rgba(15, 23, 42, 0.04);
     overflow: hidden;
 }
 
 .pd-mdm-subhead {
-    padding: 0.5rem 0.75rem !important;
-    background: var(--ss-surface-raised) !important;
-    border-bottom: 1px solid var(--color-border-subtle) !important;
+    padding: 0.55rem 0.8rem !important;
+    background: linear-gradient(to bottom, rgba(248, 250, 252, 0.95), rgba(241, 245, 249, 0.55)) !important;
+    border-bottom: 1px solid var(--color-border-default) !important;
 }
 
 /* Subsection title — one step below main section; smaller but clearly a heading */
 .pd-mdm-subtitle {
     margin: 0;
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-semibold);
-    letter-spacing: 0.04em;
+    font-size: var(--font-size-md);
+    font-weight: 700;
+    letter-spacing: -0.01em;
     text-transform: none;
-    color: var(--color-text-secondary);
-    line-height: 1.35;
+    color: var(--color-text-primary);
+    line-height: 1.25;
 }
 
 .pd-mdm-subbody {
-    padding: 0.5rem 0.65rem 0.6rem !important;
-    background: var(--color-bg-card);
+    padding: 0.55rem 0.75rem 0.7rem !important;
+    background: transparent;
 }
 
 /* Field appearance: global .pd-data-field* in property-shell-pages.css */
@@ -546,35 +665,68 @@
 }
 
 ::deep(.pd-mdm-field-grid .k-table-tbody td) {
-    padding: 0.68rem 0;
+    padding: 0.85rem 0;
     vertical-align: top;
     border-bottom: 1px solid var(--color-border-subtle);
     font-size: inherit;
+}
+
+/* Soften separators to reduce "spreadsheet" fatigue. */
+@supports (border-bottom-color: color-mix(in srgb, red, blue)) {
+    ::deep(.pd-mdm-field-grid .k-table-tbody td) {
+        border-bottom-color: color-mix(in srgb, var(--color-border-subtle) 55%, transparent);
+    }
+}
+
+::deep(.pd-mdm-field-grid .k-table-tbody tr:hover td) {
+    background: rgba(37, 99, 235, 0.045);
 }
 
 ::deep(.pd-mdm-field-grid .k-table-tbody tr:last-child td) {
     border-bottom: none;
 }
 
-::deep(.pd-mdm-field-grid tr.pd-field-row--hit) {
-    box-shadow: inset 3px 0 0 #f59e0b;
+/* Field typography: quieter labels, stronger values, better multiline readability. */
+::deep(.pd-mdm-field-grid .pd-data-field) {
+    display: grid;
+    grid-template-columns: minmax(170px, 0.9fr) minmax(0, 1.1fr);
+    column-gap: 1rem;
+    row-gap: 0.2rem;
+    align-items: start;
 }
 
-::deep(.pd-mdm-field-grid tr.pd-field-row--flash) {
-    animation: pd-flash 1.4s ease forwards;
+@media (max-width: 900px) {
+    ::deep(.pd-mdm-field-grid .pd-data-field) {
+        grid-template-columns: 1fr;
+        row-gap: 0.35rem;
+    }
 }
 
-@keyframes pd-flash {
-    0% {
-        background: rgba(254, 243, 199, 0.45);
-    }
-    60% {
-        background: rgba(254, 243, 199, 0.2);
-    }
-    100% {
-        background: transparent;
-    }
+::deep(.pd-mdm-field-grid .pd-data-field__lbl) {
+    color: var(--color-text-secondary);
+    font-weight: var(--font-weight-medium);
+    letter-spacing: 0.005em;
 }
+
+::deep(.pd-mdm-field-grid .pd-data-field__val) {
+    color: var(--color-text-primary);
+    font-weight: var(--font-weight-semibold);
+    line-height: 1.45;
+}
+
+::deep(.pd-mdm-field-grid .pd-data-field__val--multiline) {
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* Long text blocks: add breathing room so dense sections feel less exhausting. */
+::deep(.pd-mdm-field-grid .pd-data-field__val--multiline) {
+    line-height: 1.55;
+}
+
+/* Jump-to search highlight: rules live in wwwroot/css/property-shell-pages.css
+   (scoped to .pd-page) because JS-added classes are not subject to Blazor CSS
+   isolation and ::deep() wrapping compiles to invalid CSS in this file. */
 
 /* Placeholder tabs */
 ::deep(.pd-tabstrip .pd-tab-placeholder.k-card) {

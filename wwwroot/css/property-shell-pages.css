@@ -156,6 +156,53 @@
 }
 
 /*
+  Telerik Splitter panes: `.k-pane` nodes are rendered by TelerikSplitter, not the page .razor file,
+  so Blazor scoped *.razor.css does not reliably match them. With both panes non-resizable, Telerik
+  adds `k-pane-static` to BOTH panes — without a flex-grow override the detail pane collapses to
+  content width (~content-sized). These rules must stay global (same reason as @container below).
+*/
+.psh-main .pd-page .k-splitter.k-splitter-horizontal > .k-pane.pd-split-pane-nav.k-pane-static {
+    flex: 0 0 288px !important;
+    width: 288px !important;
+    min-width: 288px !important;
+    max-width: 288px !important;
+    box-sizing: border-box;
+    background: linear-gradient(180deg, #f8fafc 0%, #eef2f6 100%);
+    border-right: 1px solid var(--color-border-default) !important;
+}
+
+.psh-main .pd-page .k-splitter.k-splitter-horizontal > .k-pane.pd-split-pane-detail.k-pane-static {
+    flex: 1 1 auto !important;
+    flex-grow: 1 !important;
+    flex-shrink: 1 !important;
+    flex-basis: auto !important;
+    min-width: 0 !important;
+    width: auto !important;
+    max-width: none !important;
+    box-sizing: border-box;
+    background: var(--color-bg-card);
+}
+
+.psh-main .pd-page .k-splitter.k-splitter-horizontal > .k-splitbar.k-splitbar-static-horizontal {
+    flex: 0 0 0 !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    max-width: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    overflow: hidden;
+    background: transparent !important;
+    pointer-events: none;
+}
+
+.psh-main .pd-page .k-splitter.pd-splitter.k-splitter-horizontal {
+    border: none;
+    border-radius: 0 0 10px 10px;
+    background: transparent;
+}
+
+/*
   MDM inspector body: must establish the named query container in a GLOBAL stylesheet.
   Blazor scoped *.razor.css does not apply container-type / container-name (computed style
   stays "normal"/"none"), so @container pd-insp rules never matched.
@@ -388,4 +435,41 @@
     font-size: var(--font-size-sm);
     color: var(--color-text-secondary);
     margin: 0;
+}
+
+/* ── Search field highlight ──────────────────────────────────────────────────
+   Scoped to .pd-page so these rules cannot affect other pages.
+   Rules live here (not in PropertyWorkOrderDetails.razor.css) because the
+   `field-highlight` class is applied by JS; Blazor's ::deep() compilation
+   produces invalid CSS selectors in scoped files.
+   Applied by propertyOverview.scrollAndHighlightField();
+   removed by propertyOverview.clearFieldHighlight().
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* Persistent highlight on the exact matched field while a result is selected. */
+.pd-page .pd-data-field.field-highlight {
+    background-color: #fff8c5;
+    outline: 1.5px solid rgba(234, 179, 8, 0.45);
+    outline-offset: 3px;
+    border-radius: 4px;
+    animation: fieldHighlightAppear 0.25s ease-out;
+}
+
+.pd-page .pd-data-field.field-highlight .pd-data-field__lbl {
+    color: var(--color-text-primary);
+}
+
+@keyframes fieldHighlightAppear {
+    from { background-color: #fde68a; outline-color: rgba(234, 179, 8, 0.7); }
+    to   { background-color: #fff8c5; outline-color: rgba(234, 179, 8, 0.45); }
+}
+
+/* Subtle warm ring on the parent subsection card (fades after 2 s). */
+.pd-page .pd-mdm-subcard.pd-mdm-subcard--nav-hit {
+    animation: subcardNavHit 2s ease-out forwards;
+}
+
+@keyframes subcardNavHit {
+    0%   { box-shadow: 0 0 0 1px rgba(234, 179, 8, 0.35), 0 10px 22px rgba(15, 23, 42, 0.07); }
+    100% { box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 10px 20px rgba(15, 23, 42, 0.04); }
 }
