@@ -459,13 +459,15 @@
                                                                             var displayFields = IsExpanded(sub.Key)
                                                                                 ? visibleInSub
                                                                                 : visibleInSub.Take(PreviewFieldCount).ToList();
+                                                                            var gridCls = "pd-mdm-field-grid pd-w-full" +
+                                                                                (IsExpanded(sub.Key) ? "" : " pd-mdm-field-grid--preview");
                                                                         }
                                                                         <TelerikGrid TItem="PropertyMdmFieldJson"
                                                                                      Data="@displayFields"
                                                                                      Pageable="false"
                                                                                      Sortable="false"
                                                                                      Resizable="false"
-                                                                                     Class="@($"pd-mdm-field-grid pd-w-full{(!IsExpanded(sub.Key) ? " pd-mdm-field-grid--preview" : null)}")")
+                                                                                     Class="@gridCls">
                                                                             <GridColumns>
                                                                                 <GridColumn Title="">
                                                                                     <Template>
