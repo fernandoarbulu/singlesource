@@ -275,12 +275,13 @@
     margin-right: 0;
 }
 
-.pd-layout-stack {
-    padding-bottom: 2px;
-}
-
-.pd-layout-stack--topbar {
-    max-width: 280px;
+/* Content controls bar: view-mode tools between hero and tabs */
+.pd-content-controls {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding: 0.5rem 0 0.25rem;
 }
 
 .pd-field-label {

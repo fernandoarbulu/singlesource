@@ -14,42 +14,14 @@
 @* Single root wrapper: .psh-main is a flex column; this column fills height and splits top bar + scrollable body. *@
 <div class="pd-route-root">
     <header class="pd-topbar" role="banner">
-        <TelerikGridLayout Width="100%" ColumnSpacing="16px" RowSpacing="0" Class="pd-topbar-grid">
-            <GridLayoutRows>
-                <GridLayoutRow Height="auto" />
-            </GridLayoutRows>
-            <GridLayoutColumns>
-                <GridLayoutColumn Width="1fr" />
-                <GridLayoutColumn Width="280px" />
-            </GridLayoutColumns>
-            <GridLayoutItems>
-                <GridLayoutItem Row="1" Column="1">
-                    <TelerikBreadcrumb Data="@_breadcrumbTrail"
-                                       TextField="@nameof(BreadcrumbLink.Text)"
-                                       UrlField="@nameof(BreadcrumbLink.Url)"
-                                       DisabledField="@nameof(BreadcrumbLink.Disabled)"
-                                       CollapseMode="@BreadcrumbCollapseMode.Auto"
-                                       Size="@ThemeConstants.Breadcrumb.Size.Medium"
-                                       Width="100%"
-                                       AriaLabel="Breadcrumb" />
-                </GridLayoutItem>
-                <GridLayoutItem Row="1" Column="2">
-                    <TelerikStackLayout Orientation="@StackLayoutOrientation.Vertical"
-                                        Spacing="6px"
-                                        Class="pd-layout-stack pd-layout-stack--topbar"
-                                        HorizontalAlign="@StackLayoutHorizontalAlign.Stretch">
-                        <label class="pd-field-label" for="pd-layout-view">Layout</label>
-                        <TelerikDropDownList Id="pd-layout-view"
-                                             Data="@_layoutViewOptions"
-                                             @bind-Value="@_layoutViewId"
-                                             TextField="@nameof(LayoutViewOption.Name)"
-                                             ValueField="@nameof(LayoutViewOption.Id)"
-                                             Width="100%"
-                                             Class="pd-layout-ddl" />
-                    </TelerikStackLayout>
-                </GridLayoutItem>
-            </GridLayoutItems>
-        </TelerikGridLayout>
+        <TelerikBreadcrumb Data="@_breadcrumbTrail"
+                           TextField="@nameof(BreadcrumbLink.Text)"
+                           UrlField="@nameof(BreadcrumbLink.Url)"
+                           DisabledField="@nameof(BreadcrumbLink.Disabled)"
+                           CollapseMode="@BreadcrumbCollapseMode.Auto"
+                           Size="@ThemeConstants.Breadcrumb.Size.Medium"
+                           Width="100%"
+                           AriaLabel="Breadcrumb" />
     </header>
 
     <div class="pd-page @(_layoutViewId == 2 ? "pd-page--compact" : null)">
@@ -212,6 +184,17 @@
             </TelerikStackLayout>
         </CardBody>
     </TelerikCard>
+
+    <div class="pd-content-controls">
+        <label class="pd-field-label" for="pd-layout-view">Layout</label>
+        <TelerikDropDownList Id="pd-layout-view"
+                             Data="@_layoutViewOptions"
+                             @bind-Value="@_layoutViewId"
+                             TextField="@nameof(LayoutViewOption.Name)"
+                             ValueField="@nameof(LayoutViewOption.Id)"
+                             Width="140px"
+                             Class="pd-layout-ddl" />
+    </div>
 
     <TelerikTabStrip @bind-ActiveTabIndex="@_activePrimaryTabIndex"
                      Class="pd-tabstrip pd-w-full"
