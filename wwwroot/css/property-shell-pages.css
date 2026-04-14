@@ -483,6 +483,28 @@
     padding: 0.5rem 0 0.25rem;
 }
 
+/* Hero title row: Client fields toggle label + switch */
+.pd-client-fields-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+.pd-client-fields-lbl {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+}
+
+/* More actions button in title row: keep it compact, don't compete with the title */
+.pd-hero-more-btn.k-button {
+    flex-shrink: 0;
+    padding: 0.25rem 0.35rem;
+    min-width: 0;
+}
+
 /* ── Subsection card visual foundation ────────────────────────────────────────
    These rules are in global CSS because the Blazor scoped-CSS bundle is
    unreliable; without these the cards render flat with no border, background,

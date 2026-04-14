@@ -108,12 +108,6 @@
     }
 }
 
-/* More actions row */
-::deep .pd-hero-actions {
-    width: 100%;
-    margin-top: 0.35rem;
-    padding-top: 0.15rem;
-}
 
 /*
   Work order metrics — whisper-light shell so it dissolves into the hero band.

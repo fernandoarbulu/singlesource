@@ -62,29 +62,35 @@
                     </GridLayoutItem>
                     <GridLayoutItem Row="1" Column="2">
                         <TelerikStackLayout Orientation="@StackLayoutOrientation.Vertical" Spacing="20px" Class="pd-hero-text-col">
-                            <TelerikStackLayout Orientation="@StackLayoutOrientation.Horizontal"
-                                                Spacing="14px"
-                                                VerticalAlign="@StackLayoutVerticalAlign.Center"
-                                                HorizontalAlign="@StackLayoutHorizontalAlign.Stretch">
-                                <h1 class="pd-hero-title pd-flex-grow">@(_payload?.AddressLine1 ?? "…")</h1>
-                                @if (_payload is not null)
-                                {
-                                    <TelerikChip Text="@_payload.HeroStatusLabel"
-                                                 ThemeColor="@HeroChipTheme(_payload.HeroStatusKind)"
-                                                 FillMode="@ThemeConstants.Chip.FillMode.Solid"
-                                                 Size="@ThemeConstants.Chip.Size.Small"
-                                                 Rounded="@ThemeConstants.Chip.Rounded.Medium"
-                                                 Selectable="false" />
-                                }
-                                else
-                                {
-                                    <TelerikChip Text="—"
-                                                 ThemeColor="@ThemeConstants.Chip.ThemeColor.Base"
-                                                 FillMode="@ThemeConstants.Chip.FillMode.Solid"
-                                                 Size="@ThemeConstants.Chip.Size.Small"
-                                                 Selectable="false" />
-                                }
-                            </TelerikStackLayout>
+                        <TelerikStackLayout Orientation="@StackLayoutOrientation.Horizontal"
+                                            Spacing="10px"
+                                            VerticalAlign="@StackLayoutVerticalAlign.Center"
+                                            HorizontalAlign="@StackLayoutHorizontalAlign.Stretch">
+                            <h1 class="pd-hero-title pd-flex-grow">@(_payload?.AddressLine1 ?? "…")</h1>
+                            @if (_payload is not null)
+                            {
+                                <TelerikChip Text="@_payload.HeroStatusLabel"
+                                             ThemeColor="@HeroChipTheme(_payload.HeroStatusKind)"
+                                             FillMode="@ThemeConstants.Chip.FillMode.Outline"
+                                             Size="@ThemeConstants.Chip.Size.Small"
+                                             Rounded="@ThemeConstants.Chip.Rounded.Medium"
+                                             Selectable="false" />
+                            }
+                            else
+                            {
+                                <TelerikChip Text="—"
+                                             ThemeColor="@ThemeConstants.Chip.ThemeColor.Base"
+                                             FillMode="@ThemeConstants.Chip.FillMode.Outline"
+                                             Size="@ThemeConstants.Chip.Size.Small"
+                                             Selectable="false" />
+                            }
+                            <TelerikButton Icon="@SvgIcon.ChevronDown"
+                                           FillMode="@ThemeConstants.Button.FillMode.Flat"
+                                           ThemeColor="@ThemeConstants.Button.ThemeColor.Base"
+                                           AriaLabel="More actions"
+                                           Title="More actions"
+                                           Class="pd-hero-more-btn" />
+                        </TelerikStackLayout>
                             <p class="pd-hero-sub">@(_payload?.CityStateZip ?? "")</p>
                             @if (_mdmReady)
                             {
@@ -172,16 +178,6 @@
                     </GridLayoutItem>
                 </GridLayoutItems>
             </TelerikGridLayout>
-            <TelerikStackLayout Orientation="@StackLayoutOrientation.Horizontal"
-                                HorizontalAlign="@StackLayoutHorizontalAlign.Right"
-                                VerticalAlign="@StackLayoutVerticalAlign.Center"
-                                Class="pd-hero-actions">
-                <TelerikButton Icon="@SvgIcon.ChevronDown"
-                               FillMode="@ThemeConstants.Button.FillMode.Flat"
-                               ThemeColor="@ThemeConstants.Button.ThemeColor.Base"
-                               AriaLabel="More actions"
-                               Title="More actions" />
-            </TelerikStackLayout>
         </CardBody>
     </TelerikCard>
 
@@ -345,10 +341,12 @@
                                                             <CardTitle Class="pd-insp-title">@active.Title</CardTitle>
                                                         </GridLayoutItem>
                                                         <GridLayoutItem Row="1" Column="2">
-                                                                        <TelerikSwitch @bind-Value="@ClientFields"
-                                                                                       OnLabel="Client fields"
-                                                                                       OffLabel="Client fields"
-                                                                                       Width="auto" />
+                                                            <div class="pd-client-fields-row">
+                                                                <span class="pd-client-fields-lbl">Client fields</span>
+                                                                <TelerikSwitch @bind-Value="@ClientFields"
+                                                                               OnLabel=""
+                                                                               OffLabel="" />
+                                                            </div>
                                                         </GridLayoutItem>
                                                     </GridLayoutItems>
                                                 </TelerikGridLayout>
@@ -402,32 +400,9 @@
                                                         {
                                                             var sub = subsectionList[si];
                                                             var visibleInSub = sub.Fields.Where(ShouldShowField).ToList();
-                                                            var isLast = si == subsectionList.Count - 1;
-                                                            var spanDenseFull = false;
-
-                                                            if (useTwoCols)
-                                                            {
-                                                                // Explicit content-aware layout (requested):
-                                                                // - Eviction & Occupancy → half
-                                                                // - Financials → half
-                                                                // - Foreclosure → full
-                                                                // - Location & Title → half
-                                                                // - Ownership & Loan → half
-                                                                // - Property Summary → full
-                                                                //
-                                                                // For any other sections, fall back to density-based spanning.
-                                                                var title = sub.Title;
-                                                                spanDenseFull =
-                                                                    TitleIn(title, "Foreclosure", "Property Summary") ||
-                                                                    visibleInSub.Count >= 14 ||
-                                                                    ShouldSubsectionSpanFullWidth(subsectionList, si, visibleInSub.Count);
-                                                            }
-
-                                                            // Avoid a single narrow card stranded on the last row.
-                                                            if (useTwoCols && isLast && col == 1 && !spanDenseFull)
-                                                            {
-                                                                spanDenseFull = true;
-                                                            }
+                                                            // Full-width only for intentionally wide sections; all others use 2-col grid.
+                                                            var spanDenseFull = useTwoCols &&
+                                                                TitleIn(sub.Title, "Foreclosure", "Property Summary");
 
                                                             if (spanDenseFull && col != 1)
                                                             {
@@ -739,20 +714,6 @@
         if (string.Equals(f.Visibility, "clientSpecific", StringComparison.OrdinalIgnoreCase) && !_clientFields)
             return false;
         return true;
-    }
-
-    private int CountVisibleFields(PropertyMdmSubsectionVm sub) =>
-        sub.Fields.Count(ShouldShowField);
-
-    /// <summary>Full-width subsection card when visibly denser than both neighbors (readability in 2-col grid).</summary>
-    private bool ShouldSubsectionSpanFullWidth(IReadOnlyList<PropertyMdmSubsectionVm> subs, int index, int visibleCount)
-    {
-        if (visibleCount < 8) return false;
-        var leftN = index > 0 ? CountVisibleFields(subs[index - 1]) : 0;
-        var rightN = index < subs.Count - 1 ? CountVisibleFields(subs[index + 1]) : 0;
-        var maxNeighbor = Math.Max(leftN, rightN);
-        if (maxNeighbor == 0) return visibleCount >= 12;
-        return visibleCount >= maxNeighbor * 2;
     }
 
     private static string FormatDisplay(PropertyMdmFieldJson f)
