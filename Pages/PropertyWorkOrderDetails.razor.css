@@ -13,11 +13,11 @@
 }
 
 /* ── Hero summary band (dashboard-style summary strip) ── */
-::deep(.pd-hero-dashboard.k-card) {
+::deep .pd-hero-dashboard.k-card {
     background: linear-gradient(180deg, #ffffff 0%, #f8fafc 55%, #f4f6f9 100%);
 }
 
-::deep(.pd-hero-card.k-card) {
+::deep .pd-hero-card.k-card {
     border-radius: 12px;
     border: 1px solid var(--color-border-default);
     box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.06);
@@ -30,14 +30,14 @@
 
 /* Hero grid + stack spacing is handled via Telerik component parameters. */
 
-::deep(.pd-hero-text-col .k-chip) {
+::deep .pd-hero-text-col .k-chip {
     flex-shrink: 0;
     font-weight: var(--font-weight-semibold);
     letter-spacing: 0.02em;
     box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
 }
 
-::deep(.pd-hero-image-card.k-card) {
+::deep .pd-hero-image-card.k-card {
     border-radius: 10px;
     border: 1px solid var(--color-border-subtle);
     overflow: hidden;
@@ -84,7 +84,7 @@
 
 /* Data field typography/gap: global — wwwroot/css/property-shell-pages.css (single source; hero + MDM) */
 
-::deep(.pd-hero-summary) {
+::deep .pd-hero-summary {
     flex-wrap: nowrap;
     align-items: flex-start;
     gap: 1.35rem !important;
@@ -101,7 +101,7 @@
 /* Hero field vertical rhythm: global rules in property-shell-pages.css (.pd-page .pd-hero-summary*) */
 
 @media (max-width: 720px) {
-    ::deep(.pd-hero-summary) {
+    ::deep .pd-hero-summary {
         flex-direction: column !important;
         align-items: stretch !important;
         gap: 2rem !important;
@@ -109,7 +109,7 @@
 }
 
 /* More actions row */
-::deep(.pd-hero-actions) {
+::deep .pd-hero-actions {
     width: 100%;
     margin-top: 0.35rem;
     padding-top: 0.15rem;
@@ -128,7 +128,7 @@
     opacity: 0.92;
 }
 
-::deep(.pd-work-orders-card.k-card) {
+::deep .pd-work-orders-card.k-card {
     border-radius: 8px;
     border: 1px solid var(--color-border-subtle);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
@@ -138,25 +138,25 @@
 }
 
 @supports (border-color: color-mix(in srgb, red, blue)) {
-    ::deep(.pd-work-orders-card.k-card) {
+    ::deep .pd-work-orders-card.k-card {
         border-color: color-mix(in srgb, var(--color-border-subtle) 62%, transparent);
     }
 }
 
-::deep(.pd-work-orders-card .k-card-header) {
+::deep .pd-work-orders-card .k-card-header {
     border-bottom: 1px solid var(--color-border-subtle);
     padding: 0.5rem 0.75rem;
     background: rgba(255, 255, 255, 0.35);
 }
 
 @supports (background: color-mix(in srgb, red, blue)) {
-    ::deep(.pd-work-orders-card .k-card-header) {
+    ::deep .pd-work-orders-card .k-card-header {
         border-bottom-color: color-mix(in srgb, var(--color-border-subtle) 50%, transparent);
         background: color-mix(in srgb, var(--color-bg-card) 38%, transparent);
     }
 }
 
-::deep(.pd-work-orders-card .k-card-body) {
+::deep .pd-work-orders-card .k-card-body {
     padding: 0.45rem 0.35rem 0.5rem;
     background: transparent;
     border-radius: 0 0 7px 7px;
@@ -190,32 +190,32 @@
     color: #b8bec8;
 }
 
-::deep(.pd-metric-btn.k-button) {
+::deep .pd-metric-btn.k-button {
     min-height: 3.85rem;
     border-radius: 8px;
     padding-top: 0.35rem;
     padding-bottom: 0.35rem;
 }
 
-::deep(.pd-metrics-stack .pd-metric-btn + .pd-metric-btn) {
+::deep .pd-metrics-stack .pd-metric-btn + .pd-metric-btn {
     border-left: 1px solid var(--color-border-subtle);
 }
 
 @supports (border-color: color-mix(in srgb, red, blue)) {
-    ::deep(.pd-metrics-stack .pd-metric-btn + .pd-metric-btn) {
+    ::deep .pd-metrics-stack .pd-metric-btn + .pd-metric-btn {
         border-left-color: color-mix(in srgb, var(--color-border-subtle) 48%, transparent);
     }
 }
 
 /* ── Tabs ── */
 
-::deep(.pd-tabstrip.k-tabstrip) {
+::deep .pd-tabstrip.k-tabstrip {
     background: transparent;
     border: none;
     box-shadow: none;
 }
 
-::deep(.pd-tabstrip .k-tabstrip-items-wrapper) {
+::deep .pd-tabstrip .k-tabstrip-items-wrapper {
     border-radius: 10px 10px 0 0;
     padding: 0 2px;
     background: linear-gradient(to bottom, var(--color-bg-subtle), var(--color-bg-card));
@@ -223,26 +223,26 @@
     border-bottom: none;
 }
 
-::deep(.pd-tabstrip .k-tabstrip-items) {
+::deep .pd-tabstrip .k-tabstrip-items {
     padding: 0.25rem 0.35rem 0;
     gap: 0.15rem;
 }
 
-::deep(.pd-tabstrip .k-tabstrip-item) {
+::deep .pd-tabstrip .k-tabstrip-item {
     border: none;
     border-radius: 8px 8px 0 0;
     margin: 0;
     background: transparent;
 }
 
-::deep(.pd-tabstrip .k-tabstrip-item .k-link) {
+::deep .pd-tabstrip .k-tabstrip-item .k-link {
     padding: 0.65rem 1rem;
     font-weight: var(--font-weight-medium);
     color: var(--color-text-secondary);
     border-bottom: 2px solid transparent;
 }
 
-::deep(.pd-tabstrip .k-tabstrip-item.k-active .k-link) {
+::deep .pd-tabstrip .k-tabstrip-item.k-active .k-link {
     color: var(--color-accent-primary);
     font-weight: var(--font-weight-semibold);
     border-bottom-color: var(--color-accent-primary);
@@ -250,12 +250,12 @@
     border-radius: 8px 8px 0 0;
 }
 
-::deep(.pd-tabstrip .k-tabstrip-item:hover:not(.k-active) .k-link) {
+::deep .pd-tabstrip .k-tabstrip-item:hover:not(.k-active .k-link) {
     color: var(--color-text-primary);
     background: rgba(37, 99, 235, 0.06);
 }
 
-::deep(.pd-tabstrip .k-tabstrip-content) {
+::deep .pd-tabstrip .k-tabstrip-content {
     border: 1px solid var(--color-border-default);
     border-top: none;
     border-radius: 0 0 10px 10px;
@@ -264,13 +264,13 @@
     min-height: 200px;
 }
 
-::deep(.pd-tabstrip .pd-load-error),
-::deep(.pd-tabstrip .pd-mdm-loading) {
+::deep .pd-tabstrip .pd-load-error,
+::deep .pd-tabstrip .pd-mdm-loading {
     margin-left: 1rem;
     margin-right: 1rem;
 }
 
-::deep(.pd-tabstrip .pd-splitter) {
+::deep .pd-tabstrip .pd-splitter {
     margin-left: 0;
     margin-right: 0;
 }
@@ -292,7 +292,7 @@
     margin: 0;
 }
 
-::deep(.pd-layout-ddl.k-dropdown) {
+::deep .pd-layout-ddl.k-dropdown {
     border-radius: 8px;
 }
 
@@ -307,7 +307,7 @@
     color: var(--color-text-muted);
 }
 
-::deep(.pd-load-error.k-card) {
+::deep .pd-load-error.k-card {
     border-radius: 10px;
     border: 1px solid var(--ss-error-border);
 }
@@ -383,23 +383,23 @@
 }
 
 /* TelerikFloatingLabel + field search — full width in nav column */
-::deep(.pd-field-search-fl.k-floating-label-container) {
+::deep .pd-field-search-fl.k-floating-label-container {
     width: 100%;
     max-width: 100%;
     display: block;
 }
 
 /* Force full-width textbox inside floating label (avoid short centered input). */
-::deep(.pd-search-panel .k-floating-label-container .k-input),
-::deep(.pd-search-panel .k-floating-label-container .k-textbox),
-::deep(.pd-search-panel .k-floating-label-container span.k-input-inner),
-::deep(.pd-search-panel .k-floating-label-container input.k-input-inner) {
+::deep .pd-search-panel .k-floating-label-container .k-input,
+::deep .pd-search-panel .k-floating-label-container .k-textbox,
+::deep .pd-search-panel .k-floating-label-container span.k-input-inner,
+::deep .pd-search-panel .k-floating-label-container input.k-input-inner {
     width: 100% !important;
     max-width: 100% !important;
     box-sizing: border-box;
 }
 
-::deep(.pd-nav-stack.k-stack-layout) {
+::deep .pd-nav-stack.k-stack-layout {
     gap: 0.5rem !important;
 }
 
@@ -407,11 +407,11 @@
 
 /* Detail pane card: stable top padding matches left nav top so both panels align visually.
    Never conditional — this value must NOT change between sections. */
-::deep(.pd-split-pane-detail .pd-inspector-card) {
+::deep .pd-split-pane-detail .pd-inspector-card {
     padding: 0.75rem 0.5rem 1rem;
 }
 
-::deep(.pd-nav-stack .k-textbox) {
+::deep .pd-nav-stack .k-textbox {
     border-radius: 8px;
 }
 
@@ -588,7 +588,7 @@ button.pd-section-nav-item--active:hover {
 }
 
 /* Inspector */
-::deep(.pd-inspector-card.k-card) {
+::deep .pd-inspector-card.k-card {
     border: none;
     border-radius: 0;
     box-shadow: none;
@@ -655,16 +655,16 @@ button.pd-section-nav-item--active:hover {
 
 /* Field appearance: global .pd-data-field* in property-shell-pages.css */
 
-::deep(.pd-mdm-field-grid.k-grid) {
+::deep .pd-mdm-field-grid.k-grid {
     border: none;
     background: transparent;
 }
 
-::deep(.pd-mdm-field-grid .k-table-thead) {
+::deep .pd-mdm-field-grid .k-table-thead {
     display: none;
 }
 
-::deep(.pd-mdm-field-grid .k-table-tbody td) {
+::deep .pd-mdm-field-grid .k-table-tbody td {
     padding: 0.85rem 0;
     vertical-align: top;
     border-bottom: 1px solid var(--color-border-subtle);
@@ -673,21 +673,21 @@ button.pd-section-nav-item--active:hover {
 
 /* Soften separators to reduce "spreadsheet" fatigue. */
 @supports (border-bottom-color: color-mix(in srgb, red, blue)) {
-    ::deep(.pd-mdm-field-grid .k-table-tbody td) {
+    ::deep .pd-mdm-field-grid .k-table-tbody td {
         border-bottom-color: color-mix(in srgb, var(--color-border-subtle) 55%, transparent);
     }
 }
 
-::deep(.pd-mdm-field-grid .k-table-tbody tr:hover td) {
+::deep .pd-mdm-field-grid .k-table-tbody tr:hover td {
     background: rgba(37, 99, 235, 0.045);
 }
 
-::deep(.pd-mdm-field-grid .k-table-tbody tr:last-child td) {
+::deep .pd-mdm-field-grid .k-table-tbody tr:last-child td {
     border-bottom: none;
 }
 
 /* Field typography: quieter labels, stronger values, better multiline readability. */
-::deep(.pd-mdm-field-grid .pd-data-field) {
+::deep .pd-mdm-field-grid .pd-data-field {
     display: grid;
     grid-template-columns: minmax(170px, 0.9fr) minmax(0, 1.1fr);
     column-gap: 1rem;
@@ -696,31 +696,31 @@ button.pd-section-nav-item--active:hover {
 }
 
 @media (max-width: 900px) {
-    ::deep(.pd-mdm-field-grid .pd-data-field) {
+    ::deep .pd-mdm-field-grid .pd-data-field {
         grid-template-columns: 1fr;
         row-gap: 0.35rem;
     }
 }
 
-::deep(.pd-mdm-field-grid .pd-data-field__lbl) {
+::deep .pd-mdm-field-grid .pd-data-field__lbl {
     color: var(--color-text-secondary);
     font-weight: var(--font-weight-medium);
     letter-spacing: 0.005em;
 }
 
-::deep(.pd-mdm-field-grid .pd-data-field__val) {
+::deep .pd-mdm-field-grid .pd-data-field__val {
     color: var(--color-text-primary);
     font-weight: var(--font-weight-semibold);
     line-height: 1.45;
 }
 
-::deep(.pd-mdm-field-grid .pd-data-field__val--multiline) {
+::deep .pd-mdm-field-grid .pd-data-field__val--multiline {
     white-space: pre-wrap;
     word-break: break-word;
 }
 
 /* Long text blocks: add breathing room so dense sections feel less exhausting. */
-::deep(.pd-mdm-field-grid .pd-data-field__val--multiline) {
+::deep .pd-mdm-field-grid .pd-data-field__val--multiline {
     line-height: 1.55;
 }
 
@@ -729,12 +729,12 @@ button.pd-section-nav-item--active:hover {
    isolation and ::deep() wrapping compiles to invalid CSS in this file. */
 
 /* Placeholder tabs */
-::deep(.pd-tabstrip .pd-tab-placeholder.k-card) {
+::deep .pd-tabstrip .pd-tab-placeholder.k-card {
     margin-left: 1rem;
     margin-right: 1rem;
 }
 
-::deep(.pd-tab-placeholder.k-card) {
+::deep .pd-tab-placeholder.k-card {
     border-radius: 10px;
     border: 1px dashed var(--color-border-default);
     background: var(--color-bg-subtle);
@@ -752,7 +752,7 @@ button.pd-section-nav-item--active:hover {
 }
 
 @media (max-width: 1100px) {
-    ::deep(.pd-hero-card .k-gridlayout) {
+    ::deep .pd-hero-card .k-gridlayout {
         grid-template-columns: 1fr !important;
     }
 }

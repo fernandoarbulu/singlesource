@@ -129,14 +129,14 @@
 }
 
 .psh-collapse-btn:hover,
-.psh-brand ::deep(.psh-collapse-btn.k-button:hover) {
+.psh-brand ::deep .psh-collapse-btn.k-button:hover {
     color: #fff;
     background: rgba(255,255,255,0.08);
 }
 
 /* TelerikButton may wrap label row in .k-button-text — keep icon + label + chevron in one flex row */
-.psh-nav ::deep(.psh-parent .k-button-text),
-.psh-footer ::deep(.psh-logout .k-button-text) {
+.psh-nav ::deep .psh-parent .k-button-text,
+.psh-footer ::deep .psh-logout .k-button-text {
     display: flex;
     align-items: center;
     gap: 0.6rem;
@@ -161,7 +161,7 @@
 }
 
 /* TelerikTextBox: outer .k-input wraps inner input.psh-search */
-.psh-search-wrap ::deep(.k-input) {
+.psh-search-wrap ::deep .k-input {
     width: 100%;
     box-sizing: border-box;
     background: rgba(255,255,255,0.1);
@@ -171,7 +171,7 @@
     transition: background 0.15s ease, border-color 0.15s ease;
 }
 
-.psh-search-wrap ::deep(.k-input-inner.psh-search) {
+.psh-search-wrap ::deep .k-input-inner.psh-search {
     padding: 0.42rem 0.6rem 0.42rem 2rem;
     font-size: 0.8rem;
     color: #fff;
@@ -181,11 +181,11 @@
     box-shadow: none;
 }
 
-.psh-search-wrap ::deep(.k-input-inner.psh-search::placeholder) {
+.psh-search-wrap ::deep .k-input-inner.psh-search::placeholder {
     color: rgba(255,255,255,0.4);
 }
 
-.psh-search-wrap ::deep(.k-input:focus-within) {
+.psh-search-wrap ::deep .k-input:focus-within {
     background: rgba(255,255,255,0.14);
     border-color: rgba(255,255,255,0.3);
 }
@@ -421,13 +421,13 @@
 
 /* ── Badge (TelerikBadge + legacy span) ── */
 .psh-badge,
-.psh-footer ::deep(.psh-badge.k-badge) {
+.psh-footer ::deep .psh-badge.k-badge {
     margin-left: auto;
     flex-shrink: 0;
 }
 
 /* Match prior pill size on top of Telerik theme */
-.psh-footer ::deep(.psh-badge.k-badge) {
+.psh-footer ::deep .psh-badge.k-badge {
     font-size: 0.5875rem;
     font-weight: 700;
     min-width: 1.05rem;
