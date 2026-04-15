@@ -339,42 +339,12 @@
     padding: 1.15rem 0 1.25rem !important;
 }
 
-/* Subsection layout is handled by TelerikGridLayout in markup (no CSS grid). */
+/* Subsection card foundation (pd-mdm-subcard / subhead / subtitle / subbody) and the shared
+   data-field system (pd-data-field*) are owned by wwwroot/css/property-shell-pages.css.
+   Duplicating them here is dead weight — global loads after the scoped bundle and wins.
 
-/* Subsection cards */
-.pd-mdm-subcard {
-    border-radius: 10px;
-    border: 1px solid var(--color-border-default);
-    background: var(--color-bg-card);
-    box-shadow:
-        0 1px 2px rgba(15, 23, 42, 0.05),
-        0 10px 20px rgba(15, 23, 42, 0.04);
-    overflow: hidden;
-}
-
-.pd-mdm-subhead {
-    padding: 0.55rem 0.8rem !important;
-    background: linear-gradient(to bottom, rgba(248, 250, 252, 0.95), rgba(241, 245, 249, 0.55)) !important;
-    border-bottom: 1px solid var(--color-border-default) !important;
-}
-
-/* Subsection title — one step below main section; smaller but clearly a heading */
-.pd-mdm-subtitle {
-    margin: 0;
-    font-size: var(--font-size-md);
-    font-weight: 700;
-    letter-spacing: -0.01em;
-    text-transform: none;
-    color: var(--color-text-primary);
-    line-height: 1.25;
-}
-
-.pd-mdm-subbody {
-    padding: 0.55rem 0.75rem 0.7rem !important;
-    background: transparent;
-}
-
-/* Field appearance: global .pd-data-field* in property-shell-pages.css */
+   Field-grid appearance below is kept here because it uses ::deep to reach Telerik-rendered
+   DOM nodes, which is only valid inside a scoped component stylesheet. */
 
 ::deep .pd-mdm-field-grid.k-grid {
     border: none;
