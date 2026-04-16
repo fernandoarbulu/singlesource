@@ -1,0 +1,649 @@
+/*
+  FinancialTable.razor.css — Financial Table MVP
+  ─────────────────────────────────────────────────────────────────────────────
+  Scoped to .ft-page / FinancialTable component.
+  Uses tokens from branding.css (:root). Hard-coded values are used only for
+  surface tones and border accents that have no matching shared token.
+
+  Tonal layer scale (light → dark)
+  ─────────────────────────────────
+    Line item odd     #ffffff        ← base card surface
+    Line item even    #fafbfc        ← whisper zebra (no shared token at this tone)
+    Subtotal          #f3f7fa        ← mild lift above data rows
+    WO header         #edf2f8        ← framing surface
+    Total             #e2eaf4        ← final anchor; most prominent
+
+  Border philosophy
+  ─────────────────
+    Data rows carry NO bottom border — zebra + hover provide row rhythm.
+    Meaningful structural separators only:
+      · thead bottom     2px  — table-start
+      · WO header top    1px  — section-start
+      · WO header bottom 1px  — transition into line items
+      · Subtotal top     1.5px — group-close
+      · Total top        3px  — page anchor (strongest line)
+
+  Section map
+  ───────────
+   1. Page layout + header
+   2. Summary band panel
+   3. Table card + wrap
+   4. Table structure + column headers
+   5. Row type surfaces
+   6. Cell base + type helpers
+   7. Status badge system
+   8. Work order header content
+   9. Subtotal + total accents
+*/
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   1. Page layout + header
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.ft-page {
+    /* Slightly tighter inset than the shell default — wide table needs the room */
+    --pd-page-inline: clamp(12px, 1.5vw, 20px);
+}
+
+.ft-page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.875rem;
+}
+
+.ft-page-header__left { min-width: 0; }
+.ft-page-header__right { flex-shrink: 0; padding-top: 3px; }
+
+.ft-page-title {
+    margin: 0 0 0.3rem;
+    font-size: clamp(1.1rem, 2.2vw, 1.4rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--color-text-primary);
+    line-height: 1.2;
+}
+
+.ft-page-desc {
+    margin: 0;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    line-height: 1.55;
+    max-width: 64ch;
+}
+
+.ft-read-only-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: var(--ss-neutral-bg);
+    color: var(--color-text-muted);
+    border: 1px solid var(--ss-neutral-border);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   2. Summary band panel
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+/* ::deep required — Telerik renders .k-card outside Blazor's scoped DOM */
+::deep .ft-summary-card.k-card {
+    border-radius: 8px;
+    border: 1px solid var(--color-border-default);
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+    margin-bottom: 1rem;
+}
+
+::deep .ft-summary-card .k-card-body {
+    padding: 16px 20px;
+}
+
+.ft-summary-band {
+    display: flex;
+    align-items: stretch;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+}
+
+/* ── Property anchor (leftmost block) ── */
+.ft-sb-prop {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding-right: 28px;
+    min-width: 230px;
+    flex-shrink: 0;
+}
+
+.ft-sb__label {
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--color-text-label);
+    line-height: 1;
+}
+
+.ft-sb__prop-name {
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+    line-height: 1.3;
+}
+
+/* ── Vertical dividers between groups ── */
+.ft-sb-divider {
+    width: 1px;
+    align-self: stretch;
+    background: var(--color-border-default);
+    margin: 0 24px;
+    flex-shrink: 0;
+}
+
+/* ── Metric group: heading + fields ── */
+.ft-sb-group {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    flex-shrink: 0;
+}
+
+.ft-sb__group-heading {
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--color-text-label);
+    line-height: 1;
+}
+
+.ft-sb-group__fields {
+    display: flex;
+    gap: 26px;
+    align-items: flex-start;
+}
+
+/* ── Individual summary field ── */
+.ft-sbf {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 84px;
+}
+
+.ft-sbf__lbl {
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+    line-height: 1.2;
+}
+
+.ft-sbf__val {
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-regular);
+    color: var(--color-text-primary);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.015em;
+    line-height: 1.25;
+}
+
+/* Headline total variant — P&P total, overall total */
+.ft-sbf__val--em {
+    font-weight: var(--font-weight-semibold);
+    color: var(--ss-text-primary);
+    font-size: 15px;
+}
+
+/* ── Pending approvals — status indicator, not a metric ── */
+.ft-sb-pending {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    flex-shrink: 0;
+}
+
+.ft-pending-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    background: var(--ss-warn-bg);
+    color: var(--ss-warn-text);
+    border: 1px solid var(--ss-warn-border);
+    white-space: nowrap;
+    line-height: 1.3;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   3. Table card + wrap
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+/* ::deep required — Telerik renders .k-card outside Blazor's scoped DOM */
+::deep .ft-table-card.k-card {
+    border-radius: 8px;
+    border: 1px solid var(--color-border-default);
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+    overflow: hidden;
+}
+
+::deep .ft-table-card .k-card-body {
+    padding: 0;
+}
+
+.ft-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   4. Table structure + column headers
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.ft-table {
+    width: 100%;
+    border-collapse: collapse;
+    /* Explicit font-family: Telerik Card resets inherited font; must re-declare */
+    font-family: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-primary);
+    min-width: 1478px;   /* matches sum of <col> widths defined in the template */
+    table-layout: fixed;
+}
+
+.ft-thead-row {
+    background: #f0f4f8;   /* slightly deeper than page bg — clear thead/tbody divide */
+}
+
+.ft-th {
+    padding: 9px 10px;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--ss-neutral-text);  /* #374151 — strong but not aggressive */
+    text-align: left;
+    white-space: nowrap;
+    border-bottom: 2px solid #c9d4df;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ft-th-num    { text-align: right; }
+.ft-th-center { text-align: center; }
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   5. Row type surfaces
+   ──────────────────────────────────────────────────────────────────────────────
+   Data rows carry no bottom border — zebra striping provides row rhythm.
+   All structural separators are border-top values on structural row cells.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Line item rows ── */
+.ft-row-line:nth-child(even) .ft-cell-data {
+    background: #fafbfc;
+}
+
+.ft-row-line:hover .ft-cell-data {
+    background: #ecf2f9 !important;
+}
+
+/* ── WO group header ── */
+.ft-row-wo-hdr .ft-cell-wo-hdr {
+    background: #edf2f8;
+    /* Inset box-shadow: left accent stripe that works with border-collapse */
+    box-shadow: inset 3px 0 0 #b8c7d4;
+}
+
+/*
+  Group separation:
+  · First group: tight below thead, standard padding.
+  · Subsequent groups: 18px top padding creates visual breathing room that reads
+    as a section gap between the subtotal row above and the next WO header.
+*/
+.ft-row-wo-hdr:first-child .ft-cell-wo-hdr {
+    border-top: 1px solid #cad4de;
+    padding-top: 10px;
+}
+
+.ft-row-wo-hdr:not(:first-child) .ft-cell-wo-hdr {
+    border-top: 1px solid #cad4de;
+    padding-top: 18px;
+}
+
+/* ── Subtotal row — extra bottom padding creates gap before next WO header ── */
+.ft-row-subtotal .ft-cell-subtotal {
+    padding-bottom: 10px;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   6. Cell base + type helpers
+   ──────────────────────────────────────────────────────────────────────────────
+   border-bottom is intentionally absent from the shared selector; each cell type
+   sets its own bottom treatment (or none) per the border philosophy above.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.ft-cell-data,
+.ft-cell-wo-hdr,
+.ft-cell-subtotal,
+.ft-cell-total {
+    padding: 7px 10px;
+    vertical-align: top;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-primary);
+    line-height: 1.45;
+    box-sizing: border-box;
+}
+
+/* Data rows: no bottom border — zebra contrast is sufficient */
+.ft-cell-data {
+    background: var(--color-bg-card);
+    border-bottom: none;
+}
+
+/* WO header bottom border marks the transition into line items */
+.ft-cell-wo-hdr {
+    border-bottom: 1px solid #dde5ee;
+    /* Padding: top is controlled per :first-child / :not(:first-child) above */
+    padding-right: 14px;
+    padding-bottom: 10px;
+    padding-left: 12px;
+}
+
+/* Subtotal and total carry their own border-top + border-bottom (section 9) */
+
+/* ── Type helpers ── */
+
+.ft-cell-lineitem {
+    font-weight: var(--font-weight-medium);
+}
+
+.ft-cell-desc {
+    color: var(--color-text-secondary);
+    line-height: 1.5;
+    word-break: break-word;
+}
+
+.ft-cell-uom {
+    color: var(--color-text-secondary);
+    text-align: center;
+}
+
+/* Numeric cells: right-aligned, tabular figures, no wrapping */
+.ft-cell-num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+}
+
+.ft-cell-gpid {
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-xs);
+}
+
+/* Status cells: middle-align so badge sits vertically centered in the row */
+.ft-cell-status {
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   7. Status badge system
+   ──────────────────────────────────────────────────────────────────────────────
+   All badge-type statuses share identical geometry so every row has a uniform
+   rendered height:
+     display: inline-block · padding: 2px 7px · border-radius: 3px
+     font-size: 11px · font-weight: 500 · line-height: 1.5
+     border: 1px solid transparent  ← equalises box height with bordered variants
+
+   Only color varies. "Not required" and empty override back to plain inline text.
+   Corresponding CSS classes are returned by StatusCss() in the @code block.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.ft-status {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 3px;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+    white-space: nowrap;
+    border: 1px solid transparent;  /* ghost border: equal box height to bordered variants */
+}
+
+/* Approved — soft green (uses project ok tokens) */
+.ft-status--approved {
+    background: var(--ss-ok-bg);
+    color: var(--ss-ok-text);
+}
+
+/* Approved within allowable — same green family, slightly lighter text */
+.ft-status--appr-allowable {
+    background: var(--ss-ok-bg);
+    color: #15803d;
+}
+
+/* Under review — restrained amber (uses project warn tokens) */
+.ft-status--under-review {
+    background: var(--ss-warn-bg);
+    color: var(--ss-warn-text);
+}
+
+/* Pending not submitted — neutral bordered chip (uses project neutral tokens) */
+.ft-status--pending {
+    background: var(--ss-neutral-bg);
+    color: var(--ss-neutral-text);
+    border-color: var(--ss-neutral-border);
+}
+
+/* Not required — plain muted text; no badge (no approval signal) */
+.ft-status--not-required {
+    display: inline;
+    background: transparent;
+    color: var(--color-text-muted);
+    font-weight: var(--font-weight-regular);
+    padding: 0;
+    border: none;
+}
+
+/* Neutral fallback for unknown values */
+.ft-status--neutral {
+    background: var(--ss-neutral-bg);
+    color: var(--color-text-secondary);
+}
+
+/* Empty / no status set — faint dash, no badge */
+.ft-status--empty {
+    display: inline;
+    background: transparent;
+    color: var(--ss-neutral-border);  /* very faint — intentionally near-invisible */
+    font-weight: var(--font-weight-regular);
+    font-size: 13px;
+    padding: 0;
+    border: none;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   8. Work order header content
+   ──────────────────────────────────────────────────────────────────────────────
+   Two-tier meta layout inside the WO header cell:
+     .ft-wo-primary   → WO ID · Category   [semibold, dark — primary scan target]
+     .ft-wo-secondary → Vendor · Billed     [regular, muted — supporting context]
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.ft-wo-hdr-layout {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    flex-wrap: nowrap;
+}
+
+/* Collapse / expand toggle button */
+.ft-wo-toggle {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    margin-top: 1px;  /* optical alignment with first meta line */
+    border: none;
+    background: transparent;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    border-radius: 4px;
+    padding: 0;
+    transition: background 0.12s ease, color 0.12s ease;
+}
+
+.ft-wo-toggle:hover {
+    background: rgba(17, 24, 39, 0.07);
+    color: var(--color-text-primary);
+}
+
+.ft-wo-toggle:focus-visible {
+    outline: 2px solid var(--ss-primary);
+    outline-offset: 1px;
+}
+
+/* Chevron: points down when expanded, 180° when collapsed */
+.ft-wo-chev {
+    display: block;
+    transition: transform 0.15s ease;
+    transform: rotate(0deg);
+}
+
+.ft-wo-chev--up {
+    transform: rotate(180deg);
+}
+
+/* Meta container */
+.ft-wo-hdr-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+/* Line 1: WO ID + Category — primary scan target */
+.ft-wo-primary {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0 7px;
+}
+
+.ft-wo-id {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 11.5px;
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+}
+
+.ft-wo-category {
+    font-size: 12.5px;
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+}
+
+/* Line 2: Vendor + Billed — supporting context only */
+.ft-wo-secondary {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0 5px;
+}
+
+.ft-wo-vendor {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    font-weight: var(--font-weight-regular);
+}
+
+.ft-wo-billed {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    white-space: nowrap;
+}
+
+.ft-wo-sep {
+    font-size: var(--font-size-xs);
+    color: var(--ss-neutral-border);
+    user-select: none;
+}
+
+/* Collapsed summary hint — shown on the right when the group is collapsed */
+.ft-wo-collapsed-hint {
+    margin-left: auto;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    padding-right: 2px;
+    align-self: center;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   9. Subtotal + total label / value accents
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Subtotal — financial anchor at the close of each WO group ── */
+.ft-cell-subtotal {
+    background: #f3f7fa;
+    border-top: 1.5px solid #c5d1de;
+    border-bottom: 1px solid #e8eef4;
+    color: var(--color-text-secondary);
+    font-size: 11.5px;
+}
+
+.ft-cell-subtotal-lbl {
+    font-weight: var(--font-weight-medium);
+    color: var(--ss-neutral-text);
+    padding-left: 44px;   /* indent aligns with WO header content area */
+    font-size: var(--font-size-xs);
+    letter-spacing: 0.01em;
+}
+
+.ft-cell-subtotal.ft-cell-num {
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+    font-size: var(--font-size-sm);
+}
+
+/* ── Property total — final financial anchor of the page ── */
+.ft-cell-total {
+    background: #e2eaf4;
+    border-top: 3px solid #8fa3bc;   /* thickest separator — intentional final anchor */
+    border-bottom: 1px solid #d8e2ec;
+    color: var(--color-text-primary);
+    font-size: var(--font-size-sm);
+}
+
+.ft-cell-total-lbl {
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+    padding-left: 44px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-size: var(--font-size-xs);
+}
+
+.ft-cell-total.ft-cell-num {
+    font-weight: 700;
+    color: var(--ss-text-primary);
+    letter-spacing: -0.02em;
+    font-size: 13px;
+}
