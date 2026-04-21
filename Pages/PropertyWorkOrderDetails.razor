@@ -20,8 +20,7 @@
                            DisabledField="@nameof(BreadcrumbLink.Disabled)"
                            CollapseMode="@BreadcrumbCollapseMode.Auto"
                            Size="@ThemeConstants.Breadcrumb.Size.Medium"
-                           Width="100%"
-                           AriaLabel="Breadcrumb" />
+                          Width="100%" />
     </header>
 
     <div class="pd-page @(_layoutViewId == 2 ? "pd-page--compact" : null)">
@@ -509,6 +508,10 @@
                         </TelerikSplitter>
                     }
                 }
+                else if (string.Equals(title, "Financials", StringComparison.OrdinalIgnoreCase))
+                {
+                    <PropertyFinancialsTab />
+                }
                 else
                 {
                     <TelerikCard Class="pd-tab-placeholder pd-mt-3" ThemeColor="@ThemeConstants.Card.ThemeColor.Light">
@@ -524,12 +527,28 @@
 </div>
 
 @code {
+    [SupplyParameterFromQuery(Name = "tab")]
+    public string? Tab { get; set; }
+
     private readonly string[] _primaryTabs =
     [
         "Overview", "Tasks", "Work Order", "Bids", "Conveyance", "Financials", "Photos", "Files", "Audit"
     ];
 
     private int _activePrimaryTabIndex;
+
+    protected override void OnParametersSet()
+    {
+        if (string.IsNullOrWhiteSpace(Tab))
+            return;
+
+        var requested = Array.FindIndex(
+            _primaryTabs,
+            title => string.Equals(title, Tab, StringComparison.OrdinalIgnoreCase));
+
+        if (requested >= 0)
+            _activePrimaryTabIndex = requested;
+    }
 
     private readonly List<PropertyMdmCategoryVm> _categories = [];
 

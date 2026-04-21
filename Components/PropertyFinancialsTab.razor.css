@@ -1,0 +1,74 @@
+.pd-financials-card {
+    margin: 0;
+    border: 0;
+    box-shadow: none;
+    background: transparent;
+}
+
+.pd-financials-card ::deep .k-card-body {
+    padding: 8px 16px 14px;
+}
+
+.pd-financials-title {
+    margin: 0;
+    padding: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--color-text-primary, #111827);
+}
+
+.pd-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.pd-search {
+    flex: 1 1 45%;
+    min-width: 280px;
+    max-width: 720px;
+}
+
+.pd-clear-all {
+    margin-left: auto;
+    flex: 0 0 auto;
+}
+
+.pd-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 24px;
+    row-gap: 8px;
+}
+
+.pd-filter-inline {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.pd-filter-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--kendo-color-subtle, #6b7280);
+}
+
+.pd-filter-inline ::deep .k-chip-list {
+    gap: 6px;
+}
+
+.pd-filter-inline ::deep .k-chip.k-selected {
+    background-color: var(--kendo-color-primary, #2563eb);
+    border-color: var(--kendo-color-primary, #2563eb);
+    color: var(--kendo-color-on-primary, #ffffff);
+}
+
+.pd-financials-grid {
+    width: 100%;
+}

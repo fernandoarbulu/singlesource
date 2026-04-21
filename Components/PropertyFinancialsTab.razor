@@ -1,0 +1,263 @@
+@using System.Globalization
+@using Telerik.SvgIcons
+
+<TelerikCard ThemeColor="@ThemeConstants.Card.ThemeColor.Light" Width="100%" Class="pd-financials-card">
+    <CardBody Class="pd-financials-body">
+        <TelerikStackLayout Orientation="@StackLayoutOrientation.Vertical" Spacing="10px">
+
+            <h2 class="pd-financials-title">Financials</h2>
+
+            <div class="pd-toolbar">
+                <div class="pd-search">
+                    <TelerikTextBox Value="@_search"
+                                    ValueChanged="@OnSearchChanged"
+                                    Placeholder="Search order, vendor, or description"
+                                    Width="100%">
+                        <TextBoxPrefixTemplate>
+                            <TelerikSvgIcon Icon="@SvgIcon.Search" />
+                        </TextBoxPrefixTemplate>
+                    </TelerikTextBox>
+                </div>
+
+                <TelerikButton ThemeColor="@ThemeConstants.Button.ThemeColor.Base"
+                               FillMode="@ThemeConstants.Button.FillMode.Flat"
+                               Size="@ThemeConstants.Button.Size.Small"
+                               Icon="@SvgIcon.FilterClear"
+                               OnClick="@ClearAllFilters"
+                               Class="pd-clear-all">
+                    Clear all
+                </TelerikButton>
+            </div>
+
+            @if (_typeOptions.Count > 1 || _statusOptions.Count > 1)
+            {
+                <div class="pd-filter-bar">
+                    @if (_typeOptions.Count > 1)
+                    {
+                        <div class="pd-filter-inline">
+                            <span class="pd-filter-label">Type:</span>
+                            <TelerikChipList Data="@_typeOptions"
+                                             SelectionMode="@ChipListSelectionMode.Single"
+                                             SelectedItems="@_selectedTypeItems"
+                                             SelectedItemsChanged="@((IEnumerable<FilterPill> items) => OnTypeChanged(items))"
+                                             Class="pd-chiplist" />
+                        </div>
+                    }
+
+                    @if (_statusOptions.Count > 1)
+                    {
+                        <div class="pd-filter-inline">
+                            <span class="pd-filter-label">Status:</span>
+                            <TelerikChipList Data="@_statusOptions"
+                                             SelectionMode="@ChipListSelectionMode.Single"
+                                             SelectedItems="@_selectedStatusItems"
+                                             SelectedItemsChanged="@((IEnumerable<FilterPill> items) => OnStatusChanged(items))"
+                                             Class="pd-chiplist" />
+                        </div>
+                    }
+                </div>
+            }
+
+            <TelerikGrid TItem="FinancialGridRow"
+                         Data="@FilteredRows"
+                         Pageable="true"
+                         Sortable="true"
+                         Resizable="true"
+                         PageSize="20"
+                         Width="100%"
+                         Height="560px"
+                         Class="pd-financials-grid">
+                <GridSettings>
+                    <GridPagerSettings PageSizes="@_pageSizes" />
+                </GridSettings>
+                <GridColumns>
+                    <GridColumn Field="@nameof(FinancialGridRow.OrderNumber)" Title="Order number" Width="150px" />
+                    <GridColumn Field="@nameof(FinancialGridRow.TransactionType)" Title="Type" Width="72px" />
+                    <GridColumn Field="@nameof(FinancialGridRow.LineItem)" Title="Line item" Width="160px" />
+                    <GridColumn Field="@nameof(FinancialGridRow.Description)" Title="Description" />
+                    <GridColumn Field="@nameof(FinancialGridRow.TransactionDate)" Title="Transaction date" DisplayFormat="{0:MM/dd/yyyy}" Width="140px" />
+                    <GridColumn Field="@nameof(FinancialGridRow.ImportedDate)" Title="Imported date" DisplayFormat="{0:MM/dd/yyyy}" Width="140px" />
+                    <GridColumn Field="@nameof(FinancialGridRow.Vendor)" Title="Vendor" Width="190px" />
+                    <GridColumn Field="@nameof(FinancialGridRow.Amount)" Title="Amount" DisplayFormat="{0:C}" Width="110px" TextAlign="@ColumnTextAlign.Right" />
+                    @if (HasApprovalStatusData)
+                    {
+                        <GridColumn Title="Approval" Width="210px">
+                            <Template>
+                                @{
+                                    var row = (FinancialGridRow)context;
+                                }
+                                @if (string.IsNullOrWhiteSpace(row.ApprovalStatus))
+                                {
+                                    <span>—</span>
+                                }
+                                else
+                                {
+                                    <TelerikChip Text="@row.ApprovalStatus"
+                                                 ThemeColor="@StatusTheme(row.ApprovalStatus)"
+                                                 FillMode="@ThemeConstants.Chip.FillMode.Outline"
+                                                 Rounded="@ThemeConstants.Chip.Rounded.Medium"
+                                                 Selectable="false" />
+                                }
+                            </Template>
+                        </GridColumn>
+                    }
+                </GridColumns>
+                <NoDataTemplate>
+                    No financial rows match the current filters.
+                </NoDataTemplate>
+            </TelerikGrid>
+        </TelerikStackLayout>
+    </CardBody>
+</TelerikCard>
+
+
+@code {
+    private const string AllValue = "__all__";
+
+    private readonly List<FinancialGridRow> _rows = BuildRows();
+    private readonly List<int?> _pageSizes = [20, 50, 100];
+
+    private List<FilterPill> _typeOptions = new();
+    private List<FilterPill> _statusOptions = new();
+
+    private IEnumerable<FilterPill> _selectedTypeItems = Array.Empty<FilterPill>();
+    private IEnumerable<FilterPill> _selectedStatusItems = Array.Empty<FilterPill>();
+
+    private string _search = string.Empty;
+    private string _selectedType = AllValue;
+    private string _selectedStatus = AllValue;
+
+    private bool HasApprovalStatusData =>
+        _rows.Any(r => !string.IsNullOrWhiteSpace(r.ApprovalStatus));
+
+    protected override void OnInitialized()
+    {
+        _typeOptions = BuildTypeOptions();
+        _statusOptions = BuildStatusOptions();
+
+        _selectedTypeItems = new List<FilterPill> { _typeOptions[0] };
+        _selectedStatusItems = new List<FilterPill> { _statusOptions[0] };
+    }
+
+    private IEnumerable<FinancialGridRow> FilteredRows =>
+        _rows
+            .Where(MatchesSearch)
+            .Where(MatchesType)
+            .Where(MatchesStatus)
+            .OrderByDescending(r => r.TransactionDate)
+            .ThenBy(r => r.OrderNumber);
+
+    private bool MatchesSearch(FinancialGridRow row)
+    {
+        if (string.IsNullOrWhiteSpace(_search)) return true;
+        var q = _search.Trim();
+        return row.OrderNumber.Contains(q, StringComparison.OrdinalIgnoreCase)
+               || row.Vendor.Contains(q, StringComparison.OrdinalIgnoreCase)
+               || row.Description.Contains(q, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private bool MatchesType(FinancialGridRow row) =>
+        _selectedType == AllValue || row.TransactionType.Equals(_selectedType, StringComparison.OrdinalIgnoreCase);
+
+    private bool MatchesStatus(FinancialGridRow row) =>
+        _selectedStatus == AllValue || string.Equals(row.ApprovalStatus, _selectedStatus, StringComparison.OrdinalIgnoreCase);
+
+    private void OnSearchChanged(string value) => _search = value ?? string.Empty;
+
+    private void OnTypeChanged(IEnumerable<FilterPill> items)
+    {
+        var picked = items?.FirstOrDefault() ?? _typeOptions[0];
+        _selectedTypeItems = new List<FilterPill> { picked };
+        _selectedType = picked.Value;
+    }
+
+    private void OnStatusChanged(IEnumerable<FilterPill> items)
+    {
+        var picked = items?.FirstOrDefault() ?? _statusOptions[0];
+        _selectedStatusItems = new List<FilterPill> { picked };
+        _selectedStatus = picked.Value;
+    }
+
+    private void ClearAllFilters()
+    {
+        _search = string.Empty;
+        _selectedType = AllValue;
+        _selectedStatus = AllValue;
+        _selectedTypeItems = new List<FilterPill> { _typeOptions[0] };
+        _selectedStatusItems = new List<FilterPill> { _statusOptions[0] };
+    }
+
+    private List<FilterPill> BuildTypeOptions()
+    {
+        var options = new List<FilterPill> { new() { Text = "All", Value = AllValue } };
+        foreach (var type in _rows
+                     .Select(r => r.TransactionType)
+                     .Where(v => !string.IsNullOrWhiteSpace(v))
+                     .Distinct(StringComparer.OrdinalIgnoreCase)
+                     .OrderBy(v => v))
+        {
+            options.Add(new FilterPill { Text = type, Value = type });
+        }
+        return options;
+    }
+
+    private List<FilterPill> BuildStatusOptions()
+    {
+        var options = new List<FilterPill> { new() { Text = "All", Value = AllValue } };
+        foreach (var status in _rows
+                     .Select(r => r.ApprovalStatus)
+                     .Where(v => !string.IsNullOrWhiteSpace(v))
+                     .Select(v => v!)
+                     .Distinct(StringComparer.OrdinalIgnoreCase)
+                     .OrderBy(v => v))
+        {
+            options.Add(new FilterPill { Text = status, Value = status });
+        }
+        return options;
+    }
+
+    private static string StatusTheme(string status) => status switch
+    {
+        "Approved" => ThemeConstants.Chip.ThemeColor.Success,
+        "Under review" => ThemeConstants.Chip.ThemeColor.Warning,
+        "Pending submission" => ThemeConstants.Chip.ThemeColor.Info,
+        _ => ThemeConstants.Chip.ThemeColor.Base
+    };
+
+    private sealed class FilterPill
+    {
+        public string Text { get; set; } = string.Empty;
+        public string Value { get; set; } = string.Empty;
+    }
+
+    private sealed record FinancialGridRow(
+        string OrderNumber,
+        string TransactionType,
+        string LineItem,
+        string Description,
+        DateTime TransactionDate,
+        DateTime ImportedDate,
+        string Vendor,
+        decimal Amount,
+        string? ApprovalStatus);
+
+    private static List<FinancialGridRow> BuildRows()
+    {
+        var us = CultureInfo.GetCultureInfo("en-US");
+        return
+        [
+            new("463456003-LMR", "AP", "Lawn Maintenance", "Full mow, edge, and blow service", DateTime.Parse("04/02/2026", us), DateTime.Parse("04/03/2026", us), "Leyland Property Management", 95.00m, "Approved"),
+            new("463456003-LMR", "AR", "Lawn Maintenance", "12 recurring lawn maintenance cuts", DateTime.Parse("04/03/2026", us), DateTime.Parse("04/04/2026", us), "Leyland Property Management", 1140.00m, "Approved"),
+            new("463456003-BDE", "AP", "Boarding", "Board window opening", DateTime.Parse("03/01/2026", us), DateTime.Parse("03/03/2026", us), "Leyland Property Management", 99.16m, "Approved"),
+            new("463456003-BDE", "AR", "Exterior Door", "Repair/replace exterior door", DateTime.Parse("03/02/2026", us), DateTime.Parse("03/03/2026", us), "Leyland Property Management", 1000.00m, "Pending submission"),
+            new("463456003-BDE", "AP", "Plumbing Service", "Plumbing repair service call", DateTime.Parse("03/02/2026", us), DateTime.Parse("03/03/2026", us), "Leyland Property Management", 467.00m, "Under review"),
+            new("463456003-RFS", "AR", "Roof Inspection", "Roof condition and leak inspection", DateTime.Parse("02/18/2026", us), DateTime.Parse("02/19/2026", us), "Summit Roofing", 220.00m, "Approved"),
+            new("463456003-RFS", "AP", "Tarp Installation", "Emergency tarp installation", DateTime.Parse("02/19/2026", us), DateTime.Parse("02/20/2026", us), "Summit Roofing", 460.00m, "Under review"),
+            new("463456003-WTR", "AR", "Water Extraction", "Water extraction and dry-out", DateTime.Parse("01/11/2026", us), DateTime.Parse("01/12/2026", us), "DryFast Restoration", 1325.00m, "Approved"),
+            new("463456003-WTR", "AP", "Mold Treatment", "Mold treatment in lower level", DateTime.Parse("01/14/2026", us), DateTime.Parse("01/15/2026", us), "DryFast Restoration", 875.00m, "Pending submission"),
+            new("463456003-SEC", "AR", "Rekey Locks", "Rekey front and rear doors", DateTime.Parse("01/05/2026", us), DateTime.Parse("01/06/2026", us), "Secure Entry Services", 185.00m, "Approved"),
+            new("463456003-SEC", "AP", "Board Rear Door", "Temporary rear door board-up", DateTime.Parse("01/06/2026", us), DateTime.Parse("01/06/2026", us), "Secure Entry Services", 240.00m, "Approved"),
+            new("463456003-CLN", "AR", "Trash Out", "Interior trash-out and haul away", DateTime.Parse("12/16/2025", us), DateTime.Parse("12/17/2025", us), "First Pass Preservation", 510.00m, "Under review")
+        ];
+    }
+}

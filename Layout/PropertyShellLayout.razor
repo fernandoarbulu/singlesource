@@ -148,13 +148,13 @@
                     <a class="psh-footer-item @(IsActive("/notifications") ? "is-active" : null)" href="/notifications">
                         <span class="psh-ico psh-ico--notif" aria-hidden="true"></span>
                         <span class="psh-label">Notifications</span>
-                        <TelerikBadge Text="1"
-                                      ThemeColor="@ThemeConstants.Badge.ThemeColor.Error"
+                        <TelerikBadge ThemeColor="@ThemeConstants.Badge.ThemeColor.Error"
                                       FillMode="@ThemeConstants.Badge.FillMode.Solid"
                                       Size="@ThemeConstants.Badge.Size.Small"
                                       Rounded="@ThemeConstants.Badge.Rounded.Full"
-                                      Class="psh-badge"
-                                      AriaLabel="1 notification" />
+                                      Class="psh-badge">
+                            1
+                        </TelerikBadge>
                     </a>
                     <TelerikButton ButtonType="@Telerik.Blazor.ButtonType.Button"
                                    FillMode="@ThemeConstants.Button.FillMode.Flat"
