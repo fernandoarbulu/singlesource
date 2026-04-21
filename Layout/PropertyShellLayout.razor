@@ -12,13 +12,12 @@
                     <a href="/" class="psh-brand-link" aria-label="Home">
                         <span class="psh-logo">HOME</span>
                     </a>
-                    <TelerikButton ButtonType="@Telerik.Blazor.ButtonType.Button"
-                                   FillMode="@ThemeConstants.Button.FillMode.Flat"
-                                   ThemeColor="@ThemeConstants.Button.ThemeColor.Base"
-                                   Class="psh-collapse-btn"
-                                   OnClick="@ToggleSidebar"
-                                   Title="@(_collapsed ? "Expand sidebar" : "Collapse sidebar")"
-                                   @attributes="@CollapseAriaAttributes">
+                    <button type="button"
+                            class="psh-collapse-btn"
+                            @onclick="@ToggleSidebar"
+                            title="@(_collapsed ? "Expand sidebar" : "Collapse sidebar")"
+                            aria-expanded="@((!_collapsed).ToString().ToLowerInvariant())"
+                            aria-label="@(_collapsed ? "Expand sidebar" : "Collapse sidebar")">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
                              stroke="currentColor" stroke-width="2.5"
                              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -27,7 +26,7 @@
                             else
                             {<path d="M15 18l-6-6 6-6"/>}
                         </svg>
-                    </TelerikButton>
+                    </button>
                 </header>
 
                 <!-- ── Search ── -->
@@ -181,9 +180,6 @@
     private bool _collapsed;
 
     private string _sidebarSearch = string.Empty;
-
-    private IReadOnlyDictionary<string, object> CollapseAriaAttributes =>
-        new Dictionary<string, object>(1) { ["aria-expanded"] = (!_collapsed).ToString().ToLowerInvariant() };
 
     private void Toggle(string key)
     {
