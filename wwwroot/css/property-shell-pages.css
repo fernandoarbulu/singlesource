@@ -224,25 +224,15 @@
 }
 
 /*
-  MDM subsection grid — 2 columns when `pd-insp` container is wide enough.
-  @container rules live here so they are not dropped by the scoped CSS bundler.
+  MDM subsection grid — single full-width column.
+  The subsection cards stack vertically and each card spans the full width of the
+  right splitter pane; multi-field density is handled inside each card by
+  `.pd-mdm-field-grid` (see PropertyWorkOrderDetails.razor.css).
 */
-@container pd-insp (min-width: 34rem) {
-    .pd-page:not(.pd-page--compact) .pd-mdm-subgrid {
-        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-        column-gap: 1rem !important;
-        row-gap: 1rem !important;
-    }
-}
-
-@supports not (container-type: inline-size) {
-    @media (min-width: 1024px) {
-        .pd-page:not(.pd-page--compact) .pd-mdm-subgrid {
-            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-            column-gap: 1rem !important;
-            row-gap: 1rem !important;
-        }
-    }
+.pd-mdm-subgrid {
+    grid-template-columns: minmax(0, 1fr) !important;
+    column-gap: 0 !important;
+    row-gap: 1rem !important;
 }
 
 /*
@@ -494,7 +484,7 @@
 /* Header: tinted gradient + bottom separator; padding zeroed so the toggle
    button carries it and hover fills the full header area (not just text). */
 .pd-mdm-subhead {
-    padding: 0 !important;
+    padding: 0.6rem 0.85rem !important;
     background: linear-gradient(to bottom, rgba(248, 250, 252, 0.95), rgba(241, 245, 249, 0.55)) !important;
     border-bottom: 1px solid var(--color-border-default) !important;
 }
@@ -510,75 +500,10 @@
 }
 
 .pd-mdm-subbody {
-    padding: 0.6rem 0.75rem 0.75rem !important;
-    background: transparent;
-}
-
-/* ── Collapse / expand toggle ───────────────────────────────────────────────── */
-
-.pd-mdm-toggle-btn {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    padding: 0.6rem 0.85rem;
-    margin: 0;
-    background: none;
-    border: none;
-    cursor: pointer;
-    font: inherit;
-    color: inherit;
-    text-align: left;
-    gap: 0.5rem;
-    -webkit-appearance: none;
-    appearance: none;
-    transition: background-color 0.12s ease;
-}
-
-.pd-mdm-toggle-btn:hover {
-    background: rgba(15, 23, 42, 0.04);
-}
-
-.pd-mdm-toggle-btn:focus-visible {
-    outline: 2px solid rgba(37, 99, 235, 0.35);
-    outline-offset: 2px;
-    border-radius: 4px;
-}
-
-/* Single chevron rotates 180° on expand — CSS transition, no icon swap */
-.pd-mdm-chevron {
-    flex-shrink: 0;
-    color: var(--color-text-muted);
-    transition: transform 0.2s ease;
-}
-
-.pd-mdm-chevron--open {
-    transform: rotate(180deg);
-}
-
-/* Preview mode: fade the last two rows so the truncation reads as intentional */
-.pd-mdm-field-grid--preview .k-table-tbody tr:last-child td {
-    opacity: 0.4;
-    border-bottom: none;
-}
-
-.pd-mdm-field-grid--preview .k-table-tbody tr:nth-last-child(2) td {
-    opacity: 0.65;
-}
-
-/* "View all" affordance — secondary neutral style, not a primary CTA */
-.pd-mdm-view-all {
-    margin-top: 0.4rem;
-    width: 100%;
-    justify-content: flex-start;
-    border-top: 1px solid var(--color-border-subtle);
-    padding-top: 0.35rem;
-    font-size: var(--font-size-xs);
-    color: var(--color-text-secondary);
-}
-
-.pd-mdm-view-all:hover {
-    color: var(--color-text-primary);
+    /* Match subhead horizontal padding for a consistent card rhythm; a touch
+       more top padding gives breathing room between the card title and the
+       first field row without making sparse cards feel airy. */
+    padding: 0.75rem 0.85rem 0.85rem !important;
     background: transparent;
 }
 
@@ -665,6 +590,16 @@
 
 .pd-split-pane-detail .pd-inspector-card {
     padding: 0.75rem 0.5rem 1rem;
+}
+
+/* Inspector card: plain container (no border/shadow/background) — moved here from
+   PropertyWorkOrderDetails.razor.css so we can target the Telerik-rendered .k-card
+   element without a ::deep selector. */
+.pd-inspector-card.k-card {
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
 }
 
 .pd-nav-stack .k-textbox {
@@ -838,4 +773,229 @@ button.pd-section-nav-item--active {
 
 button.pd-section-nav-item--active:hover {
     background: rgba(37, 99, 235, 0.12);
+}
+
+/* =====================================================================
+   Property details — Telerik-rendered node overrides
+   ---------------------------------------------------------------------
+   These rules target DOM nodes that Telerik Blazor renders internally
+   (e.g. `.k-card`, `.k-card-body`, `.k-tabstrip-item`, `.k-chip-list`).
+   Blazor's scoped-CSS attribute is not applied to those internal nodes,
+   so the equivalent scoped rules previously relied on `::deep`. Moving
+   them here keeps the selectors safe (every selector is qualified by a
+   `.pd-*` class, so the rules only apply inside the property-details
+   experience) and eliminates all `::deep` from this page's scoped CSS.
+   ===================================================================== */
+
+/* ── Hero summary band ── */
+.pd-hero-dashboard.k-card {
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 55%, #f4f6f9 100%);
+}
+
+.pd-hero-card.k-card {
+    border-radius: 12px;
+    border: 1px solid var(--color-border-default);
+    box-shadow:
+        0 1px 2px rgba(15, 23, 42, 0.04),
+        0 8px 24px rgba(15, 23, 42, 0.06);
+    overflow: hidden;
+}
+
+.pd-hero-text-col .k-chip {
+    flex-shrink: 0;
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.02em;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+}
+
+.pd-hero-image-card.k-card {
+    border-radius: 10px;
+    border: 1px solid var(--color-border-subtle);
+    overflow: hidden;
+    box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.65),
+        0 1px 2px rgba(15, 23, 42, 0.05);
+}
+
+.pd-hero-summary {
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    gap: 1.35rem !important;
+    padding: 1.15rem 1.35rem;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.58);
+    border: 1px solid var(--color-border-subtle);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.82),
+        0 1px 2px rgba(15, 23, 42, 0.04);
+    min-width: 0;
+}
+
+@media (max-width: 720px) {
+    .pd-hero-summary {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 2rem !important;
+    }
+}
+
+@media (max-width: 1100px) {
+    .pd-hero-card .k-gridlayout {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* ── Work-order metrics (card + buttons) ── */
+.pd-work-orders-card.k-card {
+    border-radius: 8px;
+    border: 1px solid var(--color-border-subtle);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+    height: 100%;
+    min-height: 100%;
+    background: transparent;
+}
+
+@supports (border-color: color-mix(in srgb, red, blue)) {
+    .pd-work-orders-card.k-card {
+        border-color: color-mix(in srgb, var(--color-border-subtle) 62%, transparent);
+    }
+}
+
+.pd-work-orders-card .k-card-header {
+    border-bottom: 1px solid var(--color-border-subtle);
+    padding: 0.5rem 0.75rem;
+    background: rgba(255, 255, 255, 0.35);
+}
+
+@supports (background: color-mix(in srgb, red, blue)) {
+    .pd-work-orders-card .k-card-header {
+        border-bottom-color: color-mix(in srgb, var(--color-border-subtle) 50%, transparent);
+        background: color-mix(in srgb, var(--color-bg-card) 38%, transparent);
+    }
+}
+
+.pd-work-orders-card .k-card-body {
+    padding: 0.45rem 0.35rem 0.5rem;
+    background: transparent;
+    border-radius: 0 0 7px 7px;
+}
+
+.pd-metric-btn.k-button {
+    min-height: 3.85rem;
+    border-radius: 8px;
+    padding-top: 0.35rem;
+    padding-bottom: 0.35rem;
+}
+
+.pd-metrics-stack .pd-metric-btn + .pd-metric-btn {
+    border-left: 1px solid var(--color-border-subtle);
+}
+
+@supports (border-color: color-mix(in srgb, red, blue)) {
+    .pd-metrics-stack .pd-metric-btn + .pd-metric-btn {
+        border-left-color: color-mix(in srgb, var(--color-border-subtle) 48%, transparent);
+    }
+}
+
+/* ── Tab strip ── */
+.pd-tabstrip.k-tabstrip {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+.pd-tabstrip .k-tabstrip-items-wrapper {
+    border-radius: 10px 10px 0 0;
+    padding: 0 2px;
+    background: linear-gradient(to bottom, var(--color-bg-subtle), var(--color-bg-card));
+    border: 1px solid var(--color-border-default);
+    border-bottom: none;
+}
+
+.pd-tabstrip .k-tabstrip-items {
+    padding: 0.25rem 0.35rem 0;
+    gap: 0.15rem;
+}
+
+.pd-tabstrip .k-tabstrip-item {
+    border: none;
+    border-radius: 8px 8px 0 0;
+    margin: 0;
+    background: transparent;
+}
+
+.pd-tabstrip .k-tabstrip-item .k-link {
+    padding: 0.65rem 1rem;
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+    border-bottom: 2px solid transparent;
+}
+
+.pd-tabstrip .k-tabstrip-item.k-active .k-link {
+    color: var(--color-accent-primary);
+    font-weight: var(--font-weight-semibold);
+    border-bottom-color: var(--color-accent-primary);
+    background: var(--color-bg-card);
+    border-radius: 8px 8px 0 0;
+}
+
+.pd-tabstrip .k-tabstrip-item:not(.k-active):hover {
+    color: var(--color-text-primary);
+    background: rgba(37, 99, 235, 0.06);
+}
+
+.pd-tabstrip .k-tabstrip-content {
+    border: 1px solid var(--color-border-default);
+    border-top: none;
+    border-radius: 0 0 10px 10px;
+    background: var(--color-bg-card);
+    padding: 0 0 1rem;
+    min-height: 200px;
+}
+
+.pd-tabstrip .pd-load-error,
+.pd-tabstrip .pd-mdm-loading {
+    margin-left: 1rem;
+    margin-right: 1rem;
+}
+
+.pd-tabstrip .pd-splitter {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.pd-tabstrip .pd-tab-placeholder.k-card {
+    margin-left: 1rem;
+    margin-right: 1rem;
+}
+
+/* ── Misc small Telerik-rendered nodes ── */
+.pd-layout-ddl.k-dropdown {
+    border-radius: 8px;
+}
+
+.pd-load-error.k-card {
+    border-radius: 10px;
+    border: 1px solid var(--ss-error-border);
+}
+
+.pd-tab-placeholder.k-card {
+    border-radius: 10px;
+    border: 1px dashed var(--color-border-default);
+    background: var(--color-bg-subtle);
+}
+
+/* ── Financials tab (Telerik-rendered card body + chip list) ── */
+.pd-financials-card .k-card-body {
+    padding: 8px 16px 14px;
+}
+
+.pd-filter-inline .k-chip-list {
+    gap: 6px;
+}
+
+.pd-filter-inline .k-chip.k-selected {
+    background-color: var(--kendo-color-primary, #2563eb);
+    border-color: var(--kendo-color-primary, #2563eb);
+    color: var(--kendo-color-on-primary, #ffffff);
 }

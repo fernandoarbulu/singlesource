@@ -1,49 +1,21 @@
-/* Property / work order details — favor Telerik components for structure.
-   Keep scoped CSS lightweight: typography, spacing, and a few Kendo hooks that
-   cannot be expressed via component parameters. */
+/* Property / work order details — Telerik-first, scoped CSS is intentionally
+   minimal: typography, spacing, and small layout helpers only.
 
-/* Use a bit more of the viewport: reduce side padding slightly for this page. */
+   All Telerik-rendered node overrides (`.k-card`, `.k-tabstrip-item`, etc.) live
+   in wwwroot/css/property-shell-pages.css under the "Property details — Telerik
+   rendered node overrides" section so we don't need `::deep` here. */
+
 .pd-page {
     --pd-page-inline: clamp(12px, 1.6vw, 20px);
 }
 
-/* Compact mode: slightly tighter subsection padding */
 .pd-page--compact .pd-mdm-subbody {
     padding-top: 0.5rem !important;
 }
 
-/* ── Hero summary band (dashboard-style summary strip) ── */
-::deep .pd-hero-dashboard.k-card {
-    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 55%, #f4f6f9 100%);
-}
-
-::deep .pd-hero-card.k-card {
-    border-radius: 12px;
-    border: 1px solid var(--color-border-default);
-    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.06);
-    overflow: hidden;
-}
-
+/* ── Hero summary band (authored elements only; `.k-card` overrides live global) ── */
 .pd-hero-card-body {
     padding: 1.35rem 1.4rem 1rem;
-}
-
-/* Hero grid + stack spacing is handled via Telerik component parameters. */
-
-::deep .pd-hero-text-col .k-chip {
-    flex-shrink: 0;
-    font-weight: var(--font-weight-semibold);
-    letter-spacing: 0.02em;
-    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
-}
-
-::deep .pd-hero-image-card.k-card {
-    border-radius: 10px;
-    border: 1px solid var(--color-border-subtle);
-    overflow: hidden;
-    box-shadow:
-        inset 0 0 0 1px rgba(255, 255, 255, 0.65),
-        0 1px 2px rgba(15, 23, 42, 0.05);
 }
 
 .pd-hero-image-body {
@@ -82,36 +54,7 @@
     min-width: 0;
 }
 
-/* Data field typography/gap: global — wwwroot/css/property-shell-pages.css (single source; hero + MDM) */
-
-::deep .pd-hero-summary {
-    flex-wrap: nowrap;
-    align-items: flex-start;
-    gap: 1.35rem !important;
-    padding: 1.15rem 1.35rem;
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.58);
-    border: 1px solid var(--color-border-subtle);
-    box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.82),
-        0 1px 2px rgba(15, 23, 42, 0.04);
-    min-width: 0;
-}
-
-/* Hero field vertical rhythm: global rules in property-shell-pages.css (.pd-page .pd-hero-summary*) */
-
-@media (max-width: 720px) {
-    ::deep .pd-hero-summary {
-        flex-direction: column !important;
-        align-items: stretch !important;
-        gap: 2rem !important;
-    }
-}
-
-
-/*
-  Work order metrics — whisper-light shell so it dissolves into the hero band.
-*/
+/* ── Work order metrics (authored elements only) ── */
 .pd-wo-title {
     margin: 0;
     font-size: var(--font-size-xs);
@@ -120,40 +63,6 @@
     text-transform: uppercase;
     color: var(--color-text-label);
     opacity: 0.92;
-}
-
-::deep .pd-work-orders-card.k-card {
-    border-radius: 8px;
-    border: 1px solid var(--color-border-subtle);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
-    height: 100%;
-    min-height: 100%;
-    background: transparent;
-}
-
-@supports (border-color: color-mix(in srgb, red, blue)) {
-    ::deep .pd-work-orders-card.k-card {
-        border-color: color-mix(in srgb, var(--color-border-subtle) 62%, transparent);
-    }
-}
-
-::deep .pd-work-orders-card .k-card-header {
-    border-bottom: 1px solid var(--color-border-subtle);
-    padding: 0.5rem 0.75rem;
-    background: rgba(255, 255, 255, 0.35);
-}
-
-@supports (background: color-mix(in srgb, red, blue)) {
-    ::deep .pd-work-orders-card .k-card-header {
-        border-bottom-color: color-mix(in srgb, var(--color-border-subtle) 50%, transparent);
-        background: color-mix(in srgb, var(--color-bg-card) 38%, transparent);
-    }
-}
-
-::deep .pd-work-orders-card .k-card-body {
-    padding: 0.45rem 0.35rem 0.5rem;
-    background: transparent;
-    border-radius: 0 0 7px 7px;
 }
 
 .pd-metric-lbl {
@@ -172,104 +81,11 @@
     letter-spacing: -0.035em;
 }
 
-.pd-metric-num--blue {
-    color: #1e6fd9;
-}
+.pd-metric-num--blue  { color: #1e6fd9; }
+.pd-metric-num--navy  { color: #2d3a4a; }
+.pd-metric-num--muted { color: #b8bec8; }
 
-.pd-metric-num--navy {
-    color: #2d3a4a;
-}
-
-.pd-metric-num--muted {
-    color: #b8bec8;
-}
-
-::deep .pd-metric-btn.k-button {
-    min-height: 3.85rem;
-    border-radius: 8px;
-    padding-top: 0.35rem;
-    padding-bottom: 0.35rem;
-}
-
-::deep .pd-metrics-stack .pd-metric-btn + .pd-metric-btn {
-    border-left: 1px solid var(--color-border-subtle);
-}
-
-@supports (border-color: color-mix(in srgb, red, blue)) {
-    ::deep .pd-metrics-stack .pd-metric-btn + .pd-metric-btn {
-        border-left-color: color-mix(in srgb, var(--color-border-subtle) 48%, transparent);
-    }
-}
-
-/* ── Tabs ── */
-
-::deep .pd-tabstrip.k-tabstrip {
-    background: transparent;
-    border: none;
-    box-shadow: none;
-}
-
-::deep .pd-tabstrip .k-tabstrip-items-wrapper {
-    border-radius: 10px 10px 0 0;
-    padding: 0 2px;
-    background: linear-gradient(to bottom, var(--color-bg-subtle), var(--color-bg-card));
-    border: 1px solid var(--color-border-default);
-    border-bottom: none;
-}
-
-::deep .pd-tabstrip .k-tabstrip-items {
-    padding: 0.25rem 0.35rem 0;
-    gap: 0.15rem;
-}
-
-::deep .pd-tabstrip .k-tabstrip-item {
-    border: none;
-    border-radius: 8px 8px 0 0;
-    margin: 0;
-    background: transparent;
-}
-
-::deep .pd-tabstrip .k-tabstrip-item .k-link {
-    padding: 0.65rem 1rem;
-    font-weight: var(--font-weight-medium);
-    color: var(--color-text-secondary);
-    border-bottom: 2px solid transparent;
-}
-
-::deep .pd-tabstrip .k-tabstrip-item.k-active .k-link {
-    color: var(--color-accent-primary);
-    font-weight: var(--font-weight-semibold);
-    border-bottom-color: var(--color-accent-primary);
-    background: var(--color-bg-card);
-    border-radius: 8px 8px 0 0;
-}
-
-::deep .pd-tabstrip .k-tabstrip-item:not(.k-active):hover {
-    color: var(--color-text-primary);
-    background: rgba(37, 99, 235, 0.06);
-}
-
-::deep .pd-tabstrip .k-tabstrip-content {
-    border: 1px solid var(--color-border-default);
-    border-top: none;
-    border-radius: 0 0 10px 10px;
-    background: var(--color-bg-card);
-    padding: 0 0 1rem;
-    min-height: 200px;
-}
-
-::deep .pd-tabstrip .pd-load-error,
-::deep .pd-tabstrip .pd-mdm-loading {
-    margin-left: 1rem;
-    margin-right: 1rem;
-}
-
-::deep .pd-tabstrip .pd-splitter {
-    margin-left: 0;
-    margin-right: 0;
-}
-
-
+/* ── Inline field label (used outside the MDM grid) ── */
 .pd-field-label {
     font-size: var(--font-size-xs);
     font-weight: var(--font-weight-semibold);
@@ -279,11 +95,7 @@
     margin: 0;
 }
 
-::deep .pd-layout-ddl.k-dropdown {
-    border-radius: 8px;
-}
-
-/* Loading / error */
+/* ── Loading / error ── */
 .pd-mdm-loading {
     margin-top: 1rem;
     padding: 0.75rem 0.25rem;
@@ -294,125 +106,98 @@
     color: var(--color-text-muted);
 }
 
-::deep .pd-load-error.k-card {
-    border-radius: 10px;
-    border: 1px solid var(--ss-error-border);
-}
-
 .pd-load-error-body {
     padding: 0.85rem 1rem !important;
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-medium);
 }
 
-/* Splitter pane flex + splitbar: see wwwroot/css/property-shell-pages.css — .k-pane is rendered
-   inside TelerikSplitter so scoped rules here do not apply to those nodes. */
-
-/* Inspector */
-::deep .pd-inspector-card.k-card {
-    border: none;
-    border-radius: 0;
-    box-shadow: none;
-    background: transparent;
-}
-
+/* ── Inspector section header + title ── */
 .pd-insp-header {
     padding: 0 0 1rem !important;
     border-bottom: 1px solid var(--color-border-default);
     background: linear-gradient(to bottom, rgba(248, 250, 252, 0.85), rgba(255, 255, 255, 0)) !important;
 }
 
-/* Major section title (category / inspector) — clearest level below page chrome */
+/* Major section title — sized/weighted to read as the top of the content column.
+   The margin-bottom plus the header's border provide the breathing room between
+   the title and the first subsection card below. */
 .pd-insp-title {
-    margin: 0 0 0.15rem;
-    font-size: clamp(1.35rem, 2.1vw, 1.625rem);
-    font-weight: var(--font-weight-semibold);
+    margin: 0 0 0.55rem;
+    font-size: clamp(1.5rem, 2.3vw, 1.8rem);
+    font-weight: 700;
     letter-spacing: -0.03em;
     line-height: 1.2;
     color: var(--color-text-primary);
 }
 
-/*
-  Inspector body padding (container-type/name: global — property-shell-pages.css).
-*/
 .pd-insp-body {
     padding: 1.15rem 0 1.25rem !important;
 }
 
-/* Subsection card foundation (pd-mdm-subcard / subhead / subtitle / subbody) and the shared
-   data-field system (pd-data-field*) are owned by wwwroot/css/property-shell-pages.css.
-   Duplicating them here is dead weight — global loads after the scoped bundle and wins.
-
-   Field-grid appearance below is kept here because it uses ::deep to reach Telerik-rendered
-   DOM nodes, which is only valid inside a scoped component stylesheet. */
-
-::deep .pd-mdm-field-grid.k-grid {
-    border: none;
-    background: transparent;
+/* ── Overview field grid ──────────────────────────────────────────────────────
+   One consistent responsive grid for every subsection card. Uses `auto-fit` so
+   sparse cards (1–2 fields) don't leave empty tracks, while dense cards still
+   land at ~3 columns at typical desktop widths. Multiline values wrap inside
+   their own cell via `.pd-data-field__val--multiline`. */
+.pd-mdm-field-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    column-gap: 1.5rem;
+    row-gap: 0.9rem;
+    align-items: start;
 }
 
-::deep .pd-mdm-field-grid .k-table-thead {
-    display: none;
-}
-
-::deep .pd-mdm-field-grid .k-table-tbody td {
-    padding: 0.85rem 0;
-    vertical-align: top;
-    border-bottom: 1px solid var(--color-border-subtle);
-    font-size: inherit;
-}
-
-/* Soften separators to reduce "spreadsheet" fatigue. */
-@supports (border-bottom-color: color-mix(in srgb, red, blue)) {
-    ::deep .pd-mdm-field-grid .k-table-tbody td {
-        border-bottom-color: color-mix(in srgb, var(--color-border-subtle) 55%, transparent);
+@media (min-width: 1280px) {
+    .pd-mdm-field-grid {
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     }
 }
 
-::deep .pd-mdm-field-grid .k-table-tbody tr:hover td {
-    background: rgba(37, 99, 235, 0.045);
+@media (min-width: 768px) and (max-width: 1279.98px) {
+    .pd-mdm-field-grid {
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
 }
 
-::deep .pd-mdm-field-grid .k-table-tbody tr:last-child td {
-    border-bottom: none;
+@media (max-width: 767.98px) {
+    .pd-mdm-field-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
 }
 
-/* Field typography: quieter labels, stronger values, better multiline readability. */
-::deep .pd-mdm-field-grid .pd-data-field__lbl {
+.pd-mdm-field-grid > .pd-data-field {
+    min-width: 0;
+}
+
+/* Overview-specific field typography refinement (base typography comes from
+   property-shell-pages.css). Tiny hierarchy polish: labels stay at the base
+   10px uppercase but gain a touch more letter-spacing for a cleaner, quieter
+   rhythm; values tighten fractionally so they read firmer next to the labels;
+   the label→value gap grows by ~1px so each block breathes just a little more. */
+.pd-mdm-field-grid .pd-data-field {
+    gap: 0.4rem;
+}
+
+.pd-mdm-field-grid .pd-data-field__lbl {
     color: var(--color-text-secondary);
     font-weight: var(--font-weight-medium);
-    letter-spacing: 0.005em;
+    letter-spacing: 0.04em;
 }
 
-::deep .pd-mdm-field-grid .pd-data-field__val {
+.pd-mdm-field-grid .pd-data-field__val {
     color: var(--color-text-primary);
     font-weight: var(--font-weight-semibold);
+    letter-spacing: -0.005em;
     line-height: 1.45;
 }
 
-/* Long text blocks: breathing room so dense sections feel less exhausting. */
-::deep .pd-mdm-field-grid .pd-data-field__val--multiline {
-    white-space: pre-wrap;
-    word-break: break-word;
+.pd-mdm-field-grid .pd-data-field__val--multiline {
     line-height: 1.55;
+    word-break: break-word;
 }
 
-/* Jump-to search highlight: rules live in wwwroot/css/property-shell-pages.css
-   (scoped to .pd-page) because JS-added classes are not subject to Blazor CSS
-   isolation and ::deep() wrapping compiles to invalid CSS in this file. */
-
-/* Placeholder tabs */
-::deep .pd-tabstrip .pd-tab-placeholder.k-card {
-    margin-left: 1rem;
-    margin-right: 1rem;
-}
-
-::deep .pd-tab-placeholder.k-card {
-    border-radius: 10px;
-    border: 1px dashed var(--color-border-default);
-    background: var(--color-bg-subtle);
-}
-
+/* ── Placeholder tabs (authored card body only; `.k-card` chrome lives global) ── */
 .pd-tab-placeholder-body {
     padding: 1.1rem 1.25rem !important;
 }
@@ -422,10 +207,4 @@
     font-size: var(--font-size-sm);
     color: var(--color-text-secondary);
     line-height: 1.5;
-}
-
-@media (max-width: 1100px) {
-    ::deep .pd-hero-card .k-gridlayout {
-        grid-template-columns: 1fr !important;
-    }
 }

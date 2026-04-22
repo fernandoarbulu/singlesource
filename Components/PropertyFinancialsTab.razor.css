@@ -5,9 +5,8 @@
     background: transparent;
 }
 
-.pd-financials-card ::deep .k-card-body {
-    padding: 8px 16px 14px;
-}
+/* CardBody padding override lives in wwwroot/css/property-shell-pages.css so we
+   don't need `::deep` to reach the Telerik-rendered `.k-card-body` node. */
 
 .pd-financials-title {
     margin: 0;
@@ -59,15 +58,8 @@
     color: var(--kendo-color-subtle, #6b7280);
 }
 
-.pd-filter-inline ::deep .k-chip-list {
-    gap: 6px;
-}
-
-.pd-filter-inline ::deep .k-chip.k-selected {
-    background-color: var(--kendo-color-primary, #2563eb);
-    border-color: var(--kendo-color-primary, #2563eb);
-    color: var(--kendo-color-on-primary, #ffffff);
-}
+/* Chip list gap + selected-state colors also live in property-shell-pages.css
+   (same reason — Telerik-rendered `.k-chip-list` / `.k-chip` nodes). */
 
 .pd-financials-grid {
     width: 100%;

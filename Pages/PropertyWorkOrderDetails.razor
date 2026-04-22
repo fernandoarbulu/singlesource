@@ -228,7 +228,7 @@
                     }
                     else
                     {
-                        <TelerikSplitter Class="pd-splitter pd-mt-3"
+                        <TelerikSplitter Class="pd-splitter"
                                          Orientation="@SplitterOrientation.Horizontal"
                                          Width="100%"
                                          AriaLabel="Property details">
@@ -354,9 +354,11 @@
                                                 @{
                                                     var subsectionList = active.Subsections.ToList();
                                                     var isCompact = _layoutViewId == 2;
-                                                    // Base layout: 2 columns (except Compact). Use ColumnSpan to control width per section.
-                                                    var useTwoCols = !isCompact;
-                                                    var columnCount = useTwoCols ? 2 : 1;
+                                                    // Overview renders subsection cards in a single vertical column.
+                                                    // Fields inside each card are laid out by a responsive CSS grid
+                                                    // (see .pd-mdm-field-grid) so multiple fields share a row.
+                                                    var useTwoCols = false;
+                                                    var columnCount = 1;
                                                     var row = 1;
                                                     var col = 1;
 
@@ -419,61 +421,25 @@
                                                                              ThemeColor="@ThemeConstants.Card.ThemeColor.Light"
                                                                              Width="100%">
                                                                     <CardHeader Class="pd-mdm-subhead">
-                                                                        <button class="pd-mdm-toggle-btn"
-                                                                                type="button"
-                                                                                @onclick="@(() => ToggleSubsection(sub.Key))"
-                                                                                aria-expanded="@IsExpanded(sub.Key).ToString().ToLower()">
-                                                                            <span class="pd-mdm-subtitle">@sub.Title</span>
-                                                                            <TelerikSvgIcon Icon="@SvgIcon.ChevronDown"
-                                                                                            Class="@($"pd-mdm-chevron{(IsExpanded(sub.Key) ? " pd-mdm-chevron--open" : "")}")" />
-                                                                        </button>
+                                                                        <span class="pd-mdm-subtitle">@sub.Title</span>
                                                                     </CardHeader>
                                                                     <CardBody Class="pd-mdm-subbody">
-                                                                        @{
-                                                                            var displayFields = IsExpanded(sub.Key)
-                                                                                ? visibleInSub
-                                                                                : visibleInSub.Take(PreviewFieldCount).ToList();
-                                                                            var gridCls = "pd-mdm-field-grid pd-w-full" +
-                                                                                (IsExpanded(sub.Key) ? "" : " pd-mdm-field-grid--preview");
-                                                                        }
-                                                                        <TelerikGrid TItem="PropertyMdmFieldJson"
-                                                                                     Data="@displayFields"
-                                                                                     Pageable="false"
-                                                                                     Sortable="false"
-                                                                                     Resizable="false"
-                                                                                     Class="@gridCls">
-                                                                            <GridColumns>
-                                                                                <GridColumn Title="">
-                                                                                    <Template>
-                                                                                        @{
-                                                                                            var f = (PropertyMdmFieldJson)context;
-                                                                                        }
-                                                                                        <div class="pd-data-field" id="@FieldDomId(f)">
-                                                                                            <span class="pd-data-field__lbl">@f.Label</span>
-                                                                                            @if (f.Kind == "textarea")
-                                                                                            {
-                                                                                                <div class="pd-data-field__val pd-data-field__val--multiline">@FormatDisplay(f)</div>
-                                                                                            }
-                                                                                            else
-                                                                                            {
-                                                                                                <div class="pd-data-field__val">@FormatDisplay(f)</div>
-                                                                                            }
-                                                                                        </div>
-                                                                                    </Template>
-                                                                                </GridColumn>
-                                                                            </GridColumns>
-                                                                        </TelerikGrid>
-                                                                        @if (!IsExpanded(sub.Key) && visibleInSub.Count > PreviewFieldCount)
-                                                                        {
-                                                                            <TelerikButton FillMode="@ThemeConstants.Button.FillMode.Flat"
-                                                                                           ThemeColor="@ThemeConstants.Button.ThemeColor.Base"
-                                                                                           Size="@ThemeConstants.Button.Size.Small"
-                                                                                           ButtonType="@Telerik.Blazor.ButtonType.Button"
-                                                                                           Class="pd-mdm-view-all"
-                                                                                           OnClick="@(() => ToggleSubsection(sub.Key))">
-                                                                                View all @visibleInSub.Count fields
-                                                                            </TelerikButton>
-                                                                        }
+                                                                        <div class="pd-mdm-field-grid pd-w-full" role="list">
+                                                                            @foreach (var f in visibleInSub)
+                                                                            {
+                                                                                <div class="pd-data-field" id="@FieldDomId(f)" role="listitem">
+                                                                                    <span class="pd-data-field__lbl">@f.Label</span>
+                                                                                    @if (f.Kind == "textarea")
+                                                                                    {
+                                                                                        <div class="pd-data-field__val pd-data-field__val--multiline">@FormatDisplay(f)</div>
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        <div class="pd-data-field__val">@FormatDisplay(f)</div>
+                                                                                    }
+                                                                                </div>
+                                                                            }
+                                                                        </div>
                                                                     </CardBody>
                                                                 </TelerikCard>
                                                             </GridLayoutItem>
@@ -565,17 +531,12 @@
     private readonly HashSet<string> _searchHitFieldIds = new(StringComparer.Ordinal);
 
     private const int SearchHitLimit = 200;
-    private const int PreviewFieldCount = 4;
 
+    // Kept as a no-op state container so left-nav search jump + initial expansion
+    // logic can continue to write into it without needing changes outside this
+    // Overview card rendering. Card bodies always render the full field set now,
+    // so this set has no visual effect.
     private readonly HashSet<string> _expandedSubsections = new(StringComparer.Ordinal);
-
-    private bool IsExpanded(string subKey) => _expandedSubsections.Contains(subKey);
-
-    private void ToggleSubsection(string subKey)
-    {
-        if (!_expandedSubsections.Remove(subKey))
-            _expandedSubsections.Add(subKey);
-    }
 
     private bool _searchHitsTruncated;
 
