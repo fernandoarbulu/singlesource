@@ -1,0 +1,67 @@
+/* Ported from _reference/Tasks/Cards/TaskSupportingDocumentsCard.razor.css.
+   Prefixed sd-* → tsdc-* to avoid collisions. Removed stray ::deep rule. */
+
+.tsdc-wrapper {
+    width: 100%;
+}
+
+.tsdc-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.tsdc-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.tsdc-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.tsdc-hint {
+    margin: 0 0 12px;
+    font-size: 0.8125rem;
+    color: #6B7280;
+}
+
+.tsdc-docs {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.tsdc-empty {
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    padding: 20px;
+    text-align: center;
+    font-size: 0.8125rem;
+    color: #9CA3AF;
+}
+
+.tsdc-file-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.tsdc-file-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tsdc-file-name {
+    font-size: 0.875rem;
+    color: #374151;
+}

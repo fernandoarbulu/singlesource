@@ -1,0 +1,64 @@
+﻿.sd-header {
+    margin-bottom: 16px;
+    flex-direction: row;
+    display: flex;
+    justify-content: space-between;
+}
+
+.sd-title {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.sd-docs {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+::deep .select-button:hover {
+    background-color: #2D9BF0;
+}
+
+.sd-none {
+    border: 1px solid #dddd;
+    border-radius: 4px;
+    padding: 20px;
+    justify-content: center;
+    text-align: center;
+}
+.file-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    width: 100%;
+    border-bottom: 1px solid #dddd;
+}
+
+.file-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.file-icon {
+    width: 18px;
+    height: 18px;
+}
+
+.file-name {
+    font-size: 14px;
+}
+
+.loading-container {
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+}

@@ -1,0 +1,78 @@
+@namespace BlazorBusiness.Web.Components.Tasks.Cards
+@*
+  Ported from _reference/Tasks/Cards/TaskSubmissionGuidanceCard.razor.
+  Removed: TextChip component (replaced with TelerikChip), TaskInstance parameter, SDK models.
+  Replaced: Cards driven by List<GuidanceReviewCard> parameter.
+  Falls back to built-in mock if no Cards parameter supplied.
+*@
+
+<div class="tsgc-wrapper">
+    <TelerikCard>
+        <CardBody>
+            <div class="tsgc-header">
+                <span class="tsgc-title">Submission Guidance</span>
+            </div>
+
+            <div class="tsgc-grid">
+                @foreach (var card in EffectiveCards)
+                {
+                    <div class="tsgc-card @BorderClass(card.Status)">
+                        <div class="tsgc-card-header">
+                            <span class="tsgc-card-title">@card.ReviewType Review</span>
+                            <TelerikChip Text="@card.Status"
+                                         ThemeColor="@ChipTheme(card.Status)"
+                                         Selectable="false"
+                                         Rounded="@ThemeConstants.Chip.Rounded.Full"
+                                         Size="@ThemeConstants.Chip.Size.Small" />
+                        </div>
+                        <div class="tsgc-card-body">@card.ExplanationText</div>
+                    </div>
+                }
+            </div>
+        </CardBody>
+    </TelerikCard>
+</div>
+
+@code {
+    /// <summary>
+    /// Guidance review cards to display. When null or empty, falls back to
+    /// built-in mock cards so the component is always visually populated.
+    /// </summary>
+    [Parameter] public List<GuidanceReviewCard>? Cards { get; set; }
+
+    private List<GuidanceReviewCard> EffectiveCards =>
+        Cards is { Count: > 0 } ? Cards : DefaultCards;
+
+    private static readonly List<GuidanceReviewCard> DefaultCards =
+    [
+        new()
+        {
+            ReviewType      = "Client",
+            Status          = "Required",
+            ExplanationText = "Client review is required — invoice total exceeds $2,500 threshold. " +
+                              "Ensure all completion photos and supporting documentation are attached before routing."
+        },
+        new()
+        {
+            ReviewType      = "Investor",
+            Status          = "May Require",
+            ExplanationText = "Investor review may be required if any line items exceed pre-set allowable amounts. " +
+                              "Review variance column before completing."
+        },
+    ];
+
+    private static string BorderClass(string status) => status switch
+    {
+        "Required"    => "tsgc-border-error",
+        "May Require" => "tsgc-border-warning",
+        "Not Required"=> "tsgc-border-info",
+        _             => "tsgc-border-info"
+    };
+
+    private static string ChipTheme(string status) => status switch
+    {
+        "Required"    => ThemeConstants.Chip.ThemeColor.Error,
+        "May Require" => ThemeConstants.Chip.ThemeColor.Warning,
+        _             => ThemeConstants.Chip.ThemeColor.Base
+    };
+}

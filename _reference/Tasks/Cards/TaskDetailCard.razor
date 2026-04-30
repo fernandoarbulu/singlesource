@@ -1,0 +1,139 @@
+﻿@using BlazorBusiness.Web.Components.Tasks.Badges
+
+<div class="taskDetailCard-isolation-wrapper">
+    <TelerikCard >
+        <CardBody>
+            <TelerikGridLayout>
+                <GridLayoutColumns>
+                    <GridLayoutColumn></GridLayoutColumn>
+                    <GridLayoutColumn></GridLayoutColumn>
+                    <GridLayoutColumn></GridLayoutColumn>
+                    <GridLayoutColumn></GridLayoutColumn>
+                </GridLayoutColumns>
+                <GridLayoutRows>
+                    <GridLayoutRow></GridLayoutRow>
+                    <GridLayoutRow></GridLayoutRow>
+                    <GridLayoutRow></GridLayoutRow>
+                    <GridLayoutRow></GridLayoutRow>
+                    <GridLayoutRow></GridLayoutRow>
+                    <GridLayoutRow></GridLayoutRow>
+                </GridLayoutRows>
+                <GridLayoutItems>
+
+                    @* Column 1 *@
+                    <GridLayoutItem Column="1" Row="1" Class="gridLayoutItem-field">
+
+                        Status
+
+                    </GridLayoutItem>
+
+                    <GridLayoutItem Column="1" Row="2" Class="gridLayoutItem-value">
+
+                        <StatusBadge TaskInstanceStatus="TaskInstance.TaskInstanceStatus"></StatusBadge>
+
+                    </GridLayoutItem>
+                    <GridLayoutItem Column="1" Row="3" Class="gridLayoutItem-field">
+
+                        Order Number
+
+                    </GridLayoutItem>
+                    <GridLayoutItem Column="1" Row="4" Class="gridLayoutItem-value">
+
+                        @(string.IsNullOrEmpty(TaskInstance.OrderNumber) ? "N/A" :  TaskInstance.OrderNumber)
+
+                    </GridLayoutItem>
+                    <GridLayoutItem Column="1" Row="5" Class="gridLayoutItem-field">
+
+                        Property Address
+
+                    </GridLayoutItem>
+                    <GridLayoutItem Column="1" Row="6" Class="gridLayoutItem-value">
+
+                        @(string.IsNullOrEmpty(TaskInstance.FullAddress) ? "N/A" : TaskInstance.FullAddress)
+
+
+                    </GridLayoutItem>
+
+
+                    <GridLayoutItem Column="2" Row="1" Class="gridLayoutItem-field">
+
+                        Task Type
+
+                    </GridLayoutItem>
+                    <GridLayoutItem Column="2" Row="2" Class="gridLayoutItem-value">
+
+                        @TaskInstance.TaskTemplate.TaskTemplateName
+
+                    </GridLayoutItem>
+                    <GridLayoutItem Column="2" Row="3" Class="gridLayoutItem-field">
+
+                        Loan Number
+
+                    </GridLayoutItem>
+                    <GridLayoutItem Column="2" Row="4" Class="gridLayoutItem-value">
+
+                        @(string.IsNullOrEmpty(TaskInstance.LoanNumber) ? "N/A" : TaskInstance.LoanNumber)
+
+                    </GridLayoutItem>
+                    <GridLayoutItem Column="2" Row="5" Class="gridLayoutItem-field">
+
+                        Invoice Date
+
+                    </GridLayoutItem>
+
+                    <GridLayoutItem Column="2" Row="6" Class="gridLayoutItem-value">
+          
+                        @(OrderWithExpenses?.Created != null 
+                            ? OrderWithExpenses?.Created!.Value.ToString("MM/dd/yyyy") 
+                            : "N/A")
+    
+                    </GridLayoutItem>
+
+                    @* COLUMN 3 *@
+                    <GridLayoutItem Column="3" Row="1" Class="gridLayoutItem-field">
+                        Due Date
+                    </GridLayoutItem>
+                    <GridLayoutItem Column="3" Row="2" Class="gridLayoutItem-value">
+
+                        @TaskInstance.DueDate.ToString("MM/dd/yyyy")
+
+                    </GridLayoutItem>
+
+                    <GridLayoutItem Column="3" Row="3" Class="gridLayoutItem-field">
+                        Time Elapsed
+                    </GridLayoutItem>
+                    <GridLayoutItem Column="3" Row="4" Class="gridLayoutItem-value">
+
+                        @GetTimeElapsed()
+                        
+                    </GridLayoutItem>
+
+                    <GridLayoutItem Column="3" Row="5" Class="gridLayoutItem-field">
+                        Assignee
+                    </GridLayoutItem>
+                    <GridLayoutItem Column="3" Row="6" Class="gridLayoutItem-value">
+
+                        @TaskInstance.AssigneeFullName
+
+                    </GridLayoutItem>
+
+                    @* COLUMN 4 *@
+                    <GridLayoutItem Column="4" Row="1" Class="gridLayoutItem-field">
+
+                        Vendor
+
+                    </GridLayoutItem>
+
+                    <GridLayoutItem Column="4" Row="2" Class="gridLayoutItem-value">
+
+                        @(string.IsNullOrEmpty(OrderWithExpenses?.VendorName) 
+                            ? "N/A" 
+                            : OrderWithExpenses.VendorName)
+
+                    </GridLayoutItem>
+
+                </GridLayoutItems>
+            </TelerikGridLayout>
+        </CardBody>
+    </TelerikCard>
+</div>

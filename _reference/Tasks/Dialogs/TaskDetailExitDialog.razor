@@ -1,0 +1,18 @@
+﻿@inject NavigationManager Nav;
+
+<TelerikDialog Visible="@Visible" VisibleChanged="@VisibleChanged" Class="taskDetailExitDialog">
+    <DialogTitle>
+        Incomplete Decisions Detected
+    </DialogTitle>
+    <DialogContent>
+        Some required decisions were not completed or saved in this task. Please review all pending decision items before proceeding.
+    </DialogContent>
+    <DialogButtons>
+        <TelerikButton OnClick="OnSave" Class="save-button">
+            Save All & Exit
+        </TelerikButton>
+        <TelerikButton OnClick="OnDiscard" FillMode="@ThemeConstants.Button.FillMode.Outline">
+            Discard All & Exit
+        </TelerikButton>
+    </DialogButtons>
+</TelerikDialog>

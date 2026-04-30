@@ -1,68 +1,45 @@
-﻿﻿ /*the following selectors target the locked/frozen columns*/
-/*===*/
-.taskGrid-isolation-wrapper ::deep .k-grid .k-master-row.late-task-row .k-grid-content-sticky,
-.taskGrid-isolation-wrapper ::deep .k-grid .k-master-row.late-task-row.k-alt .k-grid-content-sticky
-/*===*/ {
-    background-color: inherit;
-}
+﻿/*
+  TaskGrid.razor.css
+  ──────────────────
+  Row-tint and interaction rules have been promoted to SingleSourceGrid.razor.css
+  under the ssg--ctx-task preset (Context="Task"). They are no longer needed here.
 
-/*red late task rules*/
-.taskGrid-isolation-wrapper ::deep .k-grid tr.k-master-row.late-task-row:hover {
-    background-color: rgba(255, 0, 0, 0.2) !important;
-    cursor: pointer !important;
-}
+  Only truly TaskGrid-specific helper classes remain:
+  status badges, due-date colours, and text truncation.
+  These classes are rendered inside task grid cells and are scoped here.
+*/
 
-.taskGrid-isolation-wrapper ::deep .k-grid tr.k-master-row.late-task-row {
-    background-color: rgba(255, 0, 0, 0.1) !important;
-}
-
-.taskGrid-isolation-wrapper ::deep .bolded-task-type {
-    font-weight: 700 !important;
-}
-/*white and grey regular tasks*/
-.taskGrid-isolation-wrapper ::deep .k-grid tr.k-master-row {
-    background-color: white !important;
-}
-
-    .taskGrid-isolation-wrapper ::deep .k-grid tr.k-master-row:hover {
-        background-color: rgb(128, 128, 128, 0.2) !important;
-        cursor: pointer !important;
-    }
-
-/*keep sorted and slected cells white*/
-.taskGrid-isolation-wrapper ::deep .k-table-td .k-selected {
-    background-color: white !important;
-}
-
-.taskGrid-isolation-wrapper ::deep col.k-sorted, .k-table-th.k-sorted {
-    background-color: inherit !important;
-}
+/* ── Text helpers ────────────────────────────────────────────────────────── */
 
 .truncate-text {
     display: inline-block;
-    max-width: 200px; /* adjust as needed */
+    max-width: 200px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     vertical-align: bottom;
 }
 
+/* ── Due-date colours ────────────────────────────────────────────────────── */
+
 .due-date-overdue {
-    color: red;
+    color: #DC2626;
     font-weight: 600;
 }
 
 .due-date-today {
-    color: orange;
+    color: #D97706;
     font-weight: 600;
 }
+
+/* ── Status badges ───────────────────────────────────────────────────────── */
 
 .status-badge {
     display: inline-block;
     padding: 2px 10px;
     border-radius: 12px;
     font-size: 0.75rem;
-    / 12px */ font-weight: 600;
+    font-weight: 600;
     line-height: 1.5;
     white-space: nowrap;
 }

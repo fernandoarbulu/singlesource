@@ -1,0 +1,40 @@
+﻿@using BlazorBusiness.Web.Components.Tasks
+@using BlazorBusiness.Web.Components.Tasks.Dialogs
+@using BlazorBusiness.Web.Containers
+@using BlazorBusiness.Web.Models.Container
+@using BlazorBusiness.Web.Models.Tasking
+@using BlazorBusiness.Web.Services.Tasking
+@using SingleSource.WebAPI.Business.SDK
+@inject IAuthenticationService AuthenticationService
+@inject ITaskInstanceViewService _taskInstanceViewService
+
+<ComponentStateContainer State="State">
+    <Loading>
+        <TelerikLoader Size="@ThemeConstants.Loader.Size.Large"
+                       ThemeColor="@ThemeConstants.Loader.ThemeColor.Primary"
+                       Type="@LoaderType.Pulsing" />
+    </Loading>
+
+    <Content>
+        <div class="task-toggle-container">
+            <TelerikSwitch @bind-Value="@MyTasksSelected" />
+            <span class="task-toggle-label">
+                @("My Tasks")
+            </span>
+        </div>
+
+
+        @if (!MyTasksSelected)
+        {
+            <TaskGrid TasksToDisplay="AllTasks" OnTaskActionClicked="HandleTaskActionClicked"></TaskGrid>
+        }
+        else
+        {
+            <TaskGrid TasksToDisplay="MyTasks" OnTaskActionClicked="HandleTaskActionClicked"></TaskGrid>
+        }
+    </Content>
+
+    <Error>
+        <p>Something went wrong loading tasks. Please refresh and try again.</p>
+    </Error>
+</ComponentStateContainer>

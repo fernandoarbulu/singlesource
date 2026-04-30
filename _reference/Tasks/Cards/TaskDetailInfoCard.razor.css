@@ -1,0 +1,13 @@
+﻿
+.taskDetailCard-isolation-wrapper ::deep .gridLayoutItem-field {
+    padding-bottom: 5%;
+    font-weight: 700;
+}
+
+.taskDetailCard-isolation-wrapper ::deep .gridLayoutItem-value {
+    padding-bottom: 5%;
+}
+
+.taskDetailCard-isolation-wrapper ::deep {
+    text-align:  left;
+}

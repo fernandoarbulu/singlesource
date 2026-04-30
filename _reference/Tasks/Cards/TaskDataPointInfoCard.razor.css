@@ -1,0 +1,11 @@
+﻿.taskDataPointInfoCard-isolation-wrapper ::deep .bolded-TaskDataPoint-Fields {
+    font-weight: 700;
+    padding-bottom: 5%;
+}
+.taskDataPointInfoCard-isolation-wrapper ::deep .griditemlayoutStyle {
+    padding-bottom: 5%;
+}
+
+.taskDataPointInfoCard-isolation-wrapper ::deep {
+    text-align: left;
+}

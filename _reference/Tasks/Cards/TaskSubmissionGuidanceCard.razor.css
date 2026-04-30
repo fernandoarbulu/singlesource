@@ -1,0 +1,59 @@
+﻿.sg-header {
+    margin-bottom: 16px;
+}
+
+.sg-title {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.sg-grid {
+    display: flex;
+    gap: 16px;
+    align-items: stretch;
+}
+
+.sg-card {
+    flex: 1;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    padding: 16px;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+}
+
+.sg-card-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.sg-card-title {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.sg-card-body {
+    font-size: 13px;
+    color: #444;
+    line-height: 1.4;
+    flex-grow: 1;
+}
+
+.sg-border-error {
+    border-color: var(--kendo-color-error);
+}
+
+.sg-border-warning {
+    border-color: var(--kendo-color-warning);
+}
+
+.sg-border-info {
+    border-color: var(--kendo-color-info);
+}
+
+.sg-border-neutral {
+    border-color: var(--kendo-color-base);
+}

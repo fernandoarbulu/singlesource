@@ -1,0 +1,61 @@
+/* Ported from _reference/Tasks/Cards/TaskSubmissionGuidanceCard.razor.css.
+   Prefixed sg-* → tsgc-* to avoid collisions. No ::deep needed. */
+
+.tsgc-wrapper {
+    width: 100%;
+}
+
+.tsgc-header {
+    margin-bottom: 16px;
+}
+
+.tsgc-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.tsgc-grid {
+    display: flex;
+    gap: 16px;
+    align-items: stretch;
+}
+
+.tsgc-card {
+    flex: 1;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    padding: 16px;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+}
+
+.tsgc-card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.tsgc-card-title {
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.tsgc-card-body {
+    font-size: 0.8125rem;
+    color: #444;
+    line-height: 1.5;
+    flex-grow: 1;
+}
+
+/* Border accent — keyed on Telerik's CSS custom properties */
+.tsgc-border-error   { border-color: var(--kendo-color-error,   #f31700); }
+.tsgc-border-warning { border-color: var(--kendo-color-warning, #ffc000); }
+.tsgc-border-info    { border-color: var(--kendo-color-info,    #0058e9); }
+
+@media (max-width: 600px) {
+    .tsgc-grid {
+        flex-direction: column;
+    }
+}

@@ -1,0 +1,14 @@
+﻿.taskDetailCard-isolation-wrapper ::deep .gridLayoutItem-field {
+    color: #596169;
+    padding-bottom: 3px;
+}
+
+.taskDetailCard-isolation-wrapper ::deep .gridLayoutItem-value {
+    font-size: 14px;
+    padding-bottom: 8px;
+    font-weight: 500
+}
+
+.taskDetailCard-isolation-wrapper ::deep .gridLayoutItem-value .gridLayoutItemButton.k-button {
+    padding-left: 0 !important;
+}

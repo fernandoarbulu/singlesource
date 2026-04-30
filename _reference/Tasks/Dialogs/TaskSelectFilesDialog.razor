@@ -1,0 +1,137 @@
+﻿@using BlazorBusiness.Web.Components.Notifications
+@using BlazorBusiness.Web.Containers
+@using BlazorBusiness.Web.Models.Container
+
+<TelerikDialog @bind-Visible="@DialogVisible" @ref="DialogRef" Width="60vw" Height="75vh">
+    <DialogTitle>
+        File Manager
+    </DialogTitle>
+
+    <DialogContent>
+        <div class="dialog-content">
+            <div class="file-header">
+                <div class="left-tools">
+                    <TelerikFileSelect @ref="@FileSelectRef" OnSelect="@OnUpload" Class="d-none" />
+                    <TelerikButton Icon="@SvgIcon.Upload" OnClick="@UploadFiles">Upload</TelerikButton>
+
+                    <TelerikButton OnClick="@ToggleSortDirection">
+                        <TelerikSvgIcon Icon="@(SortAscending? SvgIcon.ArrowUp: SvgIcon.ArrowDown)" />
+                    </TelerikButton>
+
+                    <TelerikDropDownList Data="@SortOptions"
+                                         Value="@SelectedSort"
+                                         ValueChanged="@((string value) => OnSortChanged(value))"
+                                         Width="140px" />
+                </div>
+
+                <div class="right-tools">
+
+                    <TelerikTextBox Value="@SearchText"
+                                    ValueChanged="@OnSearchChanged"
+                                    Placeholder="Search"
+                                    Width="200px" />
+                </div>
+            </div>
+
+            <div class="file-content">
+                <div class="folder-pane">
+                    @if (Folders != null && Folders.Any())
+                    {
+                        @foreach (var folder in Folders)
+                        {
+                            <div class="folder-item @(SelectedFolder == folder ? "associated" : "")"
+                                 @onclick="() => SelectFolder(folder)">
+
+                                <TelerikSvgIcon Icon="@SvgIcon.Folder" />
+                                <span>@folder.OrderNumber</span>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div>No folders found</div>
+                    }
+                </div>
+
+                <ComponentStateContainer State="State">
+
+                    <Loading>
+                        <div class="loading-container">
+                            <img src="img/loading.gif" />
+                            <h4>Loading...</h4>
+                        </div>
+                    </Loading>
+                    <Content>
+                        <div class="file-pane">
+                            <div class="file-grid">
+                                @if (SelectedFolderFiles != null)
+                                {
+                                    @foreach (var file in SelectedFolderFiles)
+                                    {
+                                        <button type="button"
+                                                class="file-tile @(IsAssociated(file) ? "associated" : "")"
+                                                @onclick="() => SelectFile(file)">
+
+                                            <TelerikSvgIcon Icon="@SvgIcon.File" class="file-icon" />
+
+                                            <div class="file-name">@file.FileName</div>
+                                        </button>
+                                    }
+                                }
+                            </div>
+                        </div>
+
+                        <div class="details-pane">
+                            @if (SelectedFile != null)
+                            {
+                                var file = SelectedFile;
+
+                                <div class="details">
+                                    <h4 class="text-break">@file.FileName</h4>
+                                    <p><strong>Size:</strong> @SelectedFile.FileSize</p>
+                                    <p>
+                                        <strong>Date Created:</strong>
+                                        @(SelectedFile.FileOriginallyUploaded
+                                            .ToUniversalTime()
+                                            .ToString("MM/dd/yyyy hh:mm:ss tt 'UTC'"))
+                                    </p>
+
+                                    <p>
+                                        <strong>Date Modified:</strong>
+                                        @(SelectedFile.FileLastUploaded
+                                            .ToUniversalTime()
+                                            .ToString("MM/dd/yyyy hh:mm:ss tt 'UTC'"))
+                                    </p>
+
+                                    <TelerikButton
+                                        OnClick="@(() => OnAssociate(file))"
+                                        FillMode="@ThemeConstants.Button.FillMode.Solid"
+                                        Class="attach-button"
+                                        Enabled="@(!IsAssociated(file))">
+                                            @(IsAssociated(file) ? "Already Added to Task" : "Add to Task")
+                                    </TelerikButton>
+                                </div>
+                                                        }
+                            else
+                            {
+                                <div>No File Selected</div>
+                            }
+                        </div>
+                    </Content>
+                </ComponentStateContainer>
+            </div>
+        </div>
+    </DialogContent>
+</TelerikDialog>
+
+<ConfirmationDialog Visible="@ShowConfirmUpload"
+                    VisibleChanged="@(() => ShowConfirmUpload = false)"
+                    Message="@ConfirmUploadMessage"
+                    OnConfirm="ConfirmUpload"
+                    OnCancel="CancelUpload" />
+
+<ConfirmationDialog Visible="@ShowConfirmAssociation"
+                    VisibleChanged="@(() => ShowConfirmAssociation = false)"
+                    Message="@ConfirmAssociationMessage"
+                    OnConfirm="ConfirmAssociation"
+                    OnCancel="CancelAssociation" />

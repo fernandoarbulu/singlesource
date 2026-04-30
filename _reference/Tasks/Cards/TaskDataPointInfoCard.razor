@@ -1,0 +1,52 @@
+﻿@using BlazorBusiness.Web.Services.Tasking
+﻿@using BlazorBusiness.Web.Containers
+
+@inject ITaskInstanceViewService taskInstanceViewService;
+<div class="taskDataPointInfoCard-isolation-wrapper">
+<ComponentStateContainer State="State">
+    <Content>
+            <TelerikCard Width="500px">
+            <CardBody>
+                <CardTitle>Work Order Details</CardTitle>
+                <TelerikGridLayout>
+                    <GridLayoutColumns>
+                        <GridLayoutColumn Width="20%"></GridLayoutColumn>
+                        <GridLayoutColumn Width="80%"></GridLayoutColumn>
+                    </GridLayoutColumns>
+
+                    <GridLayoutRows>
+                        @foreach (var item in WorkOrderDetailLayoutFields)
+                        {
+                            <GridLayoutRow></GridLayoutRow>
+                        }
+                    </GridLayoutRows>
+                    <GridLayoutItems>
+                        @foreach (var item in WorkOrderDetailLayoutFields)
+                        {
+                            <GridLayoutItem class="griditemlayoutStyle">
+                                <div class="bolded-TaskDataPoint-Fields">
+                                    @item.Key
+                                </div>
+                            </GridLayoutItem>
+                            <GridLayoutItem class="griditemlayoutStyle">
+                                <div class="TaskDataPoint-Fields">
+                                    @item.Value
+                                </div>
+                            </GridLayoutItem>
+                        }
+                    </GridLayoutItems>
+                </TelerikGridLayout>
+            </CardBody>
+        </TelerikCard>
+    </Content>
+    <Loading>
+        <TelerikSkeleton ShapeType="@SkeletonShapeType.Rectangle"
+                            Width="500px"
+                            Height="200px"
+                            Visible="true"></TelerikSkeleton>
+    </Loading>
+</ComponentStateContainer>    
+</div>
+
+
+

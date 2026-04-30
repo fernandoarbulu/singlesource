@@ -1,0 +1,46 @@
+/* ── Card wrapper ───────────────────────────────────────────────────────── */
+/*
+  overflow-x: auto enables horizontal scrolling on narrow viewports.
+  TelerikGridLayout renders a fixed 4-column grid; changing grid-template-columns
+  at breakpoints would require ::deep (banned). Horizontal scroll is the
+  accepted trade-off for a desktop-primary task detail page.
+*/
+.tdc-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+/* ── Cell wrapper (inside each GridLayoutItem) ──────────────────────────── */
+/*
+  .tdc-cell is rendered by THIS component so it carries the Blazor scope
+  attribute — scoped CSS applies here without ::deep.
+  padding-bottom provides row spacing that the TelerikGridLayout has no
+  built-in parameter for.
+*/
+.tdc-cell {
+    padding-bottom: 8px;
+}
+
+/* ── Status badge field ─────────────────────────────────────────────────── */
+/*
+  SsField has no ChildContent slot, so Status is a manual label + badge stack
+  that visually matches .ss-field / .ss-field-label.
+  tdc-lbl mirrors the same CSS variables used in SsField.razor.css.
+*/
+.tdc-cell--status {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* prevent badge from stretching to full cell width */
+    gap: 4px;
+    padding-bottom: 8px;
+}
+
+.tdc-lbl {
+    font-size: var(--font-size-xs, 11px);
+    font-weight: var(--font-weight-semibold, 600);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-text-label, #9ca3af);
+    line-height: 16px;
+    margin: 0;
+}

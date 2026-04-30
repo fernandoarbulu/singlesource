@@ -1,0 +1,4 @@
+﻿
+.taskDetailDialog-isolation-wrapper ::deep {
+    text-align: left;
+}

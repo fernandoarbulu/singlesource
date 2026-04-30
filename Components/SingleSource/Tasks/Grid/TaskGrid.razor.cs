@@ -6,6 +6,8 @@ namespace BlazorBusiness.Web.Components.Tasks.Grid
 {
     public partial class TaskGrid
     {
+        [Inject] private NavigationManager Navigation { get; set; } = default!;
+
         [Parameter]
         public List<TaskGridDisplayModel> TasksToDisplay { get; set; } = new();
 
@@ -64,10 +66,18 @@ namespace BlazorBusiness.Web.Components.Tasks.Grid
 
         public void OnActionClicked(TaskGridDisplayModel task)
         {
+            string action = GetActionText(task);
+
+            if (action is "Start" or "Resume")
+            {
+                Navigation.NavigateTo($"/invoice-review-task/{task.TaskInstanceID}");
+                return;
+            }
+
             OnTaskActionClicked.InvokeAsync(new TaskActionClickedEventArgs
             {
                 TaskInstanceID = task.TaskInstanceID,
-                Action = GetActionText(task)
+                Action         = action
             });
         }
 

@@ -1,0 +1,72 @@
+@namespace BlazorBusiness.Web.Components.Tasks.Cards
+@using Telerik.SvgIcons
+@*
+  Ported from _reference/Tasks/Cards/TaskSupportingDocumentsCard.razor.
+  Removed: ITaskInstanceApiService, TaskInstance parameter, dialogs (TaskSelectFilesDialog,
+           ConfirmationDialog), ComponentStateContainer, OrderLinkedFile SDK model.
+  Replaced: Files driven by List<TaskDocumentFile> parameter; OnSelectFiles callback for upload.
+  Dialogs are out of scope for now — TODO comment marks the integration point.
+*@
+
+<div class="tsdc-wrapper">
+    <TelerikCard>
+        <CardBody>
+            <div class="tsdc-header">
+                <span class="tsdc-title">Supporting Documents</span>
+                <div class="tsdc-actions">
+                    <TelerikButton Icon="@SvgIcon.FileTxt"
+                                   FillMode="@ThemeConstants.Button.FillMode.Outline"
+                                   ThemeColor="@ThemeConstants.Button.ThemeColor.Base"
+                                   OnClick="@OnSelectFiles"
+                                   Enabled="@(!_uploading)">
+                        Select Files
+                    </TelerikButton>
+                    @* TODO: wire upload dialog when file service is available *@
+                </div>
+            </div>
+
+            <p class="tsdc-hint">
+                Select existing files from order or property, or upload new documents to include with this submission.
+            </p>
+
+            <div class="tsdc-docs">
+                @if (Files is { Count: > 0 })
+                {
+                    @foreach (var file in Files)
+                    {
+                        <div class="tsdc-file-row">
+                            <div class="tsdc-file-info">
+                                <TelerikSvgIcon Icon="@SvgIcon.File" />
+                                <span class="tsdc-file-name">@file.FileName</span>
+                            </div>
+                            <TelerikButton Icon="@SvgIcon.X"
+                                           FillMode="@ThemeConstants.Button.FillMode.Flat"
+                                           ThemeColor="@ThemeConstants.Button.ThemeColor.Base"
+                                           Size="@ThemeConstants.Button.Size.Small"
+                                           OnClick="@(() => OnRemoveFile.InvokeAsync(file))" />
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="tsdc-empty">
+                        No documents added yet. Use "Select Files" to upload or attach documents.
+                    </div>
+                }
+            </div>
+        </CardBody>
+    </TelerikCard>
+</div>
+
+@code {
+    /// <summary>Files currently attached to the task. Pass an empty list (or null) for empty state.</summary>
+    [Parameter] public List<TaskDocumentFile>? Files { get; set; }
+
+    /// <summary>Fires when the user clicks "Select Files".</summary>
+    [Parameter] public EventCallback OnSelectFiles { get; set; }
+
+    /// <summary>Fires when the user removes a file.</summary>
+    [Parameter] public EventCallback<TaskDocumentFile> OnRemoveFile { get; set; }
+
+    private bool _uploading;
+}

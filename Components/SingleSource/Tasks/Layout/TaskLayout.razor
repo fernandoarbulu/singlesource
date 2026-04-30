@@ -1,0 +1,55 @@
+@namespace BlazorBusiness.Web.Components.Tasks.Layout
+@using BlazorBusiness.Web.Components.Tasks.Grid
+
+<div class="tl-shell">
+
+    @* ── Top task header ───────────────────────────────────────────── *@
+    <div class="tl-header">
+        <div class="tl-header__identity">
+            <span class="tl-header__type">@TaskTitle</span>
+            @if (!string.IsNullOrWhiteSpace(TaskDescription))
+            {
+                <span class="tl-header__desc">@TaskDescription</span>
+            }
+        </div>
+        <div class="tl-header__meta">
+            <span class="tl-status-pill tl-status-pill--@StatusCssKey">@TaskStatus</span>
+            @if (TaskDueDate.HasValue)
+            {
+                <span class="tl-due @DueDateCssClass">Due @TaskDueDate.Value.ToString("MMM d, yyyy")</span>
+            }
+        </div>
+    </div>
+
+    @* ── Optional guidance / supporting-content panel ──────────────── *@
+    @if (ShowGuidance)
+    {
+        <div class="tl-guidance">
+            <button class="tl-guidance__toggle" @onclick="ToggleGuidance">
+                <span>Guidance</span>
+                <span class="tl-guidance__chevron">@(_guidanceExpanded ? "▲" : "▼")</span>
+            </button>
+            @if (_guidanceExpanded)
+            {
+                <div class="tl-guidance__body">
+                    @if (GuidanceContent is not null)
+                    {
+                        @GuidanceContent
+                    }
+                    else
+                    {
+                        <p class="tl-guidance__placeholder">No guidance has been provided for this task type.</p>
+                    }
+                </div>
+            }
+        </div>
+    }
+
+    @* ── Task grid ─────────────────────────────────────────────────── *@
+    <div class="tl-grid-area">
+        <TaskGrid TasksToDisplay="@EffectiveTasks"
+                  OnTaskActionClicked="@OnTaskActionClicked"
+                  RowOrChipClicked="@OnRowClicked" />
+    </div>
+
+</div>

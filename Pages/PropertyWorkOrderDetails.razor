@@ -8,6 +8,7 @@
 @using SinglesourceApp.Data
 @using SinglesourceApp.Models
 @using SinglesourceApp.Services
+@using BlazorBusiness.Web.Components.Tasks.Layout
 
 <PageTitle>@(_payload?.AddressLine1 ?? "Property") — Work Orders</PageTitle>
 
@@ -473,6 +474,14 @@
                             </SplitterPanes>
                         </TelerikSplitter>
                     }
+                }
+                else if (string.Equals(title, "Tasks", StringComparison.OrdinalIgnoreCase))
+                {
+                    <TaskLayout TaskTitle="Invoice Review"
+                                TaskDescription="Review and approve vendor invoices"
+                                TaskStatus="In Progress"
+                                TaskDueDate="@DateTime.Now.AddDays(2)"
+                                ShowGuidance="true" />
                 }
                 else if (string.Equals(title, "Financials", StringComparison.OrdinalIgnoreCase))
                 {

@@ -1,0 +1,129 @@
+@namespace BlazorBusiness.Web.Components.Tasks.Cards
+@*
+  Refactored to TelerikGridLayout for consistent row alignment across all columns.
+
+  Layout — 4 columns × 3 rows:
+    Row 1 │ Status        │ Task Type   │ Due Date     │ Invoice #  │
+    Row 2 │ Order Number  │ Loan Number │ Time Elapsed │ Vendor     │
+    Row 3 │ Address       │ Invoice Date│ Assignee     │ (empty)    │
+
+  Spacing — .tdc-cell wraps each GridLayoutItem's content and carries the
+  component scope attribute, so padding-bottom is applied without ::deep.
+
+  Responsive — TelerikGridLayout column count is fixed in markup; overriding
+  grid-template-columns at breakpoints would require ::deep (banned).
+  .tdc-wrapper uses overflow-x: auto so the card scrolls on narrow viewports.
+*@
+
+<div class="tdc-wrapper">
+    <TelerikCard>
+        <CardBody>
+            <TelerikGridLayout>
+                <GridLayoutColumns>
+                    <GridLayoutColumn />
+                    <GridLayoutColumn />
+                    <GridLayoutColumn />
+                    <GridLayoutColumn />
+                </GridLayoutColumns>
+                <GridLayoutRows>
+                    <GridLayoutRow />
+                    <GridLayoutRow />
+                    <GridLayoutRow />
+                </GridLayoutRows>
+                <GridLayoutItems>
+
+                    @* ── Row 1 ────────────────────────────────────────────── *@
+
+                    <GridLayoutItem Column="1" Row="1">
+                        <div class="tdc-cell tdc-cell--status">
+                            <span class="tdc-lbl">Status</span>
+                            <StatusBadge Text="@Status" Variant="@StatusVariant" />
+                        </div>
+                    </GridLayoutItem>
+
+                    <GridLayoutItem Column="2" Row="1">
+                        <div class="tdc-cell">
+                            <SsField Label="Task Type" Value="@TaskTypeName" />
+                        </div>
+                    </GridLayoutItem>
+
+                    <GridLayoutItem Column="3" Row="1">
+                        <div class="tdc-cell">
+                            <SsField Label="Due Date" Value="@DueDate" />
+                        </div>
+                    </GridLayoutItem>
+
+                    <GridLayoutItem Column="4" Row="1">
+                        <div class="tdc-cell">
+                            <SsField Label="Invoice #" Value="@InvoiceNumber" />
+                        </div>
+                    </GridLayoutItem>
+
+                    @* ── Row 2 ────────────────────────────────────────────── *@
+
+                    <GridLayoutItem Column="1" Row="2">
+                        <div class="tdc-cell">
+                            <SsField Label="Order Number" Value="@OrderNumber" />
+                        </div>
+                    </GridLayoutItem>
+
+                    <GridLayoutItem Column="2" Row="2">
+                        <div class="tdc-cell">
+                            <SsField Label="Loan Number" Value="@LoanNumber" />
+                        </div>
+                    </GridLayoutItem>
+
+                    <GridLayoutItem Column="3" Row="2">
+                        <div class="tdc-cell">
+                            <SsField Label="Time Elapsed" Value="@TimeElapsed" />
+                        </div>
+                    </GridLayoutItem>
+
+                    <GridLayoutItem Column="4" Row="2">
+                        <div class="tdc-cell">
+                            <SsField Label="Vendor" Value="@Vendor" />
+                        </div>
+                    </GridLayoutItem>
+
+                    @* ── Row 3 ────────────────────────────────────────────── *@
+
+                    <GridLayoutItem Column="1" Row="3">
+                        <div class="tdc-cell">
+                            <SsField Label="Property Address" Value="@FullAddress" />
+                        </div>
+                    </GridLayoutItem>
+
+                    <GridLayoutItem Column="2" Row="3">
+                        <div class="tdc-cell">
+                            <SsField Label="Invoice Date" Value="@InvoiceDate" />
+                        </div>
+                    </GridLayoutItem>
+
+                    <GridLayoutItem Column="3" Row="3">
+                        <div class="tdc-cell">
+                            <SsField Label="Assignee" Value="@Assignee" />
+                        </div>
+                    </GridLayoutItem>
+
+                    @* Column 4 / Row 3 intentionally empty *@
+
+                </GridLayoutItems>
+            </TelerikGridLayout>
+        </CardBody>
+    </TelerikCard>
+</div>
+
+@code {
+    [Parameter] public string             Status        { get; set; } = "";
+    [Parameter] public StatusBadgeVariant StatusVariant { get; set; } = StatusBadgeVariant.Neutral;
+    [Parameter] public string?            OrderNumber   { get; set; }
+    [Parameter] public string?            FullAddress   { get; set; }
+    [Parameter] public string?            TaskTypeName  { get; set; }
+    [Parameter] public string?            LoanNumber    { get; set; }
+    [Parameter] public string?            InvoiceDate   { get; set; }
+    [Parameter] public string?            DueDate       { get; set; }
+    [Parameter] public string?            TimeElapsed   { get; set; }
+    [Parameter] public string?            Assignee      { get; set; }
+    [Parameter] public string?            InvoiceNumber { get; set; }
+    [Parameter] public string?            Vendor        { get; set; }
+}

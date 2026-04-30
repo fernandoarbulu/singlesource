@@ -6,6 +6,17 @@ using Telerik.Blazor.Components;
 
 namespace BlazorBusiness.Web.Components.SingleSourceGrid
 {
+    /// <summary>
+    /// Controls the visual presentation preset applied to a <see cref="SingleSourceGrid{TItem}"/>.
+    /// </summary>
+    public enum SsgGridContext
+    {
+        /// <summary>Standard Telerik grid appearance (default).</summary>
+        Default,
+        /// <summary>Task-style appearance: white rows, pointer-cursor hover, no heavy chrome.</summary>
+        Task,
+    }
+
 
     /// <summary>
     /// A reusable, generic grid component that dynamically generates columns for a given data model (<typeparamref name="TItem"/>)
@@ -79,6 +90,34 @@ namespace BlazorBusiness.Web.Components.SingleSourceGrid
         /// </summary>
         [Parameter]
         public string? Height { get; set; }
+
+        /// <summary>
+        /// Visual presentation preset for the grid. Defaults to <see cref="SsgGridContext.Default"/>
+        /// (standard Telerik appearance). Use <see cref="SsgGridContext.Task"/> to apply the task-style
+        /// preset (white rows, hover highlight, pointer cursor) shared by task-oriented screens.
+        /// </summary>
+        [Parameter]
+        public SsgGridContext Context { get; set; } = SsgGridContext.Default;
+
+        /// <summary>
+        /// When <c>true</c>, hides the Telerik drag-to-group panel that appears above the header row.
+        /// Useful when row grouping is applied programmatically (via <see cref="InitialGroupDescriptors"/>)
+        /// and the user should not be able to add or remove group fields interactively.
+        /// Defaults to <c>false</c>.
+        /// </summary>
+        [Parameter]
+        public bool HideGroupingBar { get; set; } = false;
+
+        private string WrapperCssClass
+        {
+            get
+            {
+                var cls = "single-source-grid-wrapper";
+                if (Context == SsgGridContext.Task)   cls += " ssg--ctx-task";
+                if (HideGroupingBar)                  cls += " ssg--no-group-bar";
+                return cls;
+            }
+        }
 
         /// <summary>
         /// Optional row grouping descriptors applied when the grid initialises its state.

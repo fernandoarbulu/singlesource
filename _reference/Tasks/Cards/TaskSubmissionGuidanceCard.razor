@@ -1,0 +1,30 @@
+﻿@using BlazorBusiness.Web.Components.Tasks.Chips
+
+<div class="task-card">
+    <TelerikCard>
+        <CardBody>
+            <div class="sg-header">
+                <div class="sg-title">Submission Guidance</div>
+            </div>
+
+            <!-- TODO: Implement Review Cards as an array-->
+            <div class="sg-grid">
+                @foreach (var card in Cards)
+                {
+                    <div class="sg-card @GetBorderClass(card.Status)">
+                        <div class="sg-card-header">
+                            <span class="sg-card-title">@card.ReviewType Review</span>
+                            <TextChip TextWithThemeColor='@(GetChip(card))' />
+                        </div>
+
+                        <div class="sg-card-body">
+                            @card.ExplanationText
+                        </div>
+                    </div>
+                }
+            </div>
+
+
+        </CardBody>
+    </TelerikCard>
+</div>

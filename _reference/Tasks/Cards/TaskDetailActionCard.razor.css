@@ -1,0 +1,18 @@
+﻿
+
+.taskDetailActionCard-isolation-wrapper ::deep {
+    padding-bottom: 5%;
+    font-weight: 700;
+    padding-bottom: 5%;
+    padding-top: 5%;
+}
+
+.taskDetailActionCard-isolation-wrapper ::deep .cardHeader{
+    text-align: left;
+}
+
+.taskDetailActionCard-isolation-wrapper ::deep .wizardWrapper {
+    width: 700px;
+    margin: 0 auto;
+    text-align: center;
+}

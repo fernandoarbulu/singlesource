@@ -1,0 +1,103 @@
+﻿@using BlazorBusiness.Web.Services.Tasking
+@using BlazorBusiness.Web.Components.Tasks.Cards
+@using Microsoft.AspNetCore.Components;
+﻿@using BlazorBusiness.Web.Containers
+
+@inject ITaskInstanceViewService taskInstanceViewService;
+
+<div class="taskDetailCard-isolation-wrapper">
+    <TelerikCard Width="85%">
+        <CardHeader>
+            <CardTitle>Task Detail</CardTitle>
+        </CardHeader>
+        <CardBody>
+            <TelerikGridLayout >
+                <GridLayoutColumns>
+                    <GridLayoutColumn Width="30%"></GridLayoutColumn>
+                    <GridLayoutColumn Width="70%"></GridLayoutColumn>
+                </GridLayoutColumns>
+                <GridLayoutRows>
+                    <GridLayoutRow></GridLayoutRow>
+                    <GridLayoutRow></GridLayoutRow>
+                    <GridLayoutRow></GridLayoutRow>
+                    <GridLayoutRow></GridLayoutRow>
+                    <GridLayoutRow></GridLayoutRow>
+                    <GridLayoutRow></GridLayoutRow>
+                    <GridLayoutRow></GridLayoutRow> 
+                </GridLayoutRows>
+                <GridLayoutItems>
+                        <GridLayoutItem Class="gridLayoutItem-field">
+
+                            Task Template Type
+
+                        </GridLayoutItem>
+
+                        <GridLayoutItem Class="gridLayoutItem-value">
+
+                            @DetailDialogModel.TaskTemplateType
+
+                        </GridLayoutItem>
+                        <GridLayoutItem Class="gridLayoutItem-field">
+
+                            Task Category
+
+                        </GridLayoutItem>
+                        <GridLayoutItem Class="gridLayoutItem-value">
+
+                            @DetailDialogModel.TaskCategory
+
+                        </GridLayoutItem>
+                        <GridLayoutItem Class="gridLayoutItem-field">
+
+                            Reference #
+
+                        </GridLayoutItem>
+                        <GridLayoutItem Class="gridLayoutItem-value">
+
+                            @DetailDialogModel.ReferenceNumber
+
+                        </GridLayoutItem>
+                        <GridLayoutItem Class="gridLayoutItem-field">
+
+                            Assignee*
+
+                        </GridLayoutItem>
+                        <GridLayoutItem Class="gridLayoutItem-value">
+
+                            @DetailDialogModel.Assignee
+
+                        </GridLayoutItem>
+                        <GridLayoutItem Class="gridLayoutItem-field">
+
+                            Priority*
+
+                        </GridLayoutItem>
+                        <GridLayoutItem Class="gridLayoutItem-value">
+
+
+                            @DetailDialogModel.TaskInstancePriority
+
+                        </GridLayoutItem>
+                        <GridLayoutItem Class="gridLayoutItem-field">
+
+                            Note
+
+                        </GridLayoutItem>
+                        <GridLayoutItem Class="gridLayoutItem-value">
+
+                            @DetailDialogModel.Note
+
+                        </GridLayoutItem>
+                        <GridLayoutItem Class="gridLayoutItem-field">
+                            Status
+                        </GridLayoutItem>
+                        <GridLayoutItem Class="gridLayoutItem-value">
+
+                            @DetailDialogModel.Status
+
+                        </GridLayoutItem>
+                </GridLayoutItems>
+            </TelerikGridLayout>
+        </CardBody>
+    </TelerikCard>
+</div>

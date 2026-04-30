@@ -1,0 +1,40 @@
+﻿@using System.ComponentModel.DataAnnotations
+@using BlazorBusiness.Web.Components.Tasks.Actions.Interfaces
+@using Telerik.Blazor.Components
+@using Microsoft.AspNetCore.Components
+
+@inject IActionFactory actionFactory;
+
+<div class="taskDetailActionCard-isolation-wrapper">
+<TelerikCard>
+    <CardHeader>
+        <div class="cardHeader"> 
+            <CardTitle>Actions</CardTitle>
+        </div>
+    </CardHeader>
+    <CardBody>
+        @if (ShowWizard)
+        {
+                <div class="wizardWrapper">
+                <TelerikWizard OnFinish="@OnWizardFinish">
+                    <WizardSteps>
+                        @if (ActionComponents != null && ActionComponents.Count > 0)
+                        {
+                            foreach (var action in ActionComponents)
+                            {
+                                <DynamicComponent Type="action.ActionComponentType" />
+                            }
+                        }
+                    </WizardSteps>
+                </TelerikWizard>
+            </div>
+        }
+        else
+        {
+            <div class="demo-alert demo-alert-success" role="alert">
+                The action(s) were completed successfully.
+            </div>
+        }
+    </CardBody>
+</TelerikCard>
+</div>

@@ -1053,15 +1053,10 @@ button.pd-section-nav-item--active:hover {
 }
 
 /*
-  Financials grid — hide the Telerik grouping drag-to-group panel.
-  When Groupable="true" is set, Telerik renders a ".k-grouping-header" bar at
-  the top of the grid that says "Drag a column header here to group by it."
-  Hiding it preserves programmatic grouping while removing the drag bar panel.
-  This is a standard Telerik DOM class; scoped to .pd-financials-grid.
+  Grouping bar visibility is now controlled by the HideGroupingBar="true"
+  parameter on SingleSourceGrid, which applies the ssg--no-group-bar class.
+  The global override below is no longer needed and has been removed.
 */
-.pd-financials-grid .k-grouping-header {
-    display: none;
-}
 
 
 /*

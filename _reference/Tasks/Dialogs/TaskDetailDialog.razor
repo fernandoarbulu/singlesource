@@ -1,0 +1,46 @@
+﻿@using BlazorBusiness.Web.Components.Tasks.Cards
+@using BlazorBusiness.Web.Services.Tasking
+@using SingleSource.WebAPI.Business.SDK
+
+@inject ITaskInstanceViewService taskInstanceViewService;
+
+<div class="taskDetailDialog-isolation-wrapper">
+    <TelerikDialog Visible="@Visible" 
+                   CloseOnOverlayClick="true" 
+                   Title="@Title" 
+                   VisibleChanged="@OnVisibleChanged" 
+                   Height="60%"
+                   Width="40%"
+                   @ref="DialogRef"
+    >
+    <DialogContent>
+            <TelerikGridLayout>
+                <GridLayoutColumns>
+                    <GridLayoutColumn Width="40%"></GridLayoutColumn>
+                    <GridLayoutColumn Width="60%"></GridLayoutColumn>
+                </GridLayoutColumns>
+                <GridLayoutRows>
+                    <GridLayoutRow></GridLayoutRow>
+                    <GridLayoutRow></GridLayoutRow>
+                </GridLayoutRows>
+                <GridLayoutItems>
+                    @if (TaskDetailDialogModel.TaskTemplateType != null)
+                    {
+                        <GridLayoutItem>                        
+                            <TaskDetailInfoCard DetailDialogModel="TaskDetailDialogModel" />                                             
+                        </GridLayoutItem>
+                        <GridLayoutItem>
+                            <TaskDataPointInfoCard WorkOrderDetailLayoutFields="@WorkOrderDetailLayoutFields" ReferenceNumber="@ReferenceNumberForCard" />
+                        </GridLayoutItem>
+                    }
+                </GridLayoutItems>
+            </TelerikGridLayout>
+            @if (TaskInstance != null)
+            {
+                <TaskDetailActionCard TaskInstanceForActionCard="TaskInstance"></TaskDetailActionCard>
+            }
+
+    </DialogContent>
+</TelerikDialog>
+</div>
+

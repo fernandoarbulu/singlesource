@@ -1,0 +1,15 @@
+﻿.taskLayout-isolation-wrapper {
+    text-align: left;
+    padding-bottom: inherit;
+}
+
+.task-toggle-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem; /* scales with font size */
+    margin-bottom: 0.75rem;
+}
+
+.task-toggle-label {
+    margin-left: 0.5rem;
+}

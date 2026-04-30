@@ -1,0 +1,41 @@
+/*
+  SingleSourceGrid.razor.css — component-scoped grid style presets
+  ──────────────────────────────────────────────────────────────────
+  ::deep is intentional here: SingleSourceGrid renders TelerikGrid directly,
+  so this is the correct and only place to reach Telerik's internal DOM nodes
+  via scoped CSS. These rules do NOT leak to other grids on the page.
+*/
+
+/* ── Task context ─────────────────────────────────────────────────────────
+   Applied when Context="Task". Gives all task-oriented grids the same
+   clean-row appearance: white background, pointer cursor on hover.
+   Both TaskGrid and InvoiceReviewTask use this preset.
+*/
+.ssg--ctx-task ::deep .k-grid tr.k-master-row {
+    background-color: #ffffff;
+}
+
+.ssg--ctx-task ::deep .k-grid tr.k-master-row.k-alt {
+    background-color: #ffffff;
+}
+
+.ssg--ctx-task ::deep .k-grid tr.k-master-row:hover,
+.ssg--ctx-task ::deep .k-grid tr.k-master-row.k-alt:hover {
+    background-color: rgba(128, 128, 128, 0.15);
+    cursor: pointer;
+}
+
+/* Keep sorted/selected cells consistent in task context */
+.ssg--ctx-task ::deep .k-table-td.k-selected,
+.ssg--ctx-task ::deep col.k-sorted,
+.ssg--ctx-task ::deep .k-table-th.k-sorted {
+    background-color: inherit;
+}
+
+/* ── Hide grouping drag bar ───────────────────────────────────────────────
+   Applied when HideGroupingBar="true". Programmatic row grouping
+   (via InitialGroupDescriptors) does not need the interactive drag panel.
+*/
+.ssg--no-group-bar ::deep .k-grouping-header {
+    display: none;
+}

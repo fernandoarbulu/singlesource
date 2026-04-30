@@ -1,0 +1,68 @@
+﻿@using BlazorBusiness.Web.Components.Tasks.Chips
+@using BlazorBusiness.Web.Components.Tasks.Dialogs
+@using BlazorBusiness.Web.Containers
+@using BlazorBusiness.Web.Models.Container
+@using BlazorBusiness.Web.Components.Notifications
+
+<TelerikCard>
+    <CardBody>
+        <div class="sd-header">
+            <div class="sd-title">Supporting Documents</div>
+
+            <TelerikButton Icon="@SvgIcon.FileTxt" OnClick="OnSelect" Class="select-button" Enabled="SelectButtonEnabled">
+                Select Files
+            </TelerikButton>
+        </div>
+
+        Select existing files from order or property, or upload new documents to include with this submission.
+
+        <div class="sd-docs">
+            <ComponentStateContainer State="State">
+                <Loading>
+                    <div class="loading-container">
+                        <img src="img/loading.gif" />
+                        <h4>Loading...</h4>
+                    </div>
+                </Loading>
+                <Content>
+                    <div>
+                        @if (TaskInstanceFiles != null && TaskInstanceFiles.Any())
+                        {
+                            @foreach (var file in TaskInstanceFiles)
+                            {
+                                <div class="file-row">
+                                    <div class="file-info">
+                                        <TelerikSvgIcon Icon="@SvgIcon.File" />
+                                        <span>@file.FileName</span>
+                                    </div>
+
+                                    <TelerikButton Icon="@SvgIcon.X"
+                                                    FillMode="Telerik.Blazor.ThemeConstants.Button.FillMode.Flat"
+                                                    OnClick="@(() => OnRemoveFile(file))" />
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="sd-none">
+                                No documents added yet. Use "Select Files" to upload or attach documents.
+                            </div>
+                        }
+                    </div>
+                </Content>
+            </ComponentStateContainer>
+        </div>
+    </CardBody>
+
+
+    <TaskSelectFilesDialog Visible="@ShowFileDialog"
+                TaskInstance="TaskInstance"
+                VisibleChanged="@OnDialogClosed" />
+
+    <ConfirmationDialog Visible="@ShowConfirmRemove"
+                VisibleChanged="@(() => ShowConfirmRemove = false)"
+                Message="@ConfirmRemoveMessage"
+                OnConfirm="ConfirmRemove"
+                OnCancel="CancelRemove" />
+
+</TelerikCard>

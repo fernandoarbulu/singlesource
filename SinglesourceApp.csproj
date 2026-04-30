@@ -12,6 +12,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- Exclude reference files from compilation — they contain SDK/API dependencies
+         that are not available in this project. Use only as design reference. -->
+    <Compile Remove="_reference/**" />
+    <Content Remove="_reference/**" />
+    <EmbeddedResource Remove="_reference/**" />
+    <None Remove="_reference/**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- LogicalName keeps a stable manifest name across SDK/root-namespace changes -->
     <EmbeddedResource Include="Data/PropertyMdmV4.json">
       <LogicalName>PropertyMdmV4.json</LogicalName>
