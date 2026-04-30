@@ -9,7 +9,7 @@
    don't need `::deep` to reach the Telerik-rendered `.k-card-body` node. */
 
 .pd-financials-title {
-    margin: 0;
+    margin: 0 0 2px;
     padding: 0;
     font-size: 1rem;
     font-weight: 600;
@@ -17,49 +17,75 @@
     color: var(--color-text-primary, #111827);
 }
 
-.pd-toolbar {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
+/*
+  Three-column strip: Search | Work Order filter | actions (Clear all).
+*/
+.pd-filter-row {
+    display: grid;
+    grid-template-columns: minmax(200px, 380px) minmax(280px, 1fr) auto;
+    align-items: end;
+    gap: 10px 12px;
+    width: 100%;
 }
 
-.pd-search {
-    flex: 1 1 45%;
-    min-width: 280px;
-    max-width: 720px;
+@media (max-width: 720px) {
+    .pd-filter-row {
+        grid-template-columns: 1fr;
+    }
+
+    .pd-filter-actions {
+        justify-self: end;
+        width: 100%;
+        justify-content: flex-end;
+    }
+}
+
+/* Right cluster: Clear all */
+.pd-filter-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: flex-end;
+    gap: 8px;
+    min-width: 0;
+}
+
+/* Shared labeled-field column wrapper (label stacked above input) */
+.pd-filter-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.pd-filter-field--search {
+    max-width: 380px;
+    width: 100%;
+}
+
+.pd-filter-field--wo {
+    min-width: 0;
+}
+
+/* Shared small uppercase label used above both filter fields */
+.pd-filter-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-text-muted, #6b7280);
+    line-height: 1;
 }
 
 .pd-clear-all {
-    margin-left: auto;
-    flex: 0 0 auto;
+    white-space: nowrap;
 }
 
-.pd-filter-bar {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 8px 24px;
-    row-gap: 8px;
-}
-
-.pd-filter-inline {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-.pd-filter-label {
-    font-size: 0.75rem;
-    font-weight: 500;
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
-    color: var(--kendo-color-subtle, #6b7280);
-}
-
-/* Chip list gap + selected-state colors also live in property-shell-pages.css
-   (same reason — Telerik-rendered `.k-chip-list` / `.k-chip` nodes). */
+/*
+  Status pills (.fin-spill) and MultiSelect width rules live in
+  property-shell-pages.css: those elements are Telerik-rendered DOM nodes
+  that Blazor's scoped CSS cannot reach without ::deep.
+*/
 
 .pd-financials-grid {
     width: 100%;

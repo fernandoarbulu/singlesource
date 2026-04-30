@@ -910,6 +910,10 @@ button.pd-section-nav-item--active:hover {
     background: linear-gradient(to bottom, var(--color-bg-subtle), var(--color-bg-card));
     border: 1px solid var(--color-border-default);
     border-bottom: none;
+    position: relative;
+    z-index: 0;
+    /* Keeps gradient + tab pill rounding from painting past the seam */
+    overflow: hidden;
 }
 
 .pd-tabstrip .k-tabstrip-items {
@@ -949,8 +953,28 @@ button.pd-section-nav-item--active:hover {
     border-top: none;
     border-radius: 0 0 10px 10px;
     background: var(--color-bg-card);
-    padding: 0 0 1rem;
+    /* Slightly more space below tab bar; keeps body paint clearly above the strip */
+    padding: 14px 0 12px;
     min-height: 200px;
+    position: relative;
+    z-index: 1;
+    isolation: isolate;
+}
+
+/*
+  Kendo theme default applies a dotted 1px outline on the tab *panel* when it is
+  focused or .k-focus (roving tabindex / programmatic focus). That draws a
+  misaligned “broken container” around the whole tab body (below the tab row).
+  Remove it for the property shell strip only; inputs, buttons, links, and grid
+  cells keep their own focus rings from the theme and :focus-visible rules.
+*/
+.pd-tabstrip.k-tabstrip .k-tabstrip-content:focus,
+.pd-tabstrip.k-tabstrip .k-tabstrip-content:focus-visible,
+.pd-tabstrip.k-tabstrip .k-tabstrip-content.k-focus,
+.pd-tabstrip.k-tabstrip > .k-content:focus,
+.pd-tabstrip.k-tabstrip > .k-content:focus-visible,
+.pd-tabstrip.k-tabstrip > .k-content.k-focus {
+    outline: none;
 }
 
 .pd-tabstrip .pd-load-error,
@@ -985,17 +1009,153 @@ button.pd-section-nav-item--active:hover {
     background: var(--color-bg-subtle);
 }
 
-/* ── Financials tab (Telerik-rendered card body + chip list) ── */
+/* ── Financials tab (Telerik-rendered card body) ── */
+/* Tight inset + small top cushion so section title clears the tab content seam */
 .pd-financials-card .k-card-body {
-    padding: 8px 16px 14px;
+    padding: 2px 16px 10px;
 }
 
-.pd-filter-inline .k-chip-list {
-    gap: 6px;
+/*
+  Flush grid with tab panel: peel nested card + grid chrome. `TelerikCard` is
+  `.k-card`; `SingleSourceGrid` wraps `TelerikGrid` (.k-grid) inside a plain div
+  `.pd-financials-grid`, so we use a descendant selector for the grid chrome rules.
+*/
+.pd-tabstrip .pd-financials-card.k-card {
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
 }
 
-.pd-filter-inline .k-chip.k-selected {
-    background-color: var(--kendo-color-primary, #2563eb);
-    border-color: var(--kendo-color-primary, #2563eb);
-    color: var(--kendo-color-on-primary, #ffffff);
+.pd-tabstrip .pd-financials-grid .k-grid {
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    background-color: transparent;
+}
+
+.pd-tabstrip .pd-financials-grid .k-grid .k-grid-container,
+.pd-tabstrip .pd-financials-grid .k-grid .k-grid-aria-root {
+    border-radius: 0;
+}
+
+/*
+  Financials — Work Order MultiSelect.
+  .pd-filter-field--wo (scoped CSS) is a flex-grow child; the MultiSelect
+  fills it at 100% width so selected tags use horizontal space. No ::deep.
+  Do NOT collapse .k-chip-list — Telerik's JS measures it at runtime;
+  selected tags render naturally inside the input as Telerik intended.
+*/
+.pd-wo-multiselect.k-multiselect {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+}
+
+/*
+  Financials grid — hide the Telerik grouping drag-to-group panel.
+  When Groupable="true" is set, Telerik renders a ".k-grouping-header" bar at
+  the top of the grid that says "Drag a column header here to group by it."
+  Hiding it preserves programmatic grouping while removing the drag bar panel.
+  This is a standard Telerik DOM class; scoped to .pd-financials-grid.
+*/
+.pd-financials-grid .k-grouping-header {
+    display: none;
+}
+
+
+/*
+  Financials grid — column-group header alignment.
+  Telerik renders group header cells with `.k-table-th.k-header`; these rules
+  prevent them from wrapping on narrow viewports.
+*/
+.pd-financials-grid .k-grid-header [data-col-index] > .k-cell-inner,
+.pd-financials-grid .k-grid-header .k-header.k-group-cell {
+    white-space: nowrap;
+}
+
+/*
+  Financials grid — row grouping header lift.
+  `.k-grouping-row` is Telerik's class for work-order group header rows.
+  Subtle background + top separator distinguishes them from data rows without
+  heavy color. Padding is set on `td` (the cell Telerik uses for group content).
+  Global because Telerik owns these DOM nodes; no ::deep needed.
+*/
+.pd-financials-grid .k-grouping-row > td {
+    background-color: var(--color-bg-subtle, #f9fafb);
+    border-top: 1px solid var(--color-border-default, #e5e7eb);
+    padding-top: 6px;
+    padding-bottom: 6px;
+    font-weight: var(--font-weight-medium, 500);
+    color: var(--color-text-primary, #111827);
+}
+
+/*
+  Financials grid — Payable / Receivable column-group separator.
+  Class "fin-col-payable-end" is set directly on the VendorFee GridColumn
+  via Class + HeaderClass parameters, so Telerik applies it to both the
+  data <td> and the header <th>. A right border creates a clean visual
+  boundary between the two groups without layout shifts.
+*/
+.pd-financials-grid .fin-col-payable-end {
+    border-right: 1px solid var(--ss-border, #d8dce4);
+}
+
+/* ── Financials — status pills ──────────────────────────────────────────────
+   These spans are rendered inside Telerik Grid cells (Telerik owns the DOM
+   nodes, so Blazor scoped CSS cannot reach them). Rules must be global and
+   are scoped here via the `.fin-spill` prefix.
+   ─────────────────────────────────────────────────────────────────────────── */
+.fin-spill {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 9px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.5;
+    white-space: nowrap;
+    border: 1px solid transparent;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: 0.01em;
+    vertical-align: middle;
+}
+
+.fin-spill--approved {
+    background: var(--ss-ok-bg);
+    color: var(--ss-ok-text);
+    border-color: var(--ss-ok-border);
+}
+
+.fin-spill--corrections {
+    background: var(--ss-warn-bg);
+    color: var(--ss-warn-text);
+    border-color: var(--ss-warn-border);
+}
+
+.fin-spill--not-required {
+    background: var(--ss-neutral-bg);
+    color: var(--ss-text-muted);
+    border-color: var(--ss-neutral-border);
+}
+
+.fin-spill--awaiting {
+    background: var(--ss-info-bg);
+    color: var(--ss-info-text);
+    border-color: var(--ss-info-border);
+}
+
+.fin-spill--approval-needed {
+    background: #fff7ed;
+    color: #c2410c;
+    border-color: #fed7aa;
+}
+
+.fin-spill--placeholder {
+    background: transparent;
+    color: var(--ss-text-faint);
+    border: 1px dashed var(--ss-neutral-border);
+    cursor: default;
 }

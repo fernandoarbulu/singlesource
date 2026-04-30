@@ -1,0 +1,278 @@
+@typeparam TItem
+@namespace BlazorBusiness.Web.Components.SingleSourceGrid
+@using System.Reflection
+@using Telerik.Blazor.Components
+@using Telerik.DataSource
+
+@if (!string.IsNullOrEmpty(SaveButtonColor))
+{
+    <style>
+        .ssg-save-@(_instanceId).k-button { background-color: @SaveButtonColor !important; border-color: @SaveButtonColor !important; color: #fff !important; }
+        .ssg-save-@(_instanceId).k-button:hover { filter: brightness(0.88); }
+    </style>
+}
+
+<div class="single-source-grid-wrapper" style="max-width: 100%;">
+    <TelerikGrid @ref="@GridRef"
+                 Data="@_workingData"
+                 Pageable="true"
+                 Sortable="true"
+                 Groupable="true"
+                 Width="100%"
+                 Height="@Height"
+                 ShowColumnMenu="true"
+                 @bind-PageSize="@PageSize"
+                 EditMode="@(AllowCreate ? GridEditMode.Inline : GridEditMode.None)"
+                 SelectionMode="@(AllowSelect ? GridSelectionMode.Multiple : GridSelectionMode.None)"
+                 SelectedItems="@_selectedItems"
+                 SelectedItemsChanged="@((IEnumerable<TItem> s) => OnSelectedItemsChanged(s))"
+                 OnUpdate="@HandleUpdate"
+                 OnCreate="@HandleCreate"
+                 OnDelete="@HandleDelete"
+                 OnStateInit="@((GridStateEventArgs<TItem> args) => OnGridStateInit(args))">
+
+        <GridToolBarTemplate>
+            @if (AllowCreate)
+            {
+                <GridCommandButton Command="Add">Add New</GridCommandButton>
+            }
+            @if (AllowCreate || AllowEdit || AllowDelete)
+            {
+                <TelerikButton OnClick="@(() => ResetChanges())"
+                               Enabled="@HasPendingChanges">
+                    Reset
+                </TelerikButton>
+            }
+            @if (AllowEdit || (AllowSelect && SelectionCommands != null))
+            {
+                <span style="flex: 1;"></span>
+            }
+            @if (AllowEdit)
+            {
+                <TelerikButton OnClick="@(async () => await HandleSaveButtonClick())"
+                               Enabled="@HasPendingChanges"
+                               ThemeColor="@(string.IsNullOrEmpty(SaveButtonColor) ? ThemeConstants.Button.ThemeColor.Primary : ThemeConstants.Button.ThemeColor.Base)"
+                               Class="@(string.IsNullOrEmpty(SaveButtonColor) ? string.Empty : $"ssg-save-{_instanceId}")">
+                    @(SaveButtonLabel ?? "Save Changes")
+                </TelerikButton>
+            }
+            @if (AllowEdit && EditingCommands != null)
+            {
+                @EditingCommands(_editingItems)
+            }
+            @if (AllowSelect && SelectionCommands != null)
+            {
+                @SelectionCommands(_selectedItems)
+            }
+        </GridToolBarTemplate>
+
+        <GridSettings>
+            <GridPagerSettings PageSizes="@PageSizeOptions"
+                InputType="PagerInputType.Buttons">
+            </GridPagerSettings>
+        </GridSettings>
+
+        <GridColumns>
+
+            @* Checkbox column: shown for AllowSelect only (pure row selection).
+               When AllowEdit is also true, checking a row does NOT enter edit mode —
+               edit mode is entered exclusively by clicking any data cell. *@
+            @if (AllowSelect)
+            {
+                <GridCheckboxColumn SelectAll="true" Width="48px" CheckBoxOnlySelection="true" ShowColumnMenu="false" />
+            }
+
+            @* Command column: shown only for delete. Editing is driven by cell click, not buttons. *@
+            @if (AllowDelete)
+            {
+                <GridCommandColumn Width="100px" ShowColumnMenu="false">
+                    <GridCommandButton Command="Delete">Delete</GridCommandButton>
+                </GridCommandColumn>
+            }
+
+            @foreach (GridColumnItem columnItem in GridColumnItems)
+            {
+                @if (columnItem.Property != null)
+                {
+                    @* Capture the loop variable so it is safe to close over inside render-fragment lambdas. *@
+                    PropertyInfo capturedProp = columnItem.Property;
+
+                    @if (AllowEdit)
+                    {
+                        @* AllowEdit: always provide a Template so rows in edit mode show Telerik inline
+                           editors while non-editing rows fall back to ColumnTemplate / plain value.
+                           Edit mode is entered when the user clicks any data cell (MarkRowEditable). *@
+                        <GridColumn Field="@capturedProp.Name"
+                                    Title="@GetColumnTitle(capturedProp)"
+                                    Width="@GetColumnWidth(capturedProp)"
+                                    Groupable="@IsGroupable(capturedProp)"
+                                    Sortable="@IsSortable(capturedProp)"
+                                    Filterable="@IsFilterable(capturedProp)"
+                                    FilterMenuType="@GetFilterMenuType(capturedProp)"
+                                    Editable="@IsEditable(capturedProp)"
+                                    Locked="@GetColumnLocked(capturedProp)">
+                            <Template Context="item">
+                                @if (IsItemEditing((TItem)item) && IsEditable(capturedProp))
+                                {
+                                    @if (EditTemplates.ContainsKey(capturedProp.Name))
+                                    {
+                                        @EditTemplates[capturedProp.Name]((TItem)item)
+                                    }
+                                    else
+                                    {
+                                        <SsgCellEditor TItem="TItem" Prop="@capturedProp" Item="@((TItem)item)" />
+                                    }
+                                }
+                                else
+                                {
+                                    <span @onclick="@(() => MarkRowEditable((TItem)item))" style="display: block; width: 100%; cursor: pointer;">
+                                        @if (ColumnTemplates.ContainsKey(capturedProp.Name))
+                                        {
+                                            @ColumnTemplates[capturedProp.Name]((TItem)item)
+                                        }
+                                        else
+                                        {
+                                            @capturedProp.GetValue(item)
+                                        }
+                                    </span>
+                                }
+                            </Template>
+                        </GridColumn>
+                    }
+                    else
+                    {
+                        @* Non-edit modes: use ColumnTemplate if provided, otherwise let Telerik render
+                           the value using its own default formatting (preserves date/number formatting). *@
+                        @if (ColumnTemplates.TryGetValue(capturedProp.Name, out RenderFragment<TItem>? standaloneTemplate))
+                        {
+                            <GridColumn Field="@capturedProp.Name"
+                                        Title="@GetColumnTitle(capturedProp)"
+                                        Width="@GetColumnWidth(capturedProp)"
+                                        Groupable="@IsGroupable(capturedProp)"
+                                        Sortable="@IsSortable(capturedProp)"
+                                        Filterable="@IsFilterable(capturedProp)"
+                                        FilterMenuType="@GetFilterMenuType(capturedProp)"
+                                        Editable="@IsEditable(capturedProp)"
+                                        Locked="@GetColumnLocked(capturedProp)">
+                                <Template Context="item">
+                                    @standaloneTemplate((TItem)item)
+                                </Template>
+                            </GridColumn>
+                        }
+                        else
+                        {
+                            <GridColumn Field="@capturedProp.Name"
+                                        Title="@GetColumnTitle(capturedProp)"
+                                        Width="@GetColumnWidth(capturedProp)"
+                                        Groupable="@IsGroupable(capturedProp)"
+                                        Sortable="@IsSortable(capturedProp)"
+                                        Filterable="@IsFilterable(capturedProp)"
+                                        FilterMenuType="@GetFilterMenuType(capturedProp)"
+                                        Editable="@IsEditable(capturedProp)"
+                                        Locked="@GetColumnLocked(capturedProp)" />
+                        }
+                    }
+                }
+                else if (columnItem.Group != null && columnItem.GroupedProperties != null)
+                {
+                    @* Column header group with nested sub-columns.
+                       When Collapsible=true the toggle button sits in the parent group HeaderTemplate,
+                       which is never draggable for grouping so there are no click conflicts. *@
+                    <GridColumn Title="@columnItem.Group.DisplayName"
+                                Locked="@(columnItem.Group.Locked)">
+                        <HeaderTemplate>
+                            <span>@columnItem.Group.DisplayName</span>
+                            @if (columnItem.Group.Collapsible)
+                            {
+                                <button style="margin-left: 6px; vertical-align: middle; cursor: pointer; background: none; border: none; padding: 0 3px; font-size: 0.75em; opacity: 0.7;"
+                                        title="@(_collapsedGroups.Contains(columnItem.Group.Key) ? "Expand" : "Collapse")"
+                                        @onclick="@(() => ToggleGroup(columnItem.Group.Key))"
+                                        @onclick:stopPropagation="true">
+                                    @(_collapsedGroups.Contains(columnItem.Group.Key) ? "▶" : "◀")
+                                </button>
+                            }
+                        </HeaderTemplate>
+                        <Columns>
+                            @foreach (PropertyInfo groupedProp in columnItem.GroupedProperties)
+                            {
+                                @* Capture the loop variable so it is safe to close over inside render-fragment lambdas. *@
+                                PropertyInfo capturedGroupedProp = groupedProp;
+
+                                @if (AllowEdit)
+                                {
+                                    <GridColumn Field="@capturedGroupedProp.Name"
+                                                Title="@GetColumnTitle(capturedGroupedProp)"
+                                                Width="@GetColumnWidth(capturedGroupedProp)"
+                                                Groupable="@IsGroupable(capturedGroupedProp)"
+                                                Sortable="@IsSortable(capturedGroupedProp)"
+                                                Filterable="@IsFilterable(capturedGroupedProp)"
+                                                FilterMenuType="@GetFilterMenuType(capturedGroupedProp)"
+                                                Editable="@IsEditable(capturedGroupedProp)"
+                                                Locked="@GetColumnLocked(capturedGroupedProp)">
+                                        <Template Context="item">
+                                            @if (IsItemEditing((TItem)item) && IsEditable(capturedGroupedProp))
+                                            {
+                                                @if (EditTemplates.ContainsKey(capturedGroupedProp.Name))
+                                                {
+                                                    @EditTemplates[capturedGroupedProp.Name]((TItem)item)
+                                                }
+                                                else
+                                                {
+                                                    <SsgCellEditor TItem="TItem" Prop="@capturedGroupedProp" Item="@((TItem)item)" />
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <span @onclick="@(() => MarkRowEditable((TItem)item))" style="display: block; width: 100%; cursor: pointer;">
+                                                    @if (ColumnTemplates.ContainsKey(capturedGroupedProp.Name))
+                                                    {
+                                                        @ColumnTemplates[capturedGroupedProp.Name]((TItem)item)
+                                                    }
+                                                    else
+                                                    {
+                                                        @capturedGroupedProp.GetValue(item)
+                                                    }
+                                                </span>
+                                            }
+                                        </Template>
+                                    </GridColumn>
+                                }
+                                else
+                                {
+                                    @if (ColumnTemplates.TryGetValue(capturedGroupedProp.Name, out RenderFragment<TItem>? groupedTemplate))
+                                    {
+                                        <GridColumn Field="@capturedGroupedProp.Name"
+                                                    Title="@GetColumnTitle(capturedGroupedProp)"
+                                                    Width="@GetColumnWidth(capturedGroupedProp)"
+                                                    Groupable="@IsGroupable(capturedGroupedProp)"
+                                                    Sortable="@IsSortable(capturedGroupedProp)"
+                                                    Filterable="@IsFilterable(capturedGroupedProp)"
+                                                    FilterMenuType="@GetFilterMenuType(capturedGroupedProp)"
+                                                    Editable="@IsEditable(capturedGroupedProp)"
+                                                    Locked="@GetColumnLocked(capturedGroupedProp)">
+                                            <Template Context="item">
+                                                @groupedTemplate((TItem)item)
+                                            </Template>
+                                        </GridColumn>
+                                    }
+                                    else
+                                    {
+                                        <GridColumn Field="@capturedGroupedProp.Name"
+                                                    Title="@GetColumnTitle(capturedGroupedProp)"
+                                                    Width="@GetColumnWidth(capturedGroupedProp)"
+                                                    Groupable="@IsGroupable(capturedGroupedProp)"
+                                                    Sortable="@IsSortable(capturedGroupedProp)"
+                                                    Filterable="@IsFilterable(capturedGroupedProp)"
+                                                    FilterMenuType="@GetFilterMenuType(capturedGroupedProp)"
+                                                    Editable="@IsEditable(capturedGroupedProp)"
+                                                    Locked="@GetColumnLocked(capturedGroupedProp)" />
+                                    }
+                                }
+                            }
+                        </Columns>
+                    </GridColumn>
+                }
+            }
+        </GridColumns>
+    </TelerikGrid>
+</div>

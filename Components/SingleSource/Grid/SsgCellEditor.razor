@@ -1,0 +1,78 @@
+@typeparam TItem
+@namespace BlazorBusiness.Web.Components.SingleSourceGrid
+@using System.Reflection
+@using Telerik.Blazor.Components
+
+@{
+    Type _ul  = Nullable.GetUnderlyingType(Prop.PropertyType) ?? Prop.PropertyType;
+    object? _val = Prop.GetValue(Item);
+}
+
+@if (_ul == typeof(bool))
+{
+    <TelerikCheckBox Value="@(_val is bool bv && bv)"
+                     ValueChanged="@((bool v) => Prop.SetValue(Item, v))" />
+}
+else if (_ul == typeof(DateTime))
+{
+    <TelerikDateTimePicker Value="@(_val is DateTime dtv ? dtv : DateTime.MinValue)"
+                           ValueChanged="@((DateTime v) => Prop.SetValue(Item, v))" />
+}
+else if (_ul == typeof(DateOnly))
+{
+    <TelerikDatePicker Value="@(_val is DateOnly dov ? dov : DateOnly.MinValue)"
+                       ValueChanged="@((DateOnly v) => Prop.SetValue(Item, v))" />
+}
+else if (_ul == typeof(TimeOnly))
+{
+    <TelerikTimePicker Value="@(_val is TimeOnly tov ? tov : TimeOnly.MinValue)"
+                       ValueChanged="@((TimeOnly v) => Prop.SetValue(Item, v))" />
+}
+else if (_ul.IsEnum)
+{
+    <TelerikDropDownList Data="@Enum.GetNames(_ul)"
+                         Value="@(_val?.ToString() ?? string.Empty)"
+                         ValueChanged="@((string v) => SetEnum(v))" />
+}
+else if (_ul == typeof(int)     || _ul == typeof(long)    || _ul == typeof(short) ||
+         _ul == typeof(byte)    || _ul == typeof(double)  || _ul == typeof(float) ||
+         _ul == typeof(decimal))
+{
+    <TelerikNumericTextBox Value="@Convert.ToDecimal(_val ?? 0)"
+                           ValueChanged="@((decimal v) => SetNumeric(v))" />
+}
+else
+{
+    <TelerikTextBox Value="@(_val?.ToString() ?? string.Empty)"
+                    ValueChanged="@((string v) => SetText(v))" />
+}
+
+@code {
+    /// <summary>The property this cell is editing.</summary>
+    [Parameter, EditorRequired]
+    public PropertyInfo Prop { get; set; } = default!;
+
+    /// <summary>The live row object whose property is being edited.</summary>
+    [Parameter, EditorRequired]
+    public TItem Item { get; set; } = default!;
+
+    private Type Underlying => Nullable.GetUnderlyingType(Prop.PropertyType) ?? Prop.PropertyType;
+
+    private void SetEnum(string v)
+    {
+        if (Enum.TryParse(Underlying, v, out object? parsed))
+            Prop.SetValue(Item, parsed);
+    }
+
+    private void SetNumeric(decimal v)
+    {
+        try { Prop.SetValue(Item, Convert.ChangeType(v, Underlying)); }
+        catch { /* ignore out-of-range conversions */ }
+    }
+
+    private void SetText(string v)
+    {
+        try { Prop.SetValue(Item, Convert.ChangeType(v, Underlying)); }
+        catch { /* ignore conversion failures for non-string types */ }
+    }
+}
