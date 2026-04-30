@@ -400,6 +400,13 @@ namespace BlazorBusiness.Web.Components.SingleSourceGrid
         private readonly string _instanceId = Guid.NewGuid().ToString("N")[..8];
 
         /// <summary>
+        /// Incremented each time a column group is toggled. Used as <c>@key</c> on the
+        /// <c>TelerikGrid</c> so Blazor tears down and recreates the grid component, forcing
+        /// Telerik to re-render all <c>HeaderTemplate</c> fragments with current state.
+        /// </summary>
+        private int _gridVersion;
+
+        /// <summary>
         /// Reference to the underlying <see cref="TelerikGrid{TItem}"/> instance, used to
         /// read and apply grid state when toggling collapsible column groups.
         /// </summary>
@@ -995,53 +1002,23 @@ namespace BlazorBusiness.Web.Components.SingleSourceGrid
 
         /// <summary>
         /// Toggles the collapsed state of a column group identified by <paramref name="groupKey"/>.
-        /// Sub-columns belonging to the group are hidden or shown via the grid state API, mirroring
-        /// the Kendo UI expand/collapse column group pattern.
+        /// <para>
+        /// Visibility is driven declaratively via <c>GridColumn.Visible</c> in the Razor template:
+        /// the first sub-column in the group is always visible (keeping the parent group header row
+        /// present), while columns after the first are bound to <c>groupVisible</c>. This avoids
+        /// the <c>GetState</c>/<c>SetStateAsync</c> round-trip, which cannot restore columns whose
+        /// state entries are dropped by Telerik once they are hidden.
+        /// </para>
         /// </summary>
-        /// <param name="groupKey">
-        /// The <see cref="SingleSourceGridGroupAttribute.Key"/> of the group to toggle.
-        /// </param>
-        private async Task ToggleGroup(string groupKey)
+        private void ToggleGroup(string groupKey)
         {
-            bool isNowCollapsed;
-
             if (_collapsedGroups.Contains(groupKey))
-            {
                 _collapsedGroups.Remove(groupKey);
-                isNowCollapsed = false;
-            }
             else
-            {
                 _collapsedGroups.Add(groupKey);
-                isNowCollapsed = true;
-            }
 
-            // Find the sub-column field names that belong to this group.
-            GridColumnItem? groupItem = GridColumnItems
-                .FirstOrDefault(i => i.Group?.Key == groupKey);
-
-            if (groupItem?.GroupedProperties == null) return;
-
-            // When collapsing, hide every sub-column after the first so the first column
-            // (which hosts the group header and its expand/collapse button) stays visible.
-            // When expanding, restore all sub-columns.
-            HashSet<string> togglableFieldNames = groupItem.GroupedProperties
-                .Skip(1)
-                .Select(p => p.Name)
-                .ToHashSet(StringComparer.Ordinal);
-
-            // Apply visibility via Telerik's grid state API.
-            GridState<TItem> state = GridRef.GetState();
-
-            foreach (GridColumnState colState in state.ColumnStates)
-            {
-                if (colState.Field != null && togglableFieldNames.Contains(colState.Field))
-                {
-                    colState.Visible = !isNowCollapsed;
-                }
-            }
-
-            await GridRef.SetStateAsync(state);
+            _gridVersion++;
+            StateHasChanged();
         }
     }
 }

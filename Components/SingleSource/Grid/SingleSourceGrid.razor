@@ -13,7 +13,8 @@
 }
 
 <div class="single-source-grid-wrapper" style="max-width: 100%;">
-    <TelerikGrid @ref="@GridRef"
+    <TelerikGrid @key="@_gridVersion"
+                 @ref="@GridRef"
                  Data="@_workingData"
                  Pageable="true"
                  Sortable="true"
@@ -175,40 +176,70 @@
                 }
                 else if (columnItem.Group != null && columnItem.GroupedProperties != null)
                 {
+                    @* Capture loop-bound variables immediately so every closure/template below
+                       references its own iteration's data, matching the pattern used for standalone
+                       columns (capturedProp). Without this, Telerik may render HeaderTemplate
+                       fragments with stale columnItem references when headers are re-evaluated
+                       independently of the outer foreach cycle. *@
+                    SingleSourceGridGroupAttribute capturedGroup           = columnItem.Group;
+                    IReadOnlyList<PropertyInfo>    capturedGroupedProps    = columnItem.GroupedProperties;
+
                     @* Column header group with nested sub-columns.
                        When Collapsible=true the toggle button sits in the parent group HeaderTemplate,
                        which is never draggable for grouping so there are no click conflicts. *@
-                    <GridColumn Title="@columnItem.Group.DisplayName"
-                                Locked="@(columnItem.Group.Locked)">
+                    <GridColumn Title="@capturedGroup.DisplayName"
+                                Locked="@(capturedGroup.Locked)">
                         <HeaderTemplate>
-                            <span>@columnItem.Group.DisplayName</span>
-                            @if (columnItem.Group.Collapsible)
+                            <span>@capturedGroup.DisplayName</span>
+                            @if (capturedGroup.Collapsible)
                             {
                                 <button style="margin-left: 6px; vertical-align: middle; cursor: pointer; background: none; border: none; padding: 0 3px; font-size: 0.75em; opacity: 0.7;"
-                                        title="@(_collapsedGroups.Contains(columnItem.Group.Key) ? "Expand" : "Collapse")"
-                                        @onclick="@(() => ToggleGroup(columnItem.Group.Key))"
+                                        title="@(_collapsedGroups.Contains(capturedGroup.Key) ? "Expand" : "Collapse")"
+                                        @onclick="@(() => ToggleGroup(capturedGroup.Key))"
                                         @onclick:stopPropagation="true">
-                                    @(_collapsedGroups.Contains(columnItem.Group.Key) ? "▶" : "◀")
+                                    @(_collapsedGroups.Contains(capturedGroup.Key) ? "▶" : "◀")
                                 </button>
                             }
                         </HeaderTemplate>
                         <Columns>
-                            @foreach (PropertyInfo groupedProp in columnItem.GroupedProperties)
+                            @{
+                                // The first sub-column is always visible so the parent group
+                                // header row is never left empty (which would hide it in Telerik).
+                                // Sub-columns after the first are hidden when the group is collapsed.
+                                bool groupExpanded = !_collapsedGroups.Contains(capturedGroup.Key);
+                                int subColIndex   = 0;
+
+                                // Minimum width for the first sub-column when its group is collapsed.
+                                // This ensures the group-header button ("Payable ▶" etc.) fits inside
+                                // the cell so pointer events are not blocked by adjacent header cells.
+                                // 120px comfortably holds the longest group label + chevron.
+                                const string CollapsedFirstColWidth = "120px";
+                            }
+                            @foreach (PropertyInfo groupedProp in capturedGroupedProps)
                             {
-                                @* Capture the loop variable so it is safe to close over inside render-fragment lambdas. *@
+                                @* Capture loop variables so they are safe inside render-fragment lambdas. *@
                                 PropertyInfo capturedGroupedProp = groupedProp;
+                                bool isFirstSubCol = subColIndex == 0;
+                                bool colVisible    = groupExpanded || isFirstSubCol;
+                                // When collapsed, widen the first sub-column enough to contain the
+                                // header button; otherwise use the column's own declared width.
+                                string colWidth = (!groupExpanded && isFirstSubCol)
+                                    ? CollapsedFirstColWidth
+                                    : GetColumnWidth(capturedGroupedProp);
+                                subColIndex++;
 
                                 @if (AllowEdit)
                                 {
                                     <GridColumn Field="@capturedGroupedProp.Name"
                                                 Title="@GetColumnTitle(capturedGroupedProp)"
-                                                Width="@GetColumnWidth(capturedGroupedProp)"
+                                                Width="@colWidth"
                                                 Groupable="@IsGroupable(capturedGroupedProp)"
                                                 Sortable="@IsSortable(capturedGroupedProp)"
                                                 Filterable="@IsFilterable(capturedGroupedProp)"
                                                 FilterMenuType="@GetFilterMenuType(capturedGroupedProp)"
                                                 Editable="@IsEditable(capturedGroupedProp)"
-                                                Locked="@GetColumnLocked(capturedGroupedProp)">
+                                                Locked="@GetColumnLocked(capturedGroupedProp)"
+                                                Visible="@colVisible">
                                         <Template Context="item">
                                             @if (IsItemEditing((TItem)item) && IsEditable(capturedGroupedProp))
                                             {
@@ -243,13 +274,14 @@
                                     {
                                         <GridColumn Field="@capturedGroupedProp.Name"
                                                     Title="@GetColumnTitle(capturedGroupedProp)"
-                                                    Width="@GetColumnWidth(capturedGroupedProp)"
+                                                    Width="@colWidth"
                                                     Groupable="@IsGroupable(capturedGroupedProp)"
                                                     Sortable="@IsSortable(capturedGroupedProp)"
                                                     Filterable="@IsFilterable(capturedGroupedProp)"
                                                     FilterMenuType="@GetFilterMenuType(capturedGroupedProp)"
                                                     Editable="@IsEditable(capturedGroupedProp)"
-                                                    Locked="@GetColumnLocked(capturedGroupedProp)">
+                                                    Locked="@GetColumnLocked(capturedGroupedProp)"
+                                                    Visible="@colVisible">
                                             <Template Context="item">
                                                 @groupedTemplate((TItem)item)
                                             </Template>
@@ -259,13 +291,14 @@
                                     {
                                         <GridColumn Field="@capturedGroupedProp.Name"
                                                     Title="@GetColumnTitle(capturedGroupedProp)"
-                                                    Width="@GetColumnWidth(capturedGroupedProp)"
+                                                    Width="@colWidth"
                                                     Groupable="@IsGroupable(capturedGroupedProp)"
                                                     Sortable="@IsSortable(capturedGroupedProp)"
                                                     Filterable="@IsFilterable(capturedGroupedProp)"
                                                     FilterMenuType="@GetFilterMenuType(capturedGroupedProp)"
                                                     Editable="@IsEditable(capturedGroupedProp)"
-                                                    Locked="@GetColumnLocked(capturedGroupedProp)" />
+                                                    Locked="@GetColumnLocked(capturedGroupedProp)"
+                                                    Visible="@colVisible" />
                                     }
                                 }
                             }
