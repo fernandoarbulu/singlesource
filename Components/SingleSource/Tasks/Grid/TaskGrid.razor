@@ -1,0 +1,45 @@
+﻿@namespace BlazorBusiness.Web.Components.Tasks.Grid
+@using BlazorBusiness.Web.Components.SingleSourceGrid
+
+@{
+    Dictionary<string, RenderFragment<TaskGridDisplayModel>> TaskTemplates =
+        new()
+        {
+            {
+                nameof(TaskGridDisplayModel.PropertyAddress),
+                task => @<span title="@task.PropertyAddress" class="address-tooltip truncate-text">
+                            @task.PropertyAddress
+                         </span>
+            },
+            {
+                nameof(TaskGridDisplayModel.DueDate),
+                task => @<span class="@GetDueDateCssClass(task)">
+                            @GetDueDateText(task)
+                         </span>
+            },
+            {
+                nameof(TaskGridDisplayModel.TaskInstanceStatusName),
+                task =>
+                    @<span class="@GetStatusClass(task.TaskInstanceStatusName)">
+                        @task.TaskInstanceStatusName
+                    </span>
+            },
+            {
+                nameof(TaskGridDisplayModel.Ranking),
+                task => @<span>@GetRank(task)</span>
+            },
+            {
+                nameof(TaskGridDisplayModel.Action),
+                task => @<TelerikButton FillMode="@(IsViewAction(task) ? ThemeConstants.Button.FillMode.Outline : ThemeConstants.Button.FillMode.Solid)"
+                            ThemeColor="@(IsViewAction(task) ? ThemeConstants.Button.ThemeColor.Light : ThemeConstants.Button.ThemeColor.Primary)"
+                            OnClick="@(() => OnActionClicked(task))">
+                        @GetActionText(task)
+                     </TelerikButton>
+            }
+        };
+}
+
+<SingleSourceGrid TItem="TaskGridDisplayModel" Data="TasksToDisplay"
+                  ColumnTemplates="TaskTemplates"
+                  Height="calc(100vh - 200px)">
+</SingleSourceGrid>

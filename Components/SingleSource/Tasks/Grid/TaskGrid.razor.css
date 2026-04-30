@@ -1,0 +1,88 @@
+﻿﻿ /*the following selectors target the locked/frozen columns*/
+/*===*/
+.taskGrid-isolation-wrapper ::deep .k-grid .k-master-row.late-task-row .k-grid-content-sticky,
+.taskGrid-isolation-wrapper ::deep .k-grid .k-master-row.late-task-row.k-alt .k-grid-content-sticky
+/*===*/ {
+    background-color: inherit;
+}
+
+/*red late task rules*/
+.taskGrid-isolation-wrapper ::deep .k-grid tr.k-master-row.late-task-row:hover {
+    background-color: rgba(255, 0, 0, 0.2) !important;
+    cursor: pointer !important;
+}
+
+.taskGrid-isolation-wrapper ::deep .k-grid tr.k-master-row.late-task-row {
+    background-color: rgba(255, 0, 0, 0.1) !important;
+}
+
+.taskGrid-isolation-wrapper ::deep .bolded-task-type {
+    font-weight: 700 !important;
+}
+/*white and grey regular tasks*/
+.taskGrid-isolation-wrapper ::deep .k-grid tr.k-master-row {
+    background-color: white !important;
+}
+
+    .taskGrid-isolation-wrapper ::deep .k-grid tr.k-master-row:hover {
+        background-color: rgb(128, 128, 128, 0.2) !important;
+        cursor: pointer !important;
+    }
+
+/*keep sorted and slected cells white*/
+.taskGrid-isolation-wrapper ::deep .k-table-td .k-selected {
+    background-color: white !important;
+}
+
+.taskGrid-isolation-wrapper ::deep col.k-sorted, .k-table-th.k-sorted {
+    background-color: inherit !important;
+}
+
+.truncate-text {
+    display: inline-block;
+    max-width: 200px; /* adjust as needed */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: bottom;
+}
+
+.due-date-overdue {
+    color: red;
+    font-weight: 600;
+}
+
+.due-date-today {
+    color: orange;
+    font-weight: 600;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    / 12px */ font-weight: 600;
+    line-height: 1.5;
+    white-space: nowrap;
+}
+
+.status-badge--new {
+    background-color: #FEF3C7;
+    color: #92400E;
+}
+
+.status-badge--in-progress {
+    background-color: #DBEAFE;
+    color: #1E3A8A;
+}
+
+.status-badge--cancelled {
+    background-color: #F3F4F6;
+    color: #6B7280;
+}
+
+.status-badge--done {
+    background-color: #D1FAE5;
+    color: #065F46;
+}
