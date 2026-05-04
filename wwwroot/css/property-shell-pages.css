@@ -1085,16 +1085,6 @@ button.pd-section-nav-item--active:hover {
     color: var(--color-text-primary, #111827);
 }
 
-/*
-  Financials grid — Payable / Receivable column-group separator.
-  Class "fin-col-payable-end" is set directly on the VendorFee GridColumn
-  via Class + HeaderClass parameters, so Telerik applies it to both the
-  data <td> and the header <th>. A right border creates a clean visual
-  boundary between the two groups without layout shifts.
-*/
-.pd-financials-grid .fin-col-payable-end {
-    border-right: 1px solid var(--ss-border, #d8dce4);
-}
 
 /* ── Financials — status pills ──────────────────────────────────────────────
    These spans are rendered inside Telerik Grid cells (Telerik owns the DOM

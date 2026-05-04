@@ -68,5 +68,5 @@
     /// <summary>Fires when the user removes a file.</summary>
     [Parameter] public EventCallback<TaskDocumentFile> OnRemoveFile { get; set; }
 
-    private bool _uploading;
+    private bool _uploading = false;
 }

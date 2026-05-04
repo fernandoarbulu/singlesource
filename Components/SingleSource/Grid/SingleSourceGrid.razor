@@ -181,8 +181,8 @@
                        columns (capturedProp). Without this, Telerik may render HeaderTemplate
                        fragments with stale columnItem references when headers are re-evaluated
                        independently of the outer foreach cycle. *@
-                    SingleSourceGridGroupAttribute capturedGroup           = columnItem.Group;
-                    IReadOnlyList<PropertyInfo>    capturedGroupedProps    = columnItem.GroupedProperties;
+                    SingleSourceGridGroupAttribute capturedGroup           = columnItem.Group!;
+                    IReadOnlyList<PropertyInfo>    capturedGroupedProps    = columnItem.GroupedProperties!;
 
                     @* Column header group with nested sub-columns.
                        When Collapsible=true the toggle button sits in the parent group HeaderTemplate,
@@ -223,7 +223,7 @@
                                 bool colVisible    = groupExpanded || isFirstSubCol;
                                 // When collapsed, widen the first sub-column enough to contain the
                                 // header button; otherwise use the column's own declared width.
-                                string colWidth = (!groupExpanded && isFirstSubCol)
+                                string? colWidth = (!groupExpanded && isFirstSubCol)
                                     ? CollapsedFirstColWidth
                                     : GetColumnWidth(capturedGroupedProp);
                                 subColIndex++;
