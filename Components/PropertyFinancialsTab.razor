@@ -102,9 +102,42 @@
 
 
 @code {
+    // ── Developer handoff ─────────────────────────────────────────────────────
+    // COMPONENT: PropertyFinancialsTab
+    //
+    // PARAMETERS:
+    //   PropertyId — ID of the property whose financials to display.
+    //                Passed to the data-fetch call when the API layer is connected.
+    //   Rows       — Financial rows to render. When null, falls back to BuildMockRows()
+    //                so the tab renders in isolation during development/demo.
+    //                Pass API-loaded rows from the parent page to replace mock data.
+    //
+    // GRID DATA SHAPE:
+    //   See Models/FinancialGridRow.cs for the full field contract.
+    //   WorkOrder is the Telerik grouping key (InitialGroupDescriptors below).
+    //   All rows with the same WorkOrder value are grouped together automatically.
+    //
+    // MOCK DATA LOCATION:
+    //   BuildMockRows() at the bottom of this file.
+    //
+    // TO CONNECT REAL API:
+    //   1. Inject your financial data service above @code.
+    //   2. In OnParametersSetAsync(), fetch rows via PropertyId when Rows is null.
+    //   3. Or supply rows from the parent: <PropertyFinancialsTab Rows="@_apiRows" />
+    // ─────────────────────────────────────────────────────────────────────────
+
+    /// <summary>ID of the property being displayed. Used to scope the API data fetch.</summary>
+    [Parameter] public string? PropertyId { get; set; }
+
+    /// <summary>
+    /// Financial rows to render. When null, the component falls back to built-in mock data.
+    /// Pass API-loaded <see cref="FinancialGridRow"/> instances from the parent page.
+    /// </summary>
+    [Parameter] public IEnumerable<FinancialGridRow>? Rows { get; set; }
+
     private static readonly CultureInfo _usCulture = CultureInfo.GetCultureInfo("en-US");
 
-    private readonly List<FinancialGridRow> _rows = BuildRows();
+    private List<FinancialGridRow> _rows = [];
     private IEnumerable<FinancialGridRow> _filteredRows = Enumerable.Empty<FinancialGridRow>();
 
     private readonly IEnumerable<GroupDescriptor> _woGroupDescriptors =
@@ -120,8 +153,14 @@
     private List<string> _selectedWorkOrders = new();
     private string _search = string.Empty;
 
-    protected override void OnInitialized()
+    // Track the last Rows reference to avoid rebuilding on every parent re-render.
+    private IEnumerable<FinancialGridRow>? _lastRows;
+
+    protected override void OnParametersSet()
     {
+        if (ReferenceEquals(_lastRows, Rows)) return;
+        _lastRows = Rows;
+        _rows = Rows?.ToList() ?? BuildMockRows();
         _allWorkOrderItems = BuildAllWorkOrders()
             .Select(wo => new WoItem(wo))
             .ToList();
@@ -203,149 +242,91 @@
         public WoItem(string value) { Id = value; Label = value; }
     }
 
-    // ── Display model ──────────────────────────────────────────────────────────
-    // Attributes drive SingleSourceGrid column generation via reflection.
-    // WorkOrder is excluded from visible columns (AutoGenerate=false) but still
-    // used as the InitialGroupDescriptors grouping field.
-
-    [SingleSourceGridGroup(DisplayName = "Payable",    Key = "Payable",    Order = 7, Collapsible = true)]
-    [SingleSourceGridGroup(DisplayName = "Receivable", Key = "Receivable", Order = 8, Collapsible = true)]
-    [SingleSourceGridGroup(DisplayName = "Status",     Key = "Status",     Order = 9, Collapsible = true)]
-    private sealed record FinancialGridRow(
-        [property: SingleSourceGridAttribute(AutoGenerate = false)]
-        string WorkOrder,
-
-        [property: SingleSourceGridAttribute(DisplayName = "AP GPID",      Width = "120px", Order = 1, Groupable = false)]
-        string ApGpid,
-
-        [property: SingleSourceGridAttribute(DisplayName = "AR GPID",      Width = "120px", Order = 2, Groupable = false)]
-        string ArGpid,
-
-        [property: SingleSourceGridAttribute(DisplayName = "Line Item",    Width = "150px", Order = 3, Groupable = false)]
-        string LineItem,
-
-        [property: SingleSourceGridAttribute(DisplayName = "Description",  Width = "210px", Order = 4)]
-        string Description,
-
-        [property: SingleSourceGridAttribute(DisplayName = "Imported Date", Width = "125px", Order = 5, Groupable = false)]
-        DateTime ImportedDate,
-
-        [property: SingleSourceGridAttribute(DisplayName = "Vendor",       Width = "175px", Order = 6)]
-        string Vendor,
-
-        // ── Payable group ─────────────────────────────────────────────────────
-        [property: SingleSourceGridAttribute(DisplayName = "QTY",     Width = "65px",  GroupKey = "Payable", Order = 1, Groupable = false)]
-        decimal? ApQty,
-
-        [property: SingleSourceGridAttribute(DisplayName = "UNIT",    Width = "65px",  GroupKey = "Payable", Order = 2, Groupable = false)]
-        string? ApUnit,
-
-        [property: SingleSourceGridAttribute(DisplayName = "Vendor $", Width = "110px", GroupKey = "Payable", Order = 3, Groupable = false)]
-        decimal? VendorFee,
-
-        // ── Receivable group ──────────────────────────────────────────────────
-        [property: SingleSourceGridAttribute(DisplayName = "QTY",     Width = "65px",  GroupKey = "Receivable", Order = 1, Groupable = false)]
-        decimal? ArQty,
-
-        [property: SingleSourceGridAttribute(DisplayName = "UNIT",    Width = "65px",  GroupKey = "Receivable", Order = 2, Groupable = false)]
-        string? ArUnit,
-
-        [property: SingleSourceGridAttribute(DisplayName = "Client $", Width = "110px", GroupKey = "Receivable", Order = 3, Groupable = false)]
-        decimal? ClientFee,
-
-        // ── Status group ──────────────────────────────────────────────────────
-        [property: SingleSourceGridAttribute(DisplayName = "Business", Width = "165px", GroupKey = "Status", Order = 1, Groupable = false)]
-        string BusinessStatus,
-
-        [property: SingleSourceGridAttribute(DisplayName = "Client",   Width = "195px", GroupKey = "Status", Order = 2, Groupable = false)]
-        string ClientStatus,
-
-        [property: SingleSourceGridAttribute(DisplayName = "Investor", Width = "205px", GroupKey = "Status", Order = 3, Groupable = false)]
-        string InvestorStatus
-    );
-
-    private static List<FinancialGridRow> BuildRows()
+    // ── Mock data ──────────────────────────────────────────────────────────────
+    // REPLACE: When the API is ready, remove the BuildMockRows() call in OnParametersSet()
+    // and inject your financial data service to fetch real rows using PropertyId.
+    private static List<FinancialGridRow> BuildMockRows()
     {
         var us = CultureInfo.GetCultureInfo("en-US");
         return
         [
             // ── 463456003-LMR  Lawn Maintenance Recurring ─────────────────────
-            new("463456003-LMR", "GPAP-2026-0401", "—",
-                "Lawn Maintenance", "Full mow, edge, and blow service",
-                DateTime.Parse("04/03/2026", us), "Leyland Property Management",
-                1m, "Ea", 95.00m, null, null, null,
-                "Approved", "Not Required", "Not Required"),
+            new() { WorkOrder = "463456003-LMR", ApGpid = "GPAP-2026-0401", ArGpid = "—",
+                LineItem = "Lawn Maintenance", Description = "Full mow, edge, and blow service",
+                ImportedDate = DateTime.Parse("04/03/2026", us), Vendor = "Leyland Property Management",
+                ApQty = 1m, ApUnit = "Ea", VendorFee = 95.00m,
+                BusinessStatus = "Approved", ClientStatus = "Not Required", InvestorStatus = "Not Required" },
 
-            new("463456003-LMR", "—", "GPAR-2026-0402",
-                "Lawn Maintenance", "12 recurring lawn maintenance cuts",
-                DateTime.Parse("04/04/2026", us), "Leyland Property Management",
-                null, null, null, 12m, "Mo", 1140.00m,
-                "Approved", "Approval Needed Not Submitted", "Awaiting Approval Submitted"),
+            new() { WorkOrder = "463456003-LMR", ApGpid = "—", ArGpid = "GPAR-2026-0402",
+                LineItem = "Lawn Maintenance", Description = "12 recurring lawn maintenance cuts",
+                ImportedDate = DateTime.Parse("04/04/2026", us), Vendor = "Leyland Property Management",
+                ArQty = 12m, ArUnit = "Mo", ClientFee = 1140.00m,
+                BusinessStatus = "Approved", ClientStatus = "Approval Needed Not Submitted", InvestorStatus = "Awaiting Approval Submitted" },
 
             // ── 463456003-BDE  Board / Door / Exterior ────────────────────────
-            new("463456003-BDE", "GPAP-2026-0301", "—",
-                "Boarding", "Board window opening",
-                DateTime.Parse("03/03/2026", us), "Leyland Property Management",
-                2m, "Ea", 99.16m, null, null, null,
-                "Approved", "Not Required", "Not Required"),
+            new() { WorkOrder = "463456003-BDE", ApGpid = "GPAP-2026-0301", ArGpid = "—",
+                LineItem = "Boarding", Description = "Board window opening",
+                ImportedDate = DateTime.Parse("03/03/2026", us), Vendor = "Leyland Property Management",
+                ApQty = 2m, ApUnit = "Ea", VendorFee = 99.16m,
+                BusinessStatus = "Approved", ClientStatus = "Not Required", InvestorStatus = "Not Required" },
 
-            new("463456003-BDE", "—", "GPAR-2026-0302",
-                "Exterior Door", "Repair/replace exterior door",
-                DateTime.Parse("03/03/2026", us), "Leyland Property Management",
-                null, null, null, 1m, "Ea", 1000.00m,
-                "Corrections Needed", "", ""),
+            new() { WorkOrder = "463456003-BDE", ApGpid = "—", ArGpid = "GPAR-2026-0302",
+                LineItem = "Exterior Door", Description = "Repair/replace exterior door",
+                ImportedDate = DateTime.Parse("03/03/2026", us), Vendor = "Leyland Property Management",
+                ArQty = 1m, ArUnit = "Ea", ClientFee = 1000.00m,
+                BusinessStatus = "Corrections Needed", ClientStatus = "", InvestorStatus = "" },
 
-            new("463456003-BDE", "GPAP-2026-0303", "—",
-                "Plumbing Service", "Plumbing repair service call",
-                DateTime.Parse("03/03/2026", us), "Leyland Property Management",
-                1m, "Hr", 467.00m, null, null, null,
-                "Corrections Needed", "", ""),
+            new() { WorkOrder = "463456003-BDE", ApGpid = "GPAP-2026-0303", ArGpid = "—",
+                LineItem = "Plumbing Service", Description = "Plumbing repair service call",
+                ImportedDate = DateTime.Parse("03/03/2026", us), Vendor = "Leyland Property Management",
+                ApQty = 1m, ApUnit = "Hr", VendorFee = 467.00m,
+                BusinessStatus = "Corrections Needed", ClientStatus = "", InvestorStatus = "" },
 
             // ── 463456003-RFS  Roof Stabilization ─────────────────────────────
-            new("463456003-RFS", "—", "GPAR-2026-0219",
-                "Roof Inspection", "Roof condition and leak inspection",
-                DateTime.Parse("02/19/2026", us), "Summit Roofing",
-                null, null, null, 1m, "Ea", 220.00m,
-                "Approved", "Not Required", "Approval Needed Not Submitted"),
+            new() { WorkOrder = "463456003-RFS", ApGpid = "—", ArGpid = "GPAR-2026-0219",
+                LineItem = "Roof Inspection", Description = "Roof condition and leak inspection",
+                ImportedDate = DateTime.Parse("02/19/2026", us), Vendor = "Summit Roofing",
+                ArQty = 1m, ArUnit = "Ea", ClientFee = 220.00m,
+                BusinessStatus = "Approved", ClientStatus = "Not Required", InvestorStatus = "Approval Needed Not Submitted" },
 
-            new("463456003-RFS", "GPAP-2026-0220", "—",
-                "Tarp Installation", "Emergency tarp installation",
-                DateTime.Parse("02/20/2026", us), "Summit Roofing",
-                1m, "Ea", 460.00m, null, null, null,
-                "Corrections Needed", "Approval Needed Not Submitted", ""),
+            new() { WorkOrder = "463456003-RFS", ApGpid = "GPAP-2026-0220", ArGpid = "—",
+                LineItem = "Tarp Installation", Description = "Emergency tarp installation",
+                ImportedDate = DateTime.Parse("02/20/2026", us), Vendor = "Summit Roofing",
+                ApQty = 1m, ApUnit = "Ea", VendorFee = 460.00m,
+                BusinessStatus = "Corrections Needed", ClientStatus = "Approval Needed Not Submitted", InvestorStatus = "" },
 
             // ── 463456003-WTR  Water Damage Restoration ───────────────────────
-            new("463456003-WTR", "—", "GPAR-2026-0112",
-                "Water Extraction", "Water extraction and dry-out",
-                DateTime.Parse("01/12/2026", us), "DryFast Restoration",
-                null, null, null, 1m, "Ea", 1325.00m,
-                "Approved", "Not Required", "Not Required"),
+            new() { WorkOrder = "463456003-WTR", ApGpid = "—", ArGpid = "GPAR-2026-0112",
+                LineItem = "Water Extraction", Description = "Water extraction and dry-out",
+                ImportedDate = DateTime.Parse("01/12/2026", us), Vendor = "DryFast Restoration",
+                ArQty = 1m, ArUnit = "Ea", ClientFee = 1325.00m,
+                BusinessStatus = "Approved", ClientStatus = "Not Required", InvestorStatus = "Not Required" },
 
-            new("463456003-WTR", "GPAP-2026-0115", "—",
-                "Mold Treatment", "Mold treatment in lower level",
-                DateTime.Parse("01/15/2026", us), "DryFast Restoration",
-                1m, "Ea", 875.00m, null, null, null,
-                "", "", ""),
+            new() { WorkOrder = "463456003-WTR", ApGpid = "GPAP-2026-0115", ArGpid = "—",
+                LineItem = "Mold Treatment", Description = "Mold treatment in lower level",
+                ImportedDate = DateTime.Parse("01/15/2026", us), Vendor = "DryFast Restoration",
+                ApQty = 1m, ApUnit = "Ea", VendorFee = 875.00m,
+                BusinessStatus = "", ClientStatus = "", InvestorStatus = "" },
 
             // ── 463456003-SEC  Security / Access ──────────────────────────────
-            new("463456003-SEC", "—", "GPAR-2026-0106",
-                "Rekey Locks", "Rekey front and rear doors",
-                DateTime.Parse("01/06/2026", us), "Secure Entry Services",
-                null, null, null, 2m, "Ea", 185.00m,
-                "Approved", "Not Required", "Not Required"),
+            new() { WorkOrder = "463456003-SEC", ApGpid = "—", ArGpid = "GPAR-2026-0106",
+                LineItem = "Rekey Locks", Description = "Rekey front and rear doors",
+                ImportedDate = DateTime.Parse("01/06/2026", us), Vendor = "Secure Entry Services",
+                ArQty = 2m, ArUnit = "Ea", ClientFee = 185.00m,
+                BusinessStatus = "Approved", ClientStatus = "Not Required", InvestorStatus = "Not Required" },
 
-            new("463456003-SEC", "GPAP-2026-0106", "—",
-                "Board Rear Door", "Temporary rear door board-up",
-                DateTime.Parse("01/06/2026", us), "Secure Entry Services",
-                1m, "Ea", 240.00m, null, null, null,
-                "Approved", "Not Required", "Not Required"),
+            new() { WorkOrder = "463456003-SEC", ApGpid = "GPAP-2026-0106", ArGpid = "—",
+                LineItem = "Board Rear Door", Description = "Temporary rear door board-up",
+                ImportedDate = DateTime.Parse("01/06/2026", us), Vendor = "Secure Entry Services",
+                ApQty = 1m, ApUnit = "Ea", VendorFee = 240.00m,
+                BusinessStatus = "Approved", ClientStatus = "Not Required", InvestorStatus = "Not Required" },
 
             // ── 463456003-CLN  Cleanup ─────────────────────────────────────────
-            new("463456003-CLN", "—", "GPAR-2025-1217",
-                "Trash Out", "Interior trash-out and haul away",
-                DateTime.Parse("12/17/2025", us), "First Pass Preservation",
-                null, null, null, 1m, "Ea", 510.00m,
-                "", "Approval Needed Not Submitted", "Awaiting Approval Submitted"),
+            new() { WorkOrder = "463456003-CLN", ApGpid = "—", ArGpid = "GPAR-2025-1217",
+                LineItem = "Trash Out", Description = "Interior trash-out and haul away",
+                ImportedDate = DateTime.Parse("12/17/2025", us), Vendor = "First Pass Preservation",
+                ArQty = 1m, ArUnit = "Ea", ClientFee = 510.00m,
+                BusinessStatus = "", ClientStatus = "Approval Needed Not Submitted", InvestorStatus = "Awaiting Approval Submitted" },
         ];
     }
 }

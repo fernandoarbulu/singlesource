@@ -485,7 +485,9 @@
                 }
                 else if (string.Equals(title, "Financials", StringComparison.OrdinalIgnoreCase))
                 {
-                    <PropertyFinancialsTab />
+                    @* Pass PropertyId so the tab can scope its API fetch when the data layer is connected.
+                       Pass Rows="@_financialRows" once you fetch them here; omit to use built-in mock data. *@
+                    <PropertyFinancialsTab PropertyId="@_propertyId" />
                 }
                 else
                 {
@@ -504,6 +506,11 @@
 @code {
     [SupplyParameterFromQuery(Name = "tab")]
     public string? Tab { get; set; }
+
+    // TODO: Replace with a route parameter (e.g. @page "/properties/{propertyId}") when
+    // the routing strategy is finalized. For now this is the single source of truth for
+    // which property is loaded, passed to the service and to child tabs (PropertyFinancialsTab).
+    private const string _propertyId = "123-main-st";
 
     private readonly string[] _primaryTabs =
     [
@@ -810,7 +817,7 @@
             try
             {
                 await Task.Yield();
-                var dto = await PropertyDetailsService.GetPropertyDetailsAsync("123-main-st", CancellationToken.None);
+                var dto = await PropertyDetailsService.GetPropertyDetailsAsync(_propertyId, CancellationToken.None);
                 _payload = dto;
 
                 _categories.Clear();
