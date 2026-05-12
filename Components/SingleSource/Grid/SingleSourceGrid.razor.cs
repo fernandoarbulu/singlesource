@@ -763,6 +763,40 @@ namespace BlazorBusiness.Web.Components.SingleSourceGrid
         }
 
         /// <summary>
+        /// Returns <c>true</c> when this sub-column should remain visible even when its parent
+        /// column group is collapsed. The first sub-column in a group is always visible regardless
+        /// of this flag; this method covers every column after the first.
+        /// </summary>
+        private static bool IsVisibleWhenCollapsed(PropertyInfo propertyInfo)
+        {
+            SingleSourceGridAttribute? attr = propertyInfo.GetCustomAttribute<SingleSourceGridAttribute>();
+            return attr?.VisibleWhenCollapsed ?? false;
+        }
+
+        /// <summary>
+        /// Returns <c>true</c> when this column has been marked as a calculated/derived field.
+        /// Used to apply a distinct visual treatment (muted, italic) in view mode so users can
+        /// distinguish computed values from editable or plain read-only fields.
+        /// </summary>
+        private static bool IsColumnCalculated(PropertyInfo propertyInfo)
+        {
+            SingleSourceGridAttribute? attr = propertyInfo.GetCustomAttribute<SingleSourceGridAttribute>();
+            return attr?.IsCalculated ?? false;
+        }
+
+        /// <summary>
+        /// Resolves the CSS class applied to a cell's view-mode wrapper span.
+        /// Editable columns render with full contrast; calculated columns are muted and italic;
+        /// all other read-only columns are muted.
+        /// </summary>
+        private static string GetCellViewClass(PropertyInfo prop)
+        {
+            if (IsEditable(prop))         return "ssg-cell--view ssg-cell--view-editable";
+            if (IsColumnCalculated(prop)) return "ssg-cell--view ssg-cell--view-calculated";
+            return "ssg-cell--view ssg-cell--view-readonly";
+        }
+
+        /// <summary>
         /// Gets the locked (frozen) state for a column.
         /// </summary>
         /// <param name="propertyInfo">The property associated with the column.</param>

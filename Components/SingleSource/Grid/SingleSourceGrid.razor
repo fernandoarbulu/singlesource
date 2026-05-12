@@ -126,7 +126,9 @@
                                 }
                                 else
                                 {
-                                    <span @onclick="@(() => MarkRowEditable((TItem)item))" style="display: block; width: 100%; cursor: pointer;">
+                                    <span @onclick="@(() => MarkRowEditable((TItem)item))"
+                                          class="@GetCellViewClass(capturedProp)"
+                                          style="display: block; width: 100%; cursor: pointer;">
                                         @if (ColumnTemplates.ContainsKey(capturedProp.Name))
                                         {
                                             @ColumnTemplates[capturedProp.Name]((TItem)item)
@@ -186,20 +188,24 @@
 
                     @* Column header group with nested sub-columns.
                        When Collapsible=true the toggle button sits in the parent group HeaderTemplate,
-                       which is never draggable for grouping so there are no click conflicts. *@
+                       which is never draggable for grouping so there are no click conflicts.
+                       Note: GridColumn does not accept a Class parameter in Telerik Blazor.
+                       The HeaderClass is applied to a wrapper div inside HeaderTemplate instead. *@
                     <GridColumn Title="@capturedGroup.DisplayName"
                                 Locked="@(capturedGroup.Locked)">
                         <HeaderTemplate>
-                            <span>@capturedGroup.DisplayName</span>
-                            @if (capturedGroup.Collapsible)
-                            {
-                                <button style="margin-left: 6px; vertical-align: middle; cursor: pointer; background: none; border: none; padding: 0 3px; font-size: 0.75em; opacity: 0.7;"
-                                        title="@(_collapsedGroups.Contains(capturedGroup.Key) ? "Expand" : "Collapse")"
-                                        @onclick="@(() => ToggleGroup(capturedGroup.Key))"
-                                        @onclick:stopPropagation="true">
-                                    @(_collapsedGroups.Contains(capturedGroup.Key) ? "▶" : "◀")
-                                </button>
-                            }
+                            <div class="ssg-group-header @(capturedGroup.HeaderClass ?? string.Empty)">
+                                <span class="ssg-group-label">@capturedGroup.DisplayName</span>
+                                @if (capturedGroup.Collapsible)
+                                {
+                                    <button class="ssg-group-toggle @(_collapsedGroups.Contains(capturedGroup.Key) ? "ssg-group-toggle--collapsed" : "ssg-group-toggle--expanded")"
+                                            title="@(_collapsedGroups.Contains(capturedGroup.Key) ? "Expand group" : "Collapse group")"
+                                            @onclick="@(() => ToggleGroup(capturedGroup.Key))"
+                                            @onclick:stopPropagation="true">
+                                        @(_collapsedGroups.Contains(capturedGroup.Key) ? "▸" : "▾")
+                                    </button>
+                                }
+                            </div>
                         </HeaderTemplate>
                         <Columns>
                             @{
@@ -210,7 +216,7 @@
                                 int subColIndex   = 0;
 
                                 // Minimum width for the first sub-column when its group is collapsed.
-                                // This ensures the group-header button ("Payable ▶" etc.) fits inside
+                                // This ensures the group-header button ("Work Item ▸" etc.) fits inside
                                 // the cell so pointer events are not blocked by adjacent header cells.
                                 // 120px comfortably holds the longest group label + chevron.
                                 const string CollapsedFirstColWidth = "120px";
@@ -220,7 +226,10 @@
                                 @* Capture loop variables so they are safe inside render-fragment lambdas. *@
                                 PropertyInfo capturedGroupedProp = groupedProp;
                                 bool isFirstSubCol = subColIndex == 0;
-                                bool colVisible    = groupExpanded || isFirstSubCol;
+                                // A sub-column is visible when: the group is expanded, it is the first
+                                // sub-column (anchor that keeps the group header row present), or it has
+                                // been explicitly marked as VisibleWhenCollapsed (e.g. Description, totals).
+                                bool colVisible    = groupExpanded || isFirstSubCol || IsVisibleWhenCollapsed(capturedGroupedProp);
                                 // When collapsed, widen the first sub-column enough to contain the
                                 // header button; otherwise use the column's own declared width.
                                 string? colWidth = (!groupExpanded && isFirstSubCol)
@@ -254,7 +263,9 @@
                                             }
                                             else
                                             {
-                                                <span @onclick="@(() => MarkRowEditable((TItem)item))" style="display: block; width: 100%; cursor: pointer;">
+                                                <span @onclick="@(() => MarkRowEditable((TItem)item))"
+                                                      class="@GetCellViewClass(capturedGroupedProp)"
+                                                      style="display: block; width: 100%; cursor: pointer;">
                                                     @if (ColumnTemplates.ContainsKey(capturedGroupedProp.Name))
                                                     {
                                                         @ColumnTemplates[capturedGroupedProp.Name]((TItem)item)

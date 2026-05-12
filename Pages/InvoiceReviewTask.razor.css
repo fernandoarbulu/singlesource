@@ -71,6 +71,7 @@
 
 .irt-status {
     display: inline-block;
+    vertical-align: middle;
     padding: 2px 8px;
     border-radius: 12px;
     font-size: 0.6875rem;
@@ -116,4 +117,64 @@
     color: #059669;
     font-weight: 500;
 }
+
+/* ── Qty mismatch highlight (vendor Qty ≠ WO Qty) ───────────────────────── */
+
+.irt-qty-mismatch {
+    color: #EA580C;
+    font-weight: 600;
+}
+
+/* ── Group header tinting — full <th> cell coverage ─────────────────────
+   Telerik wraps HeaderTemplate content in an inline <span class="k-column-title">
+   which prevents any inner div from expanding to fill the full header cell
+   via margins or width. Setting background on the inner div only paints the
+   text-width content area, not the full colspan cell.
+
+   Solution: CSS :has() targets the Telerik-rendered <th> that CONTAINS our
+   group identifier class, allowing the background to cover the complete cell
+   including all Telerik padding and the full colspan span. GridColumn.Class
+   is NOT used — the .irt-gh--* class stays on the inner HeaderTemplate div
+   purely as a CSS hook identifier.
+
+   :has() is supported in all browsers since Chrome 105 / Firefox 121 / Safari 15.4.
+
+   Palette (enterprise-neutral, no saturated colours):
+   - WI  → cool slate            — structural/reference data
+   - WIF → warm sand             — financial input data
+   - Var → muted slate-violet    — derived/alert data
+   - Dec → neutral blue-gray     — decision/approval data
+*/
+.irt-root ::deep .k-table-th:has(.irt-gh--wi)  { background-color: #e8eef5; }
+.irt-root ::deep .k-table-th:has(.irt-gh--wif) { background-color: #fef6e8; }
+.irt-root ::deep .k-table-th:has(.irt-gh--var) { background-color: #ece9fb; }
+.irt-root ::deep .k-table-th:has(.irt-gh--dec) { background-color: #edf1f6; }
+
+/* ── Slight cell padding increase for vertical rhythm ────────────────────
+   Telerik default is typically 6px 12px; bumping vertical padding to 8px
+   gives rows a little more breathing room without losing the compact feel.
+*/
+.irt-root ::deep .k-table-td {
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
+/* ── Editable cell affordance — subtle underline in view mode ────────────
+   The ssg-cell--view-editable span is rendered by SingleSourceGrid inside
+   each editable column's cell. A faint dashed bottom border signals to the
+   user that this specific field can be clicked/edited without being visually
+   noisy. Only shown in view (non-editing) mode.
+*/
+.irt-root ::deep .ssg-cell--view-editable {
+    border-bottom: 1px dashed #CBD5E1;
+    padding-bottom: 1px;
+}
+
+/*
+   Variance cells (.irt-var-over / .irt-var-under) override the muted text
+   from .ssg-cell--view-calculated. The semantic colour classes are on an inner
+   <span> inside the cell view wrapper, so their specificity wins naturally —
+   no extra rules needed. The italic from ssg-cell--view-calculated is kept as
+   a secondary visual cue that the value is derived, not entered.
+*/
 

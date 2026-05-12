@@ -65,5 +65,12 @@ namespace BlazorBusiness.Web.Components.SingleSourceGrid
         /// group must have their Width specified in px units.
         /// </remarks>
         public bool Locked { get; set; } = false;
+
+        /// <summary>
+        /// Optional CSS class applied to the group header <c>&lt;th&gt;</c> cell.
+        /// Use to apply visual differentiation (e.g. subtle tinting) to individual group headers
+        /// without affecting sub-column cells. When <c>null</c> no extra class is added.
+        /// </summary>
+        public string? HeaderClass { get; set; }
     }
 }

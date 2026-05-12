@@ -39,3 +39,91 @@
 .ssg--no-group-bar ::deep .k-grouping-header {
     display: none;
 }
+
+/* ── Column group header wrapper ──────────────────────────────────────────
+   Layout container for the group label + collapse toggle.
+   Background tinting is handled by the consumer (e.g. InvoiceReviewTask) on
+   the Telerik <th> via CSS :has() — this div does not carry a background.
+*/
+.ssg-group-header {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* ── Column group header label ────────────────────────────────────────────
+   Keeps the display name and the toggle button on one line.
+*/
+.ssg-group-label {
+    vertical-align: middle;
+    font-weight: 600;
+}
+
+/* ── Collapsible group toggle button ──────────────────────────────────────
+   Uses ▾ (expanded, content visible) / ▸ (collapsed, content hidden).
+   Visible enough to be discoverable; compact enough for enterprise headers.
+*/
+.ssg-group-toggle {
+    margin-left: 8px;
+    vertical-align: middle;
+    cursor: pointer;
+    background: none;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 1px 6px;
+    font-size: 0.8rem;
+    line-height: 1.2;
+    border-radius: 3px;
+    color: #374151;
+    transition: background-color 0.1s ease, color 0.1s ease, border-color 0.1s ease;
+    outline: none;
+}
+
+.ssg-group-toggle:hover {
+    background-color: rgba(0, 0, 0, 0.09);
+    border-color: rgba(0, 0, 0, 0.12);
+    color: #111827;
+}
+
+.ssg-group-toggle:focus-visible {
+    outline: 2px solid #3B82F6;
+    outline-offset: 1px;
+}
+
+.ssg-group-toggle--expanded {
+    color: #374151;
+}
+
+/* Collapsed state is slightly more prominent — signals hidden content */
+.ssg-group-toggle--collapsed {
+    color: #1F2937;
+    background-color: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+/* ── Cell view-mode state classes ─────────────────────────────────────────
+   Applied to the wrapper <span> rendered in view (non-editing) mode.
+   These classes are rendered by SingleSourceGrid.razor and carry its
+   CSS isolation scope attribute — no ::deep needed here.
+
+   ssg-cell--view-editable   → editable field (full contrast, normal weight)
+   ssg-cell--view-readonly   → read-only field (muted text, no affordance)
+   ssg-cell--view-calculated → derived/computed value (muted + italic)
+*/
+.ssg-cell--view {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.ssg-cell--view-editable {
+    color: inherit;
+}
+
+.ssg-cell--view-readonly {
+    color: #6B7280;
+}
+
+.ssg-cell--view-calculated {
+    color: #6B7280;
+    font-style: italic;
+}

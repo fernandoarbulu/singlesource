@@ -51,7 +51,7 @@
                     Vendor="GreenScape LLC" />
 
     @* ── Submission guidance card ────────────────────────────────────── *@
-    @* Cards parameter is omitted — TaskSubmissionGuidanceCard renders its built-in default mock cards.
+    @* Cards parameter is omitted — TaskSubmissionGuidanceCard renders its built-in default content.
        TODO: pass Cards="@_guidanceCards" when API-backed guidance data is available. *@
     <TaskSubmissionGuidanceCard />
 
@@ -69,56 +69,210 @@
             @{
                 var us = CultureInfo.GetCultureInfo("en-US");
 
-                var tpl = new Dictionary<string, RenderFragment<InvoiceLineItem>>
+                // ── Display templates ─────────────────────────────────────────────
+                var colTpl = new Dictionary<string, RenderFragment<IrtLineItem>>
                 {
-                    // Invoice Submitted group
-                    [nameof(InvoiceLineItem.InvQty)]  = r => @<text>@(r.InvQty.HasValue  ? r.InvQty.Value.ToString("0.##")  : "—")</text>,
-                    [nameof(InvoiceLineItem.InvUnit)]  = r => @<text>@(r.InvUnit  ?? "—")</text>,
-                    [nameof(InvoiceLineItem.VendorFee)] = r => @<text>@(r.VendorFee.HasValue ? r.VendorFee.Value.ToString("C", us) : "—")</text>,
-                    // Pricing Reference group
-                    [nameof(InvoiceLineItem.ArPrice)]  = r => @<text>@(r.ArPrice.HasValue  ? r.ArPrice.Value.ToString("C", us)  : "—")</text>,
-                    [nameof(InvoiceLineItem.ApPrice)]  = r => @<text>@(r.ApPrice.HasValue  ? r.ApPrice.Value.ToString("C", us)  : "—")</text>,
-                    // Standalone
-                    [nameof(InvoiceLineItem.Allowance)] = r => @<text>@(r.Allowance.HasValue ? r.Allowance.Value.ToString("C", us) : "—")</text>,
-                    // Variance group — coloured text
-                    [nameof(InvoiceLineItem.VarDollar)] = r =>
-                        @<span class="@VarCss(r.VarDollar)">
-                            @(r.VarDollar.HasValue ? r.VarDollar.Value.ToString("C", us) : "—")
-                        </span>,
-                    [nameof(InvoiceLineItem.VarPct)] = r =>
-                        @<span class="@VarCss(r.VarPct)">
-                            @(r.VarPct.HasValue ? $"{r.VarPct.Value:+0.#;-0.#;0}%" : "—")
-                        </span>,
-                    // Decision / Status group — badge pills
-                    [nameof(InvoiceLineItem.BusinessStatus)]    = r => @<span class="@StatusCss(r.BusinessStatus)">@StatusLabel(r.BusinessStatus)</span>,
-                    [nameof(InvoiceLineItem.ClientDecision)]    = r => @<span class="@StatusCss(r.ClientDecision)">@StatusLabel(r.ClientDecision)</span>,
-                    [nameof(InvoiceLineItem.InvestorDecision)]  = r => @<span class="@StatusCss(r.InvestorDecision)">@StatusLabel(r.InvestorDecision)</span>,
-                    [nameof(InvoiceLineItem.ApprovalState)]     = r => @<span class="@StatusCss(r.ApprovalState)">@StatusLabel(r.ApprovalState)</span>,
+                    // Work Item — WO reference cost as currency
+                    [nameof(IrtLineItem.WoUnitCost)] = r =>
+                        @<text>@(r.WoUnitCost.HasValue ? r.WoUnitCost.Value.ToString("C2", us) : "—")</text>,
+
+                    // Qty — orange when vendor Qty ≠ original WO Qty
+                    [nameof(IrtLineItem.Qty)] = r =>
+                        @<span class="@(r.HasQtyMismatch ? "irt-qty-mismatch" : null)">@r.Qty.ToString("0.##")</span>,
+
+                    // Unit costs — "—" when not set
+                    [nameof(IrtLineItem.VendorUnitCost)] = r =>
+                        @<text>@(r.VendorUnitCost.HasValue ? r.VendorUnitCost.Value.ToString("C2", us) : "—")</text>,
+                    [nameof(IrtLineItem.ClientUnitCost)] = r =>
+                        @<text>@(r.ClientUnitCost.HasValue ? r.ClientUnitCost.Value.ToString("C2", us) : "—")</text>,
+
+                    // Auto-calculated totals
+                    [nameof(IrtLineItem.VendorFeeTotal)] = r =>
+                        @<text>@r.VendorFeeTotal.ToString("C2", us)</text>,
+                    [nameof(IrtLineItem.ClientFeeTotal)] = r =>
+                        @<text>@r.ClientFeeTotal.ToString("C2", us)</text>,
+
+                    // Variance — "—" when WoUnitCost is null (no pricing rule)
+                    [nameof(IrtLineItem.VendorVariance)] = r =>
+                        @<span class="@VarCss(r.VendorVariance)">@(r.VendorVariance.HasValue ? r.VendorVariance.Value.ToString("C2", us) : "—")</span>,
+                    [nameof(IrtLineItem.ClientVariance)] = r =>
+                        @<span class="@VarCss(r.ClientVariance)">@(r.ClientVariance.HasValue ? r.ClientVariance.Value.ToString("C2", us) : "—")</span>,
+
+                    // Status pills — existing CSS reused; Editable=false prevents inline editing
+                    [nameof(IrtLineItem.BusinessStatus)] = r =>
+                        @<span class="@StatusCss(r.BusinessStatus)">@StatusLabel(r.BusinessStatus)</span>,
+                    [nameof(IrtLineItem.ClientStatus)] = r =>
+                        @<span class="@StatusCss(r.ClientStatus)">@StatusLabel(r.ClientStatus)</span>,
+                    [nameof(IrtLineItem.InvestorStatus)] = r =>
+                        @<span class="@StatusCss(r.InvestorStatus)">@StatusLabel(r.InvestorStatus)</span>,
+                };
+
+                // ── Edit templates ────────────────────────────────────────────────
+                // Each ValueChanged calls StateHasChanged() so computed totals and variance
+                // update live while the row is open for editing.
+                var editTpl = new Dictionary<string, RenderFragment<IrtLineItem>>
+                {
+                    [nameof(IrtLineItem.Qty)] = item =>
+                        @<TelerikNumericTextBox T="decimal"
+                            Value="@item.Qty"
+                            ValueChanged="@((decimal v) => OnQtyChanged(item, v))"
+                            Min="0" Decimals="2" Width="100%" />,
+
+                    [nameof(IrtLineItem.VendorUnitCost)] = item =>
+                        @<TelerikNumericTextBox T="decimal"
+                            Value="@(item.VendorUnitCost ?? 0m)"
+                            ValueChanged="@((decimal v) => OnVendorUnitCostChanged(item, v))"
+                            Min="0" Decimals="2" Width="100%" />,
+
+                    [nameof(IrtLineItem.ClientUnitCost)] = item =>
+                        @<TelerikNumericTextBox T="decimal"
+                            Value="@(item.ClientUnitCost ?? 0m)"
+                            ValueChanged="@((decimal v) => OnClientUnitCostChanged(item, v))"
+                            Min="0" Decimals="2" Width="100%" />,
                 };
             }
-            <SingleSourceGrid TItem="InvoiceLineItem"
+
+            <SingleSourceGrid TItem="IrtLineItem"
                                Data="@_lines"
                                InitialGroupDescriptors="@_woDescriptors"
                                Context="@SsgGridContext.Task"
                                HideGroupingBar="true"
-                               Height="460px"
-                               ColumnTemplates="@tpl" />
+                               Height="540px"
+                               AllowEdit="true"
+                               AllowSelect="true"
+                               SaveButtonLabel="Save Changes"
+                               ColumnTemplates="@colTpl"
+                               EditTemplates="@editTpl"
+                               OnSaveClicked="@HandleSaveClicked">
+                <SelectionCommands Context="selected">
+                    @if (selected.Any())
+                    {
+                        <span style="font-size: 0.8125rem; color: #6B7280; align-self: center;">
+                            @selected.Count() row(s) selected
+                        </span>
+                        <TelerikButton ThemeColor="@ThemeConstants.Button.ThemeColor.Primary"
+                                       Size="@ThemeConstants.Button.Size.Small"
+                                       OnClick="@(() => OpenBulkEditDialog(selected.ToList()))">
+                            Bulk Edit
+                        </TelerikButton>
+                    }
+                </SelectionCommands>
+            </SingleSourceGrid>
         </CardBody>
     </TelerikCard>
+
+    @* ── Bulk edit dialog ─────────────────────────────────────────────────── *@
+    <TelerikWindow @bind-Visible="@_bulkDialogVisible"
+                   Modal="true"
+                   Width="380px"
+                   Draggable="false"
+                   Resizable="false"
+                   FooterLayoutAlign="WindowFooterLayoutAlign.End">
+        <WindowTitle>Bulk Edit — @_bulkTargets.Count row(s)</WindowTitle>
+        <WindowActions>
+            <WindowAction Name="Close" OnClick="@(() => _bulkDialogVisible = false)" />
+        </WindowActions>
+        <WindowContent>
+            <p style="margin: 0 0 14px; font-size: 0.8125rem; color: #6B7280;">
+                Leave a field blank to keep existing values unchanged.
+            </p>
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+                <div>
+                    <label style="display: block; font-size: 0.8125rem; margin-bottom: 4px; color: #374151;">Qty</label>
+                    <TelerikNumericTextBox T="decimal?"
+                                          @bind-Value="@_bulkQty"
+                                          Min="0" Decimals="2" Width="100%" />
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.8125rem; margin-bottom: 4px; color: #374151;">Vendor Unit Cost</label>
+                    <TelerikNumericTextBox T="decimal?"
+                                          @bind-Value="@_bulkVendorUnitCost"
+                                          Min="0" Decimals="2" Width="100%" />
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.8125rem; margin-bottom: 4px; color: #374151;">Client Unit Cost</label>
+                    <TelerikNumericTextBox T="decimal?"
+                                          @bind-Value="@_bulkClientUnitCost"
+                                          Min="0" Decimals="2" Width="100%" />
+                </div>
+            </div>
+        </WindowContent>
+        <WindowFooter>
+            <TelerikButton FillMode="@ThemeConstants.Button.FillMode.Outline"
+                           OnClick="@(() => _bulkDialogVisible = false)">Cancel</TelerikButton>
+            <TelerikButton ThemeColor="@ThemeConstants.Button.ThemeColor.Primary"
+                           OnClick="@ApplyBulkEdit">Apply</TelerikButton>
+        </WindowFooter>
+    </TelerikWindow>
 
 </div>
 
 @code {
     [Parameter] public string? TaskId { get; set; }
 
-    // ── Grouping ──────────────────────────────────────────────────────
+    // ── Grouping ──────────────────────────────────────────────────────────────────
 
     private static readonly IEnumerable<GroupDescriptor> _woDescriptors =
     [
-        new GroupDescriptor { Member = nameof(InvoiceLineItem.WorkOrder), MemberType = typeof(string) }
+        new GroupDescriptor { Member = nameof(IrtLineItem.WorkOrder), MemberType = typeof(string) }
     ];
 
-    // ── Helpers ───────────────────────────────────────────────────────
+    // ── Inline-edit handlers — trigger StateHasChanged for live calculated fields ──
+
+    private void OnQtyChanged(IrtLineItem item, decimal v)
+    {
+        item.Qty = v;
+        StateHasChanged();
+    }
+
+    private void OnVendorUnitCostChanged(IrtLineItem item, decimal v)
+    {
+        item.VendorUnitCost = v;
+        StateHasChanged();
+    }
+
+    private void OnClientUnitCostChanged(IrtLineItem item, decimal v)
+    {
+        item.ClientUnitCost = v;
+        StateHasChanged();
+    }
+
+    // ── Save handler ──────────────────────────────────────────────────────────────
+    // TODO: Persist changes via API when invoice data layer is wired.
+    // changes.EditedItems contains every row that was modified.
+    private Task HandleSaveClicked(SingleSourceGridChangeSet<IrtLineItem> changes)
+        => Task.CompletedTask;
+
+    // ── Bulk edit state ───────────────────────────────────────────────────────────
+
+    private bool _bulkDialogVisible;
+    private List<IrtLineItem> _bulkTargets = [];
+    private decimal? _bulkQty;
+    private decimal? _bulkVendorUnitCost;
+    private decimal? _bulkClientUnitCost;
+
+    private void OpenBulkEditDialog(List<IrtLineItem> targets)
+    {
+        _bulkTargets = targets;
+        _bulkQty = null;
+        _bulkVendorUnitCost = null;
+        _bulkClientUnitCost = null;
+        _bulkDialogVisible = true;
+    }
+
+    private void ApplyBulkEdit()
+    {
+        foreach (var item in _bulkTargets)
+        {
+            if (_bulkQty.HasValue)             item.Qty = _bulkQty.Value;
+            if (_bulkVendorUnitCost.HasValue)   item.VendorUnitCost = _bulkVendorUnitCost.Value;
+            if (_bulkClientUnitCost.HasValue)   item.ClientUnitCost = _bulkClientUnitCost.Value;
+        }
+        _bulkDialogVisible = false;
+        StateHasChanged();
+    }
+
+    // ── Display helpers ───────────────────────────────────────────────────────────
 
     private static string StatusCss(string? s) => s?.ToLower() switch
     {
@@ -145,128 +299,137 @@
         _   => ""
     };
 
-    // ── Mock data ─────────────────────────────────────────────────────
-    // TODO: replace with API call when invoice review data layer is wired.
+    // ── Placeholder data — replace with API call once the invoice data layer is wired ─────
+    // WO-4634 LI-003: Qty mismatch (vendor submitted 1, WO expected 2 → orange highlight).
+    // WO-4635 LI-002: no pricing rule (WoUnitCost null → variance displays "—").
 
-    private static readonly List<InvoiceLineItem> _lines =
+    private static readonly List<IrtLineItem> _lines =
     [
-        // WO-4634: all lines clean — no variance, no approval needed
-        new()
-        {
-            WorkOrder = "WO-4634", LineItem = "LI-001", Description = "Lawn Mowing",
-            InvQty = 4, InvUnit = "EA", VendorFee = 240m,
-            ArPrice = 300m, ApPrice = 240m, VarDollar = 0m, VarPct = 0m, Allowance = 300m,
-            BusinessStatus = "Approved", ClientDecision = "Not Required",
-            InvestorDecision = "Not Required", ApprovalState = "Approved"
-        },
-        new()
-        {
-            WorkOrder = "WO-4634", LineItem = "LI-002", Description = "Hedge Trimming",
-            InvQty = 2, InvUnit = "EA", VendorFee = 180m,
-            ArPrice = 200m, ApPrice = 180m, VarDollar = 0m, VarPct = 0m, Allowance = 200m,
-            BusinessStatus = "Approved", ClientDecision = "Not Required",
-            InvestorDecision = "Not Required", ApprovalState = "Approved"
-        },
-        new()
-        {
-            WorkOrder = "WO-4634", LineItem = "LI-003", Description = "Debris Removal",
-            InvQty = 1, InvUnit = "LS", VendorFee = 95m,
-            ArPrice = 100m, ApPrice = 85m, VarDollar = 10m, VarPct = 11.8m, Allowance = 100m,
-            BusinessStatus = "Needs Approval", ClientDecision = "Needs Client Approval",
-            InvestorDecision = "Not Required", ApprovalState = "Pending Review"
-        },
-        // WO-4635: mixed — over-invoiced items requiring multi-party decisions
-        new()
-        {
-            WorkOrder = "WO-4635", LineItem = "LI-001", Description = "Tree Trimming",
-            InvQty = 1, InvUnit = "EA", VendorFee = 350m,
-            ArPrice = 300m, ApPrice = 350m, VarDollar = 50m, VarPct = 16.7m, Allowance = 350m,
-            BusinessStatus = "Needs Approval", ClientDecision = "Not Submitted",
-            InvestorDecision = "Needs Investor Approval", ApprovalState = "Pending Review"
-        },
-        new()
-        {
-            WorkOrder = "WO-4635", LineItem = "LI-002", Description = "Stump Grinding",
-            InvQty = 3, InvUnit = "EA", VendorFee = 420m,
-            ArPrice = 200m, ApPrice = 280m, VarDollar = 140m, VarPct = 50m, Allowance = 300m,
-            BusinessStatus = null, ClientDecision = null,
-            InvestorDecision = null, ApprovalState = null
-            // TODO: wire inline editing for decision fields (AllowEdit=true when API is ready)
-        },
-        new()
-        {
-            WorkOrder = "WO-4635", LineItem = "LI-003", Description = "Fertilization",
-            InvQty = 1, InvUnit = "LS", VendorFee = 75m,
-            ArPrice = 80m, ApPrice = 75m, VarDollar = -5m, VarPct = -6.3m, Allowance = 80m,
-            BusinessStatus = "Approved", ClientDecision = "Not Required",
-            InvestorDecision = "Not Required", ApprovalState = "Approved"
-        },
+        // ── WO-4634: Lawn maintenance — LI-003 has Qty mismatch ───────────────
+        new() { WorkOrder = "WO-4634", LineItem = "LI-001", Description = "Lawn Mowing",
+                WoUnit = "EA", WoUnitCost = 60m,  OriginalQty = 4,
+                Qty = 4,  Unit = "EA", VendorUnitCost = 60m,  ClientUnitCost = 75m,
+                BusinessStatus = "Approved",       ClientStatus = "Not Required",  InvestorStatus = "Not Required" },
+
+        new() { WorkOrder = "WO-4634", LineItem = "LI-002", Description = "Hedge Trimming",
+                WoUnit = "EA", WoUnitCost = 45m,  OriginalQty = 2,
+                Qty = 2,  Unit = "EA", VendorUnitCost = 45m,  ClientUnitCost = 55m,
+                BusinessStatus = "Approved",       ClientStatus = "Not Required",  InvestorStatus = "Not Required" },
+
+        new() { WorkOrder = "WO-4634", LineItem = "LI-003", Description = "Debris Removal",
+                WoUnit = "LS", WoUnitCost = 85m,  OriginalQty = 2,  // WO qty = 2
+                Qty = 1,  Unit = "LS", VendorUnitCost = 95m,  ClientUnitCost = 100m,  // vendor submitted 1 → mismatch
+                BusinessStatus = "Needs Approval", ClientStatus = "Needs Client Approval", InvestorStatus = "Not Required" },
+
+        // ── WO-4635: Tree work — LI-001 over-invoiced; LI-002 no pricing rule ──
+        new() { WorkOrder = "WO-4635", LineItem = "LI-001", Description = "Tree Trimming",
+                WoUnit = "EA", WoUnitCost = 300m, OriginalQty = 1,
+                Qty = 1,  Unit = "EA", VendorUnitCost = 350m, ClientUnitCost = 380m,
+                BusinessStatus = "Needs Approval", ClientStatus = null,            InvestorStatus = "Needs Investor Approval" },
+
+        new() { WorkOrder = "WO-4635", LineItem = "LI-002", Description = "Stump Grinding",
+                WoUnit = "EA", WoUnitCost = null, OriginalQty = 3,  // no pricing rule → variance = "—"
+                Qty = 3,  Unit = "EA", VendorUnitCost = 140m, ClientUnitCost = 160m,
+                BusinessStatus = null,             ClientStatus = null,            InvestorStatus = null },
+
+        new() { WorkOrder = "WO-4635", LineItem = "LI-003", Description = "Fertilization",
+                WoUnit = "LS", WoUnitCost = 75m,  OriginalQty = 1,
+                Qty = 1,  Unit = "LS", VendorUnitCost = 75m,  ClientUnitCost = 80m,
+                BusinessStatus = "Approved",       ClientStatus = "Not Required",  InvestorStatus = "Not Required" },
     ];
 
-    // ── InvoiceLineItem model ─────────────────────────────────────────
-    // TODO: promote to a shared models file when connecting to the backend API.
+    // ── Line item model ───────────────────────────────────────────────────────────────────
+    // SingleSourceGridGroup attributes drive the collapsible column header groups via reflection.
+    // Computed properties (VendorFeeTotal, ClientFeeTotal, VendorVariance, ClientVariance)
+    // update live because the EditTemplates call StateHasChanged() on each field change.
+    // HasQtyMismatch drives the orange Qty highlight in the ColumnTemplate.
 
-    // Column groups — all collapsible so complex decision data can be hidden
-    // when reviewers need a focused view. The Financials tab uses the same
-    // collapsible pattern; both share the SingleSourceGrid collapse engine.
-    [SingleSourceGridGroup(DisplayName = "Work Order",        Key = "WO",  Order = 1, Collapsible = true)]
-    [SingleSourceGridGroup(DisplayName = "Invoice Submitted", Key = "Inv", Order = 2, Collapsible = true)]
-    [SingleSourceGridGroup(DisplayName = "Pricing Reference", Key = "Ref", Order = 3, Collapsible = true)]
-    [SingleSourceGridGroup(DisplayName = "Variance",          Key = "Var", Order = 4, Collapsible = true)]
-    [SingleSourceGridGroup(DisplayName = "Decision / Status", Key = "Dec", Order = 6, Collapsible = true)]
-    private sealed class InvoiceLineItem
+    [SingleSourceGridGroup(DisplayName = "Work Item",            Key = "WI",  Order = 1, Collapsible = true, HeaderClass = "irt-gh--wi")]
+    [SingleSourceGridGroup(DisplayName = "Work Item Financials", Key = "WIF", Order = 2, Collapsible = true, HeaderClass = "irt-gh--wif")]
+    [SingleSourceGridGroup(DisplayName = "Variance",             Key = "Var", Order = 3, Collapsible = true, HeaderClass = "irt-gh--var")]
+    [SingleSourceGridGroup(DisplayName = "Status",               Key = "Dec", Order = 4, Collapsible = true, HeaderClass = "irt-gh--dec")]
+    private sealed class IrtLineItem
     {
-        // Hidden from columns; used only as the InitialGroupDescriptors field.
+        // Hidden: Telerik InitialGroupDescriptors grouping key only — not rendered as a column
         [SingleSourceGridAttribute(AutoGenerate = false)]
         public string WorkOrder { get; set; } = "";
 
-        // Work Order group — line identity
-        [SingleSourceGridAttribute(DisplayName = "Line Item",   Width = "120px", GroupKey = "WO", Order = 1, Groupable = false, Filterable = false)]
+        // ── Work Item group ──────────────────────────────────────────────────────
+        // Line Item: first anchor column — always visible.
+        // Description: identity column — stays visible when group is collapsed.
+        // WO Unit / WO Unit Cost: expanded-only detail; hidden when group is collapsed.
+        [SingleSourceGridAttribute(DisplayName = "Line Item",    Width = "110px", GroupKey = "WI", Order = 1, Groupable = false, Filterable = false, Editable = false)]
         public string LineItem { get; set; } = "";
 
-        [SingleSourceGridAttribute(DisplayName = "Description", Width = "180px", GroupKey = "WO", Order = 2)]
+        [SingleSourceGridAttribute(DisplayName = "Description",  Width = "195px", GroupKey = "WI", Order = 2, Editable = false, VisibleWhenCollapsed = true)]
         public string Description { get; set; } = "";
 
-        // Invoice Submitted group — what the vendor actually submitted
-        [SingleSourceGridAttribute(DisplayName = "QTY",      Width = "65px",  GroupKey = "Inv", Order = 1, Groupable = false, Sortable = false)]
-        public decimal? InvQty    { get; set; }
+        // WO reference values — hidden when collapsed; revealed when Work Item is expanded
+        [SingleSourceGridAttribute(DisplayName = "WO Unit",      Width = "80px",  GroupKey = "WI", Order = 3, Groupable = false, Sortable = false, Filterable = false, Editable = false)]
+        public string WoUnit { get; set; } = "";
 
-        [SingleSourceGridAttribute(DisplayName = "UNIT",     Width = "65px",  GroupKey = "Inv", Order = 2, Groupable = false, Sortable = false)]
-        public string?  InvUnit   { get; set; }
+        [SingleSourceGridAttribute(DisplayName = "WO Unit Cost", Width = "105px", GroupKey = "WI", Order = 4, Groupable = false, Sortable = false, Filterable = false, Editable = false)]
+        public decimal? WoUnitCost { get; set; }
 
-        [SingleSourceGridAttribute(DisplayName = "Vendor $", Width = "105px", GroupKey = "Inv", Order = 3, Groupable = false, Sortable = false)]
-        public decimal? VendorFee { get; set; }
+        // ── Work Item Financials group ──────────────────────────────────────────
+        // Qty: first anchor column — always visible.
+        // Unit + fee totals: summary columns — stay visible when group is collapsed.
+        // Vendor Unit Cost / Client Unit Cost: expanded-only detail; hidden when collapsed.
+        [SingleSourceGridAttribute(DisplayName = "Qty",              Width = "80px",  GroupKey = "WIF", Order = 1, Groupable = false, Sortable = false, Filterable = false, Editable = true)]
+        public decimal Qty { get; set; }
 
-        // Pricing Reference group — contract vs. AP pricing
-        [SingleSourceGridAttribute(DisplayName = "AR", Width = "90px", GroupKey = "Ref", Order = 1, Groupable = false, Sortable = false)]
-        public decimal? ArPrice { get; set; }
+        // Hidden: WO original quantity used only for HasQtyMismatch — not rendered as a column
+        [SingleSourceGridAttribute(AutoGenerate = false)]
+        public decimal? OriginalQty { get; set; }
 
-        [SingleSourceGridAttribute(DisplayName = "AP", Width = "90px", GroupKey = "Ref", Order = 2, Groupable = false, Sortable = false)]
-        public decimal? ApPrice { get; set; }
+        [SingleSourceGridAttribute(DisplayName = "Unit",             Width = "70px",  GroupKey = "WIF", Order = 2, Groupable = false, Sortable = false, Filterable = false, Editable = false, VisibleWhenCollapsed = true)]
+        public string Unit { get; set; } = "";
 
-        // Variance group — delta between invoice and reference
-        [SingleSourceGridAttribute(DisplayName = "$ Var", Width = "95px", GroupKey = "Var", Order = 1, Groupable = false, Sortable = false, Filterable = false)]
-        public decimal? VarDollar { get; set; }
+        // Vendor Unit Cost — expanded-only; hidden when group is collapsed
+        [SingleSourceGridAttribute(DisplayName = "Vendor Cost", Width = "130px", GroupKey = "WIF", Order = 3, Groupable = false, Sortable = false, Filterable = false, Editable = true)]
+        public decimal? VendorUnitCost { get; set; }
 
-        [SingleSourceGridAttribute(DisplayName = "% Var", Width = "80px", GroupKey = "Var", Order = 2, Groupable = false, Sortable = false, Filterable = false)]
-        public decimal? VarPct    { get; set; }
+        // Vendor Fee Total = Qty × Vendor Unit Cost — calculated; stays visible when collapsed
+        [SingleSourceGridAttribute(DisplayName = "Vendor Fee Total", Width = "120px", GroupKey = "WIF", Order = 4, Groupable = false, Sortable = false, Filterable = false, Editable = false, VisibleWhenCollapsed = true, IsCalculated = true)]
+        public decimal VendorFeeTotal => Qty * (VendorUnitCost ?? 0m);
 
-        // Standalone — allowable ceiling for the line item
-        [SingleSourceGridAttribute(DisplayName = "Allowance", Width = "100px", Order = 5, Groupable = false, Sortable = false)]
-        public decimal? Allowance { get; set; }
+        // Client Unit Cost — expanded-only; hidden when group is collapsed
+        [SingleSourceGridAttribute(DisplayName = "Client Cost", Width = "130px", GroupKey = "WIF", Order = 5, Groupable = false, Sortable = false, Filterable = false, Editable = true)]
+        public decimal? ClientUnitCost { get; set; }
 
-        // Decision / Status group — multi-party approval tracking
-        // TODO: wire inline editing for decision fields (AllowEdit=true when API is ready)
-        [SingleSourceGridAttribute(DisplayName = "Business",          Width = "155px", GroupKey = "Dec", Order = 1, Groupable = false, Sortable = false)]
+        // Client Fee Total = Qty × Client Unit Cost — calculated; stays visible when collapsed
+        [SingleSourceGridAttribute(DisplayName = "Client Fee Total", Width = "120px", GroupKey = "WIF", Order = 6, Groupable = false, Sortable = false, Filterable = false, Editable = false, VisibleWhenCollapsed = true, IsCalculated = true)]
+        public decimal ClientFeeTotal => Qty * (ClientUnitCost ?? 0m);
+
+        // ── Variance group ──────────────────────────────────────────────────────
+        // Null when WoUnitCost is not set (no pricing rule) — displayed as "—" via ColumnTemplate.
+        // Both columns are calculated; variance colours applied via ColumnTemplate + CSS.
+        [SingleSourceGridAttribute(DisplayName = "Vendor Var. $", Width = "120px", GroupKey = "Var", Order = 1, Groupable = false, Sortable = false, Filterable = false, Editable = false, IsCalculated = true)]
+        public decimal? VendorVariance =>
+            VendorUnitCost.HasValue && WoUnitCost.HasValue
+                ? Qty * (VendorUnitCost.Value - WoUnitCost.Value)
+                : null;
+
+        [SingleSourceGridAttribute(DisplayName = "Client Var. $", Width = "120px", GroupKey = "Var", Order = 2, Groupable = false, Sortable = false, Filterable = false, Editable = false, IsCalculated = true)]
+        public decimal? ClientVariance =>
+            ClientUnitCost.HasValue && WoUnitCost.HasValue
+                ? Qty * (ClientUnitCost.Value - WoUnitCost.Value)
+                : null;
+
+        // ── Status group — hardcoded pills; Editable=false blocks inline editing ───
+        // All three status columns stay visible when the group is collapsed so that no
+        // approval state is ever hidden from the reviewer's view.
+        [SingleSourceGridAttribute(DisplayName = "Business", Width = "155px", GroupKey = "Dec", Order = 1, Groupable = false, Sortable = false, Editable = false)]
         public string? BusinessStatus { get; set; }
 
-        [SingleSourceGridAttribute(DisplayName = "Client Decision",   Width = "175px", GroupKey = "Dec", Order = 2, Groupable = false, Sortable = false)]
-        public string? ClientDecision { get; set; }
+        [SingleSourceGridAttribute(DisplayName = "Client",   Width = "155px", GroupKey = "Dec", Order = 2, Groupable = false, Sortable = false, Editable = false, VisibleWhenCollapsed = true)]
+        public string? ClientStatus { get; set; }
 
-        [SingleSourceGridAttribute(DisplayName = "Investor Decision", Width = "175px", GroupKey = "Dec", Order = 3, Groupable = false, Sortable = false)]
-        public string? InvestorDecision { get; set; }
+        [SingleSourceGridAttribute(DisplayName = "Investor", Width = "155px", GroupKey = "Dec", Order = 3, Groupable = false, Sortable = false, Editable = false, VisibleWhenCollapsed = true)]
+        public string? InvestorStatus { get; set; }
 
-        [SingleSourceGridAttribute(DisplayName = "Approval State",    Width = "155px", GroupKey = "Dec", Order = 4, Groupable = false, Sortable = false)]
-        public string? ApprovalState { get; set; }
+        // Internal flag — not a column. Drives the orange Qty highlight in the ColumnTemplate.
+        [SingleSourceGridAttribute(AutoGenerate = false)]
+        public bool HasQtyMismatch => OriginalQty.HasValue && Qty != OriginalQty.Value;
     }
 }

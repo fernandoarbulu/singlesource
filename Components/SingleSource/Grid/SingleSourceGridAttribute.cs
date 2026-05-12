@@ -104,5 +104,24 @@ namespace BlazorBusiness.Web.Components.SingleSourceGrid
         /// set <see cref="SingleSourceGridGroupAttribute.Locked"/> on the group instead.
         /// </remarks>
         public bool Locked { get; set; } = false;
+
+        /// <summary>
+        /// When <c>true</c>, this sub-column remains visible even when its parent column group is
+        /// collapsed. The first sub-column in a group is always visible regardless of this flag.
+        /// Defaults to <c>false</c>.
+        /// </summary>
+        /// <remarks>
+        /// Use this to pin summary or identity columns inside a collapsible group so users can
+        /// still read the essential values without expanding the group (e.g. keep "Description"
+        /// visible while "WO Unit" and "WO Unit Cost" are hidden when the group is collapsed).
+        /// </remarks>
+        public bool VisibleWhenCollapsed { get; set; } = false;
+
+        /// <summary>
+        /// Marks this column as a calculated/derived value. When <c>true</c>, the cell renders
+        /// with a distinct visual treatment (muted, italic) to help users distinguish computed
+        /// fields from editable or plain read-only fields. Defaults to <c>false</c>.
+        /// </summary>
+        public bool IsCalculated { get; set; } = false;
     }
 }
