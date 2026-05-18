@@ -1,0 +1,70 @@
+/* ── Root ────────────────────────────────────────────────────────────── */
+
+.cwns-root {
+    width: 100%;
+}
+
+/* ── Two-column layout ───────────────────────────────────────────────── */
+
+.cwns-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 28px;
+}
+
+.cwns-column {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+/* ── Labels ──────────────────────────────────────────────────────────── */
+
+.cwns-label {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    font-size: var(--font-size-xs, 11px);
+    font-weight: var(--font-weight-semibold, 600);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-text-muted, #6B7280);
+    margin: 0;
+}
+
+.cwns-sublabel {
+    font-size: var(--font-size-xs, 11px);
+    font-weight: var(--font-weight-regular, 400);
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--color-text-label, #9CA3AF);
+}
+
+/* ── Textarea ────────────────────────────────────────────────────────── */
+
+.cwns-textarea {
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 110px;
+    padding: 11px 13px;
+    font-size: var(--font-size-md, 14px);
+    color: var(--color-text-primary, #111827);
+    background: #FAFBFD;
+    border: 1px solid #E3E8EF;
+    border-radius: 4px;
+    resize: vertical;
+    font-family: inherit;
+    line-height: 1.55;
+    transition: border-color 0.1s ease, background-color 0.1s ease;
+    outline: none;
+}
+
+.cwns-textarea:focus {
+    border-color: var(--ss-primary, #1e6fd9);
+    background: #ffffff;
+    box-shadow: 0 0 0 2px var(--ss-focus, rgba(30, 111, 217, 0.18));
+}
+
+.cwns-textarea::placeholder {
+    color: var(--color-text-label, #9CA3AF);
+}

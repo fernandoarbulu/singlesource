@@ -358,59 +358,59 @@
         // Line Item: first anchor column — always visible.
         // Description: identity column — stays visible when group is collapsed.
         // WO Unit / WO Unit Cost: expanded-only detail; hidden when group is collapsed.
-        [SingleSourceGridAttribute(DisplayName = "Line Item",    Width = "110px", GroupKey = "WI", Order = 1, Groupable = false, Filterable = false, Editable = false)]
+        [SingleSourceGridAttribute(DisplayName = "Line Item",    Width = "110px", GroupKey = "WI", Order = 1, Groupable = false, Filterable = false, Editable = false, ShowColumnMenu = false)]
         public string LineItem { get; set; } = "";
 
-        [SingleSourceGridAttribute(DisplayName = "Description",  Width = "195px", GroupKey = "WI", Order = 2, Editable = false, VisibleWhenCollapsed = true)]
+        [SingleSourceGridAttribute(DisplayName = "Description",  Width = "200px", GroupKey = "WI", Order = 2, Editable = false, VisibleWhenCollapsed = true)]
         public string Description { get; set; } = "";
 
         // WO reference values — hidden when collapsed; revealed when Work Item is expanded
-        [SingleSourceGridAttribute(DisplayName = "WO Unit",      Width = "80px",  GroupKey = "WI", Order = 3, Groupable = false, Sortable = false, Filterable = false, Editable = false)]
+        [SingleSourceGridAttribute(DisplayName = "WO Unit",      Width = "80px",  GroupKey = "WI", Order = 3, Groupable = false, Sortable = false, Filterable = false, Editable = false, ShowColumnMenu = false)]
         public string WoUnit { get; set; } = "";
 
-        [SingleSourceGridAttribute(DisplayName = "WO Unit Cost", Width = "105px", GroupKey = "WI", Order = 4, Groupable = false, Sortable = false, Filterable = false, Editable = false)]
+        [SingleSourceGridAttribute(DisplayName = "WO Unit Cost", Width = "110px", GroupKey = "WI", Order = 4, Groupable = false, Sortable = false, Filterable = false, Editable = false, ShowColumnMenu = false)]
         public decimal? WoUnitCost { get; set; }
 
         // ── Work Item Financials group ──────────────────────────────────────────
         // Qty: first anchor column — always visible.
-        // Unit + fee totals: summary columns — stay visible when group is collapsed.
-        // Vendor Unit Cost / Client Unit Cost: expanded-only detail; hidden when collapsed.
-        [SingleSourceGridAttribute(DisplayName = "Qty",              Width = "80px",  GroupKey = "WIF", Order = 1, Groupable = false, Sortable = false, Filterable = false, Editable = true)]
+        // UOM + fee totals: summary columns — stay visible when group is collapsed.
+        // Vendor Cost / Client Cost: expanded-only detail; hidden when collapsed.
+        [SingleSourceGridAttribute(DisplayName = "Qty",           Width = "75px",  GroupKey = "WIF", Order = 1, Groupable = false, Sortable = false, Filterable = false, Editable = true,  ShowColumnMenu = false)]
         public decimal Qty { get; set; }
 
         // Hidden: WO original quantity used only for HasQtyMismatch — not rendered as a column
         [SingleSourceGridAttribute(AutoGenerate = false)]
         public decimal? OriginalQty { get; set; }
 
-        [SingleSourceGridAttribute(DisplayName = "Unit",             Width = "70px",  GroupKey = "WIF", Order = 2, Groupable = false, Sortable = false, Filterable = false, Editable = false, VisibleWhenCollapsed = true)]
+        [SingleSourceGridAttribute(DisplayName = "UOM",           Width = "70px",  GroupKey = "WIF", Order = 2, Groupable = false, Sortable = false, Filterable = false, Editable = false, VisibleWhenCollapsed = true, ShowColumnMenu = false)]
         public string Unit { get; set; } = "";
 
-        // Vendor Unit Cost — expanded-only; hidden when group is collapsed
-        [SingleSourceGridAttribute(DisplayName = "Vendor Cost", Width = "130px", GroupKey = "WIF", Order = 3, Groupable = false, Sortable = false, Filterable = false, Editable = true)]
+        // Vendor Cost — expanded-only; hidden when group is collapsed
+        [SingleSourceGridAttribute(DisplayName = "Vendor Cost",   Width = "115px", GroupKey = "WIF", Order = 3, Groupable = false, Sortable = false, Filterable = false, Editable = true,  ShowColumnMenu = false)]
         public decimal? VendorUnitCost { get; set; }
 
-        // Vendor Fee Total = Qty × Vendor Unit Cost — calculated; stays visible when collapsed
-        [SingleSourceGridAttribute(DisplayName = "Vendor Fee Total", Width = "120px", GroupKey = "WIF", Order = 4, Groupable = false, Sortable = false, Filterable = false, Editable = false, VisibleWhenCollapsed = true, IsCalculated = true)]
+        // Vendor Total = Qty × Vendor Cost — calculated; stays visible when collapsed
+        [SingleSourceGridAttribute(DisplayName = "Vendor Total",  Width = "110px", GroupKey = "WIF", Order = 4, Groupable = false, Sortable = false, Filterable = false, Editable = false, VisibleWhenCollapsed = true, IsCalculated = true, ShowColumnMenu = false)]
         public decimal VendorFeeTotal => Qty * (VendorUnitCost ?? 0m);
 
-        // Client Unit Cost — expanded-only; hidden when group is collapsed
-        [SingleSourceGridAttribute(DisplayName = "Client Cost", Width = "130px", GroupKey = "WIF", Order = 5, Groupable = false, Sortable = false, Filterable = false, Editable = true)]
+        // Client Cost — expanded-only; hidden when group is collapsed
+        [SingleSourceGridAttribute(DisplayName = "Client Cost",   Width = "115px", GroupKey = "WIF", Order = 5, Groupable = false, Sortable = false, Filterable = false, Editable = true,  ShowColumnMenu = false)]
         public decimal? ClientUnitCost { get; set; }
 
-        // Client Fee Total = Qty × Client Unit Cost — calculated; stays visible when collapsed
-        [SingleSourceGridAttribute(DisplayName = "Client Fee Total", Width = "120px", GroupKey = "WIF", Order = 6, Groupable = false, Sortable = false, Filterable = false, Editable = false, VisibleWhenCollapsed = true, IsCalculated = true)]
+        // Client Total = Qty × Client Cost — calculated; stays visible when collapsed
+        [SingleSourceGridAttribute(DisplayName = "Client Total",  Width = "110px", GroupKey = "WIF", Order = 6, Groupable = false, Sortable = false, Filterable = false, Editable = false, VisibleWhenCollapsed = true, IsCalculated = true, ShowColumnMenu = false)]
         public decimal ClientFeeTotal => Qty * (ClientUnitCost ?? 0m);
 
         // ── Variance group ──────────────────────────────────────────────────────
         // Null when WoUnitCost is not set (no pricing rule) — displayed as "—" via ColumnTemplate.
         // Both columns are calculated; variance colours applied via ColumnTemplate + CSS.
-        [SingleSourceGridAttribute(DisplayName = "Vendor Var. $", Width = "120px", GroupKey = "Var", Order = 1, Groupable = false, Sortable = false, Filterable = false, Editable = false, IsCalculated = true)]
+        [SingleSourceGridAttribute(DisplayName = "Vendor Var. $", Width = "115px", GroupKey = "Var", Order = 1, Groupable = false, Sortable = false, Filterable = false, Editable = false, IsCalculated = true, ShowColumnMenu = false)]
         public decimal? VendorVariance =>
             VendorUnitCost.HasValue && WoUnitCost.HasValue
                 ? Qty * (VendorUnitCost.Value - WoUnitCost.Value)
                 : null;
 
-        [SingleSourceGridAttribute(DisplayName = "Client Var. $", Width = "120px", GroupKey = "Var", Order = 2, Groupable = false, Sortable = false, Filterable = false, Editable = false, IsCalculated = true)]
+        [SingleSourceGridAttribute(DisplayName = "Client Var. $", Width = "115px", GroupKey = "Var", Order = 2, Groupable = false, Sortable = false, Filterable = false, Editable = false, IsCalculated = true, ShowColumnMenu = false)]
         public decimal? ClientVariance =>
             ClientUnitCost.HasValue && WoUnitCost.HasValue
                 ? Qty * (ClientUnitCost.Value - WoUnitCost.Value)
@@ -419,13 +419,13 @@
         // ── Status group — hardcoded pills; Editable=false blocks inline editing ───
         // All three status columns stay visible when the group is collapsed so that no
         // approval state is ever hidden from the reviewer's view.
-        [SingleSourceGridAttribute(DisplayName = "Business", Width = "155px", GroupKey = "Dec", Order = 1, Groupable = false, Sortable = false, Editable = false)]
+        [SingleSourceGridAttribute(DisplayName = "Business", Width = "130px", GroupKey = "Dec", Order = 1, Groupable = false, Sortable = false, Editable = false, ShowColumnMenu = false)]
         public string? BusinessStatus { get; set; }
 
-        [SingleSourceGridAttribute(DisplayName = "Client",   Width = "155px", GroupKey = "Dec", Order = 2, Groupable = false, Sortable = false, Editable = false, VisibleWhenCollapsed = true)]
+        [SingleSourceGridAttribute(DisplayName = "Client",   Width = "130px", GroupKey = "Dec", Order = 2, Groupable = false, Sortable = false, Editable = false, VisibleWhenCollapsed = true, ShowColumnMenu = false)]
         public string? ClientStatus { get; set; }
 
-        [SingleSourceGridAttribute(DisplayName = "Investor", Width = "155px", GroupKey = "Dec", Order = 3, Groupable = false, Sortable = false, Editable = false, VisibleWhenCollapsed = true)]
+        [SingleSourceGridAttribute(DisplayName = "Investor", Width = "130px", GroupKey = "Dec", Order = 3, Groupable = false, Sortable = false, Editable = false, VisibleWhenCollapsed = true, ShowColumnMenu = false)]
         public string? InvestorStatus { get; set; }
 
         // Internal flag — not a column. Drives the orange Qty highlight in the ColumnTemplate.

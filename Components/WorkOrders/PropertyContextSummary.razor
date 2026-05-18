@@ -1,0 +1,28 @@
+@namespace SinglesourceApp.Components.WorkOrders
+
+<div class="pcs-root">
+    <p class="pcs-eyebrow">Property Context</p>
+    <div class="pcs-fields">
+        <div class="pcs-field">
+            <span class="pcs-field-label">Customer</span>
+            <span class="pcs-field-value">@Context.Customer</span>
+        </div>
+        <div class="pcs-field">
+            <span class="pcs-field-label">Loan Type</span>
+            <span class="pcs-field-value">@Context.LoanType</span>
+        </div>
+        <div class="pcs-field">
+            <span class="pcs-field-label">Investor</span>
+            <span class="pcs-field-value">@Context.Investor</span>
+        </div>
+        <div class="pcs-field">
+            <span class="pcs-field-label">State</span>
+            <span class="pcs-field-value">@Context.State</span>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public PropertyContextInfo Context { get; set; } = new();
+}

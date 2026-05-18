@@ -1,0 +1,41 @@
+@namespace SinglesourceApp.Components.WorkOrders
+
+<div class="cwns-root">
+    <div class="cwns-columns">
+
+        <div class="cwns-column">
+            <label class="cwns-label" for="cwns-vendor-instructions">
+                Vendor Instructions
+                <span class="cwns-sublabel">visible to vendor</span>
+            </label>
+            <textarea id="cwns-vendor-instructions"
+                      class="cwns-textarea"
+                      rows="4"
+                      placeholder="e.g. Call vendor at least 48 hours before start. Coordinate entry with occupant if needed. Lock box code is on file."
+                      value="@VendorInstructions"
+                      @oninput="@((e) => VendorInstructionsChanged.InvokeAsync(e.Value?.ToString()))"></textarea>
+        </div>
+
+        <div class="cwns-column">
+            <label class="cwns-label" for="cwns-internal-notes">
+                Internal Notes
+                <span class="cwns-sublabel">internal only</span>
+            </label>
+            <textarea id="cwns-internal-notes"
+                      class="cwns-textarea"
+                      rows="4"
+                      placeholder="e.g. Client requested expedited service. Escalate to supervisor if vendor doesn't confirm within 24 hours."
+                      value="@InternalNotes"
+                      @oninput="@((e) => InternalNotesChanged.InvokeAsync(e.Value?.ToString()))"></textarea>
+        </div>
+
+    </div>
+</div>
+
+@code {
+    [Parameter] public string? VendorInstructions { get; set; }
+    [Parameter] public EventCallback<string?> VendorInstructionsChanged { get; set; }
+
+    [Parameter] public string? InternalNotes { get; set; }
+    [Parameter] public EventCallback<string?> InternalNotesChanged { get; set; }
+}

@@ -483,6 +483,29 @@
                                 TaskDueDate="@DateTime.Now.AddDays(2)"
                                 ShowGuidance="true" />
                 }
+                else if (string.Equals(title, "Work Order", StringComparison.OrdinalIgnoreCase))
+                {
+                    <div class="pd-wo-tab pd-mt-3">
+                        <div class="pd-wo-toolbar">
+                            <TelerikButton ThemeColor="@ThemeConstants.Button.ThemeColor.Primary"
+                                           OnClick="@(() => _createWoVisible = true)">
+                                + Create Work Order
+                            </TelerikButton>
+                        </div>
+                        <TelerikCard Class="pd-tab-placeholder" ThemeColor="@ThemeConstants.Card.ThemeColor.Light">
+                            <CardBody Class="pd-tab-placeholder-body">
+                                <p class="pd-tab-placeholder-text">
+                                    Work orders will appear here once the data layer is connected.
+                                    Use <strong>+ Create Work Order</strong> above to open the create workflow.
+                                </p>
+                            </CardBody>
+                        </TelerikCard>
+                    </div>
+
+                    <CreateWorkOrderModal @bind-Visible="@_createWoVisible"
+                                         PropertyContext="@_mockPropertyContext"
+                                         OnSave="@HandleWorkOrderSaved" />
+                }
                 else if (string.Equals(title, "Financials", StringComparison.OrdinalIgnoreCase))
                 {
                     @* Pass PropertyId so the tab can scope its API fetch when the data layer is connected.
@@ -619,6 +642,28 @@
     ];
 
     private PropertyDetailsDto? _payload;
+
+    // ── Create Work Order modal ────────────────────────────────────────────────
+
+    private bool _createWoVisible;
+
+    /// <summary>
+    /// Hard-coded property context for the mock; replace with values from
+    /// <see cref="_payload"/> once the data layer exposes Customer/Investor/State.
+    /// </summary>
+    private static readonly PropertyContextInfo _mockPropertyContext = new()
+    {
+        Customer  = "Shellpoint",
+        LoanType  = "FHA",
+        Investor  = "VWH",
+        State     = "FL",
+    };
+
+    private static Task HandleWorkOrderSaved(WorkOrderDraft draft)
+    {
+        // Prototype hook — persist via work-order API when the data layer is wired.
+        return Task.CompletedTask;
+    }
 
     private async Task OnFieldSearchChanged(string v)
     {

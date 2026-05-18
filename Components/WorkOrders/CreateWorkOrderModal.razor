@@ -1,0 +1,352 @@
+@namespace SinglesourceApp.Components.WorkOrders
+
+@* ─── Modal 1: lightweight type picker ──────────────────────────────────── *@
+<TelerikWindow Visible="@_typeModalVisible"
+               VisibleChanged="@OnTypeModalVisibleChangedAsync"
+               Modal="true"
+               Width="440px"
+               Draggable="false"
+               Resizable="false"
+               FooterLayoutAlign="WindowFooterLayoutAlign.End">
+
+    <WindowTitle>Create Work Order</WindowTitle>
+
+    <WindowActions>
+        <WindowAction Name="Close" />
+    </WindowActions>
+
+    <WindowContent>
+        <div class="cwom-step1">
+
+            <div class="cwom-field">
+                <label class="cwom-field-label">
+                    Work Order Type
+                    <span class="cwom-required" aria-label="required">*</span>
+                </label>
+                <TelerikDropDownList Data="@_typeNames"
+                                     @bind-Value="@_pickedTypeName"
+                                     DefaultText="Select type..."
+                                     Width="100%" />
+            </div>
+
+            <p class="cwom-step1-hint">
+                Select a work order type to load default services and pricing.
+                You'll review line items, dates, and notes in the next step.
+            </p>
+
+        </div>
+    </WindowContent>
+
+    <WindowFooter>
+        <TelerikButton FillMode="@ThemeConstants.Button.FillMode.Outline"
+                       ThemeColor="@ThemeConstants.Button.ThemeColor.Base"
+                       OnClick="@CloseWorkflowAsync">
+            Cancel
+        </TelerikButton>
+        <TelerikButton ThemeColor="@ThemeConstants.Button.ThemeColor.Primary"
+                       Enabled="@CanContinueFromStep1"
+                       OnClick="@ContinueToEditorAsync">
+            Save / Continue
+        </TelerikButton>
+    </WindowFooter>
+
+</TelerikWindow>
+
+@* ─── Modal 2: full work order editor ───────────────────────────────────── *@
+<TelerikWindow Visible="@_editorModalVisible"
+               VisibleChanged="@OnEditorModalVisibleChangedAsync"
+               Modal="true"
+               Id="cwom-editor-window-root"
+               Width="81vw"
+               MinWidth="1100px"
+               MaxWidth="1440px"
+               MaxHeight="92vh"
+               Class="cwom-editor-window"
+               Draggable="false"
+               Resizable="false"
+               FooterLayoutAlign="WindowFooterLayoutAlign.End">
+
+    <WindowTitle>Create Work Order</WindowTitle>
+
+    <WindowActions>
+        <WindowAction Name="Close" />
+    </WindowActions>
+
+    <WindowContent>
+        @* Body scrolls; title bar + footer stay fixed by Telerik window chrome + max-height constraint. *@
+        <div class="cwom-editor-body">
+            <div class="cwom-content">
+
+            <div class="cwom-section cwom-section--type-bar">
+                <span class="cwom-type-bar-label">Work Order Type</span>
+                <span class="cwom-type-bar-value">@_committedTypeName</span>
+            </div>
+
+            @if (PropertyContext is not null)
+            {
+                <div class="cwom-section cwom-section--no-header">
+                    <PropertyContextSummary Context="@PropertyContext" />
+                </div>
+            }
+
+            <div class="cwom-section">
+                <div class="cwom-section-hdr cwom-section-hdr--items">
+                    <span class="cwom-section-title">Work Items</span>
+                </div>
+                <div class="cwom-section-body">
+                    <WorkOrderItemsGrid Items="@_lineItems"
+                                        ItemsChanged="@((items) => _lineItems = items)" />
+                </div>
+            </div>
+
+            <div class="cwom-section">
+                <div class="cwom-section-hdr cwom-section-hdr--dates">
+                    <span class="cwom-section-title">Dates &amp; SLA</span>
+                </div>
+                <div class="cwom-section-body">
+                    <WorkOrderDatesSection ClientDueDate="@_clientDueDate"
+                                           ClientDueDateChanged="@((d) => _clientDueDate = d)"
+                                           VendorDueDate="@_vendorDueDate"
+                                           VendorDueDateChanged="@((d) => _vendorDueDate = d)"
+                                           IsValidChanged="@((valid) => _datesValid = valid)" />
+                </div>
+            </div>
+
+            <div class="cwom-section">
+                <div class="cwom-section-hdr cwom-section-hdr--notes">
+                    <span class="cwom-section-title">Notes</span>
+                </div>
+                <div class="cwom-section-body">
+                    <WorkOrderNotesSection VendorInstructions="@_vendorInstructions"
+                                           VendorInstructionsChanged="@((v) => _vendorInstructions = v)"
+                                           InternalNotes="@_internalNotes"
+                                           InternalNotesChanged="@((v) => _internalNotes = v)" />
+                </div>
+            </div>
+
+            </div>
+        </div>
+    </WindowContent>
+
+    <WindowFooter>
+        <TelerikButton FillMode="@ThemeConstants.Button.FillMode.Outline"
+                       ThemeColor="@ThemeConstants.Button.ThemeColor.Base"
+                       OnClick="@CloseWorkflowAsync">
+            Cancel
+        </TelerikButton>
+        <TelerikButton ThemeColor="@ThemeConstants.Button.ThemeColor.Primary"
+                       Enabled="@CanSaveEditor"
+                       OnClick="@HandleSaveAsync">
+            Save
+        </TelerikButton>
+    </WindowFooter>
+
+</TelerikWindow>
+
+@code {
+    // ── Parameters ──────────────────────────────────────────────────────────
+
+    [Parameter] public bool Visible { get; set; }
+    [Parameter] public EventCallback<bool> VisibleChanged { get; set; }
+
+    [Parameter] public PropertyContextInfo? PropertyContext { get; set; }
+
+    /// <summary>
+    /// When set (including empty), replaces pricing-rule defaults when entering Modal 2.
+    /// Use <c>null</c> for the normal catalog-driven flow; pass an empty collection or bid-approved rows from APIs later.
+    /// </summary>
+    [Parameter] public IReadOnlyList<WorkOrderLineItem>? EditorInitialLineItems { get; set; }
+
+    [Parameter] public EventCallback<WorkOrderDraft> OnSave { get; set; }
+
+    // ── State ────────────────────────────────────────────────────────────────
+
+    // Seeded inline so the dropdown is never fed a null or empty collection.
+    private readonly List<string> _typeNames = new()
+    {
+        "Winterization",
+        "Initial Secure",
+        "Lawn Maintenance",
+        "Debris Removal",
+        "Lock Change",
+        "Title Search",
+        "Property Inspection",
+        "Boarding",
+    };
+
+    private bool _lastVisible;
+    private bool _suppressWindowEvents;
+
+    private bool _typeModalVisible;
+    private bool _editorModalVisible;
+
+    // Non-nullable strings — empty string == "nothing chosen".
+    private string _pickedTypeName = "";
+    private string _committedTypeName = "";
+
+    private List<WorkOrderLineItem> _lineItems = new();
+    private DateTime? _clientDueDate;
+    private DateTime? _vendorDueDate;
+    private bool _datesValid;
+    private string? _vendorInstructions;
+    private string? _internalNotes;
+
+    private bool CanContinueFromStep1 =>
+        !string.IsNullOrWhiteSpace(_pickedTypeName);
+
+    private bool CanSaveEditor =>
+        !string.IsNullOrWhiteSpace(_committedTypeName) &&
+        _lineItems.Count > 0 &&
+        _clientDueDate.HasValue &&
+        _vendorDueDate.HasValue &&
+        _datesValid;
+
+    // ── Lifecycle ────────────────────────────────────────────────────────────
+
+    protected override void OnParametersSet()
+    {
+        if (Visible && !_lastVisible)
+        {
+            // Opening: reset everything and show Modal 1.
+            _pickedTypeName    = "";
+            _committedTypeName = "";
+            ResetDraftBody();
+            _typeModalVisible   = true;
+            _editorModalVisible = false;
+        }
+        else if (!Visible && _lastVisible)
+        {
+            // Parent closed the workflow from outside.
+            _typeModalVisible   = false;
+            _editorModalVisible = false;
+            _pickedTypeName    = "";
+            _committedTypeName = "";
+            ResetDraftBody();
+        }
+
+        _lastVisible = Visible;
+    }
+
+    // ── Window close-event handlers ──────────────────────────────────────────
+
+    private Task OnTypeModalVisibleChangedAsync(bool open)
+    {
+        if (_suppressWindowEvents)
+        {
+            _typeModalVisible = open;
+            return Task.CompletedTask;
+        }
+
+        _typeModalVisible = open;
+
+        // User closed Modal 1 via X or Esc without continuing.
+        if (!open && Visible && !_editorModalVisible)
+            return CloseWorkflowAsync();
+
+        return Task.CompletedTask;
+    }
+
+    private Task OnEditorModalVisibleChangedAsync(bool open)
+    {
+        if (_suppressWindowEvents)
+        {
+            _editorModalVisible = open;
+            return Task.CompletedTask;
+        }
+
+        _editorModalVisible = open;
+
+        if (!open && Visible)
+            return CloseWorkflowAsync();
+
+        return Task.CompletedTask;
+    }
+
+    // ── Actions ──────────────────────────────────────────────────────────────
+
+    private Task ContinueToEditorAsync()
+    {
+        if (!CanContinueFromStep1)
+            return Task.CompletedTask;
+
+        _committedTypeName = _pickedTypeName;
+
+        var type = WorkOrderTypeCatalog.Types.FirstOrDefault(t => t.Name == _pickedTypeName);
+
+        if (EditorInitialLineItems is not null)
+            _lineItems = EditorInitialLineItems.Select(CloneLineItem).ToList();
+        else if (type is not null)
+            _lineItems = WorkOrderTypeCatalog.CloneDefaultItems(type);
+        else
+            _lineItems = new();
+
+        _clientDueDate = DateTime.Today.AddDays(21);
+        _vendorDueDate = DateTime.Today.AddDays(14);
+
+        // Suppress VisibleChanged from Modal 1 closing while we open Modal 2.
+        _suppressWindowEvents = true;
+        _typeModalVisible     = false;
+        _editorModalVisible   = true;
+        _suppressWindowEvents = false;
+
+        return Task.CompletedTask;
+    }
+
+    private async Task HandleSaveAsync()
+    {
+        if (!CanSaveEditor) return;
+
+        var draft = new WorkOrderDraft
+        {
+            SelectedTypeName   = _committedTypeName,
+            LineItems          = _lineItems,
+            ClientDueDate      = _clientDueDate,
+            VendorDueDate      = _vendorDueDate,
+            VendorInstructions = _vendorInstructions,
+            InternalNotes      = _internalNotes,
+        };
+
+        await OnSave.InvokeAsync(draft);
+        await CloseWorkflowAsync();
+    }
+
+    private async Task CloseWorkflowAsync()
+    {
+        _suppressWindowEvents = true;
+        try
+        {
+            _typeModalVisible   = false;
+            _editorModalVisible = false;
+            _pickedTypeName    = "";
+            _committedTypeName = "";
+            ResetDraftBody();
+            await VisibleChanged.InvokeAsync(false);
+        }
+        finally
+        {
+            _suppressWindowEvents = false;
+        }
+    }
+
+    private void ResetDraftBody()
+    {
+        _lineItems          = new();
+        _clientDueDate      = null;
+        _vendorDueDate      = null;
+        _datesValid         = false;
+        _vendorInstructions = null;
+        _internalNotes      = null;
+    }
+
+    private static WorkOrderLineItem CloneLineItem(WorkOrderLineItem src) => new()
+    {
+        Id             = src.Id,
+        WorkItemName   = src.WorkItemName,
+        Instructions   = src.Instructions,
+        UoM            = src.UoM,
+        AR             = src.AR,
+        AP             = src.AP,
+        Qty            = src.Qty,
+        IsInherited    = src.IsInherited,
+    };
+}

@@ -208,3 +208,20 @@
     color: var(--color-text-secondary);
     line-height: 1.5;
 }
+
+/* ── Work Order tab ──────────────────────────────────────────────────── */
+
+.pd-wo-tab {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.pd-wo-toolbar {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.pd-mt-3 {
+    margin-top: 12px;
+}

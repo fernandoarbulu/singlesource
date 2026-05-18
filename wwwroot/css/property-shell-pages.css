@@ -1144,3 +1144,46 @@ button.pd-section-nav-item--active:hover {
     border: 1px dashed var(--ss-neutral-border);
     cursor: default;
 }
+
+/*
+  Create Work Order — Modal 2 (full editor) scroll containment.
+  Kendo `all.css` loads after `SinglesourceApp.styles.css` and applies
+  `.k-window-content { overflow:auto; flex:1 1 auto; padding:… }`, which creates a
+  second vertical scroll and clips Notes above the footer. These rules are global
+  (unique `#cwom-editor-window-root`) so they win in the cascade and lock scrolling
+  to `.cwom-content` inside the modal markup.
+*/
+#cwom-editor-window-root.k-window {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+#cwom-editor-window-root.k-window .k-window-titlebar {
+    flex-shrink: 0;
+}
+
+#cwom-editor-window-root.k-window .k-window-content {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    flex: 1 1 0% !important;
+    min-height: 0 !important;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden !important;
+    padding: 0 !important;
+    position: relative;
+}
+
+#cwom-editor-window-root.k-window .k-window-footer,
+#cwom-editor-window-root.k-window .k-window-actions {
+    flex-shrink: 0 !important;
+    padding-top: 10px;
+    padding-bottom: 12px;
+    padding-inline: 10px;
+    border-top: 1px solid var(--color-border-subtle, #e8eaed);
+    gap: 10px;
+}

@@ -1,0 +1,294 @@
+@namespace SinglesourceApp.Components.WorkOrders
+@using System.Globalization
+@using Telerik.SvgIcons
+
+<div class="cwoi-root">
+
+    <div class="cwoi-grid-scroll">
+        <TelerikGrid TItem="WorkOrderLineItem"
+                     Data="@_displayItems"
+                     Pageable="false"
+                     Sortable="false"
+                     Resizable="false"
+                     Reorderable="false"
+                     Width="100%"
+                     Class="cwoi-grid">
+
+            <GridColumns>
+
+                <GridColumn Title="Work Item" Width="240px">
+                    <Template>
+                        @{
+                            var row = (WorkOrderLineItem)context;
+                        }
+                        <div class="cwoi-wi-stack">
+                            <div class="cwoi-wi-name">@row.WorkItemName</div>
+                            <div class="cwoi-wi-meta">
+                                @(row.IsInherited ? "Suggested from pricing rules" : "Manually added")
+                            </div>
+                        </div>
+                    </Template>
+                </GridColumn>
+
+                <GridColumn Title="Instructions">
+                    <Template>
+                        @{
+                            var row = (WorkOrderLineItem)context;
+                        }
+                        <div class="cwoi-instr-cell">
+                            @RenderInstructions(row)
+                        </div>
+                    </Template>
+                </GridColumn>
+
+                <GridColumn Field="@nameof(WorkOrderLineItem.UoM)" Title="UoM" Width="96px">
+                    <Template>
+                        @{
+                            var row = (WorkOrderLineItem)context;
+                        }
+                        <span class="cwoi-cell-ro cwoi-cell-ro--fill">@row.UoM</span>
+                    </Template>
+                </GridColumn>
+
+                <GridColumn Title="AR" Width="120px">
+                    <Template>
+                        @{
+                            var row = (WorkOrderLineItem)context;
+                        }
+                        <span class="cwoi-cell-ro cwoi-cell-ro--fill cwoi-cell-num">@FormatRate(row.AR)</span>
+                    </Template>
+                </GridColumn>
+
+                <GridColumn Title="AP" Width="130px">
+                    <Template>
+                        @{
+                            var row = (WorkOrderLineItem)context;
+                        }
+                        <TelerikNumericTextBox T="decimal"
+                                               Value="@row.AP"
+                                               ValueChanged="@((decimal v) => OnApChanged(row, v))"
+                                               Min="0m"
+                                               Decimals="2"
+                                               Format="N2"
+                                               Width="100%" />
+                    </Template>
+                </GridColumn>
+
+                <GridColumn Title="Qty" Width="110px">
+                    <Template>
+                        @{
+                            var row = (WorkOrderLineItem)context;
+                        }
+                        <TelerikNumericTextBox T="decimal"
+                                               Value="@row.Qty"
+                                               ValueChanged="@((decimal v) => OnQtyChanged(row, v))"
+                                               Min="0m"
+                                               Decimals="2"
+                                               Format="N2"
+                                               Width="100%" />
+                    </Template>
+                </GridColumn>
+
+                <GridColumn Title="Line Total" Width="130px">
+                    <Template>
+                        @{
+                            var row = (WorkOrderLineItem)context;
+                        }
+                        <span class="cwoi-cell-calc cwoi-cell-ro--fill cwoi-cell-num">@FormatAmount(row.LineTotal)</span>
+                    </Template>
+                </GridColumn>
+
+                <GridColumn Title="" Width="56px">
+                    <HeaderTemplate>
+                        <span class="cwoi-action-hdr" title="Remove">&nbsp;</span>
+                    </HeaderTemplate>
+                    <Template>
+                        @{
+                            var row = (WorkOrderLineItem)context;
+                        }
+                        <div class="cwoi-action-cell">
+                            <TelerikButton Icon="@SvgIcon.Trash"
+                                           FillMode="@ThemeConstants.Button.FillMode.Flat"
+                                           ThemeColor="@ThemeConstants.Button.ThemeColor.Base"
+                                           Title="Remove item"
+                                           OnClick="@(() => RemoveItem(row))" />
+                        </div>
+                    </Template>
+                </GridColumn>
+
+            </GridColumns>
+        </TelerikGrid>
+
+        <div class="cwoi-totals-strip">
+            <span class="cwoi-totals-label">Totals</span>
+            <span class="cwoi-totals-gap"></span>
+            <span class="cwoi-total-uom-spacer"></span>
+            <span class="cwoi-total-ar cwoi-cell-num">@FormatAmount(TotalAR)</span>
+            <span class="cwoi-total-ap cwoi-cell-num">@FormatAmount(TotalAP)</span>
+            <span class="cwoi-total-spacer"></span>
+            <span class="cwoi-total-lt cwoi-cell-num">@FormatAmount(TotalLineTotal)</span>
+            <span class="cwoi-total-actions"></span>
+        </div>
+    </div>
+
+    <div class="cwoi-add-row">
+        <span class="cwoi-add-label">
+            <span class="cwoi-add-plus" aria-hidden="true">+</span>
+            Add Supplemental Item
+        </span>
+        <TelerikDropDownList Data="@FilteredAvailableNames"
+                             Value="@_selectedSupplementalItemName"
+                             ValueChanged="@((string? v) => OnSupplementalItemChangedAsync(v))"
+                             DefaultText="Select item…"
+                             Width="248px" />
+        @if (!string.IsNullOrEmpty(_addItemFeedback))
+        {
+            <span class="cwoi-add-feedback" role="status">@_addItemFeedback</span>
+        }
+    </div>
+
+</div>
+
+@code {
+    private const int InstructionsPreviewLen = 120;
+
+    private static readonly CultureInfo _us = CultureInfo.GetCultureInfo("en-US");
+
+    [Parameter, EditorRequired]
+    public List<WorkOrderLineItem> Items { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<List<WorkOrderLineItem>> ItemsChanged { get; set; }
+
+    [Parameter]
+    public IReadOnlyList<string> AvailableItemNames { get; set; } = WorkOrderTypeCatalog.AllWorkItemNames;
+
+    private List<WorkOrderLineItem> _displayItems = new();
+    private List<WorkOrderLineItem>? _lastSyncedItems;
+
+    private string? _selectedSupplementalItemName;
+    private string? _addItemFeedback;
+
+    private readonly HashSet<string> _expandedInstructionIds = new(StringComparer.Ordinal);
+
+    private decimal TotalAR => _displayItems.Sum(i => (i.AR ?? 0m) * i.Qty);
+
+    private decimal TotalAP => _displayItems.Sum(i => i.AP * i.Qty);
+
+    private decimal TotalLineTotal => _displayItems.Sum(i => i.LineTotal);
+
+    private IReadOnlyList<string> FilteredAvailableNames =>
+        AvailableItemNames
+            .Where(n => !_displayItems.Any(i => i.WorkItemName.Equals(n, StringComparison.OrdinalIgnoreCase)))
+            .ToList();
+
+    protected override void OnParametersSet()
+    {
+        if (!ReferenceEquals(Items, _lastSyncedItems))
+        {
+            _displayItems = Items?.ToList() ?? new();
+            _lastSyncedItems = Items;
+            _expandedInstructionIds.RemoveWhere(id => _displayItems.All(r => r.Id != id));
+        }
+    }
+
+    private RenderFragment RenderInstructions(WorkOrderLineItem row) => __builder =>
+    {
+        var text = row.Instructions ?? "";
+        var longText = text.Length > InstructionsPreviewLen;
+        var expanded = _expandedInstructionIds.Contains(row.Id);
+
+        if (longText && !expanded)
+        {
+            <span class="cwoi-instructions cwoi-instructions--preview">@text[..InstructionsPreviewLen]…</span>
+            <TelerikButton FillMode="@ThemeConstants.Button.FillMode.Link"
+                           ThemeColor="@ThemeConstants.Button.ThemeColor.Primary"
+                           Class="cwoi-instr-toggle"
+                           OnClick="@(() => ExpandInstructions(row.Id))">
+                More
+            </TelerikButton>
+        }
+        else if (longText && expanded)
+        {
+            <span class="cwoi-instructions cwoi-instructions--full">@text</span>
+            <TelerikButton FillMode="@ThemeConstants.Button.FillMode.Link"
+                           ThemeColor="@ThemeConstants.Button.ThemeColor.Primary"
+                           Class="cwoi-instr-toggle"
+                           OnClick="@(() => CollapseInstructions(row.Id))">
+                Less
+            </TelerikButton>
+        }
+        else
+        {
+            <span class="cwoi-instructions">@text</span>
+        }
+    };
+
+    private void ExpandInstructions(string id)
+    {
+        _expandedInstructionIds.Add(id);
+        StateHasChanged();
+    }
+
+    private void CollapseInstructions(string id)
+    {
+        _expandedInstructionIds.Remove(id);
+        StateHasChanged();
+    }
+
+    private static string FormatRate(decimal? value) =>
+        value.HasValue ? value.Value.ToString("C2", _us) : "—";
+
+    private static string FormatAmount(decimal value) =>
+        value.ToString("C2", _us);
+
+    private void OnApChanged(WorkOrderLineItem item, decimal value)
+    {
+        item.AP = value;
+        StateHasChanged();
+    }
+
+    private void OnQtyChanged(WorkOrderLineItem item, decimal value)
+    {
+        item.Qty = value;
+        StateHasChanged();
+    }
+
+    private void RemoveItem(WorkOrderLineItem item)
+    {
+        _expandedInstructionIds.Remove(item.Id);
+        _displayItems = _displayItems.Where(i => !ReferenceEquals(i, item)).ToList();
+        _lastSyncedItems = _displayItems;
+        _selectedSupplementalItemName = null;
+        _addItemFeedback = null;
+        _ = ItemsChanged.InvokeAsync(_displayItems);
+        StateHasChanged();
+    }
+
+    private Task OnSupplementalItemChangedAsync(string? itemName)
+    {
+        _addItemFeedback = null;
+
+        if (string.IsNullOrWhiteSpace(itemName))
+        {
+            _selectedSupplementalItemName = null;
+            return Task.CompletedTask;
+        }
+
+        if (_displayItems.Any(i => i.WorkItemName.Equals(itemName, StringComparison.OrdinalIgnoreCase)))
+        {
+            _addItemFeedback = "That item is already on this work order.";
+            _selectedSupplementalItemName = null;
+            StateHasChanged();
+            return Task.CompletedTask;
+        }
+
+        var newItem = WorkOrderTypeCatalog.CreateSupplementalLine(itemName);
+        _displayItems = [.. _displayItems, newItem];
+        _lastSyncedItems = _displayItems;
+        _selectedSupplementalItemName = null;
+        _ = ItemsChanged.InvokeAsync(_displayItems);
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+}

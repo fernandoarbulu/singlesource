@@ -111,7 +111,8 @@
                                     Filterable="@IsFilterable(capturedProp)"
                                     FilterMenuType="@GetFilterMenuType(capturedProp)"
                                     Editable="@IsEditable(capturedProp)"
-                                    Locked="@GetColumnLocked(capturedProp)">
+                                    Locked="@GetColumnLocked(capturedProp)"
+                                    ShowColumnMenu="@GetShowColumnMenu(capturedProp)">
                             <Template Context="item">
                                 @if (IsItemEditing((TItem)item) && IsEditable(capturedProp))
                                 {
@@ -156,7 +157,8 @@
                                         Filterable="@IsFilterable(capturedProp)"
                                         FilterMenuType="@GetFilterMenuType(capturedProp)"
                                         Editable="@IsEditable(capturedProp)"
-                                        Locked="@GetColumnLocked(capturedProp)">
+                                        Locked="@GetColumnLocked(capturedProp)"
+                                        ShowColumnMenu="@GetShowColumnMenu(capturedProp)">
                                 <Template Context="item">
                                     @standaloneTemplate((TItem)item)
                                 </Template>
@@ -172,7 +174,8 @@
                                         Filterable="@IsFilterable(capturedProp)"
                                         FilterMenuType="@GetFilterMenuType(capturedProp)"
                                         Editable="@IsEditable(capturedProp)"
-                                        Locked="@GetColumnLocked(capturedProp)" />
+                                        Locked="@GetColumnLocked(capturedProp)"
+                                        ShowColumnMenu="@GetShowColumnMenu(capturedProp)" />
                         }
                     }
                 }
@@ -248,6 +251,7 @@
                                                 FilterMenuType="@GetFilterMenuType(capturedGroupedProp)"
                                                 Editable="@IsEditable(capturedGroupedProp)"
                                                 Locked="@GetColumnLocked(capturedGroupedProp)"
+                                                ShowColumnMenu="@GetShowColumnMenu(capturedGroupedProp)"
                                                 Visible="@colVisible">
                                         <Template Context="item">
                                             @if (IsItemEditing((TItem)item) && IsEditable(capturedGroupedProp))
@@ -292,6 +296,7 @@
                                                     FilterMenuType="@GetFilterMenuType(capturedGroupedProp)"
                                                     Editable="@IsEditable(capturedGroupedProp)"
                                                     Locked="@GetColumnLocked(capturedGroupedProp)"
+                                                    ShowColumnMenu="@GetShowColumnMenu(capturedGroupedProp)"
                                                     Visible="@colVisible">
                                             <Template Context="item">
                                                 @groupedTemplate((TItem)item)
@@ -309,6 +314,7 @@
                                                     FilterMenuType="@GetFilterMenuType(capturedGroupedProp)"
                                                     Editable="@IsEditable(capturedGroupedProp)"
                                                     Locked="@GetColumnLocked(capturedGroupedProp)"
+                                                    ShowColumnMenu="@GetShowColumnMenu(capturedGroupedProp)"
                                                     Visible="@colVisible" />
                                     }
                                 }

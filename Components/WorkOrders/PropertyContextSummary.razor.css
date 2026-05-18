@@ -1,0 +1,55 @@
+/* ── Root — HOME-style metadata card (neutral, compact) ─────────────── */
+
+.pcs-root {
+    background: #ffffff;
+    border: 1px solid #E1E6EC;
+    border-radius: 4px;
+    padding: 9px 12px 10px;
+    box-sizing: border-box;
+}
+
+/* ── Section label ───────────────────────────────────────────────────── */
+
+.pcs-eyebrow {
+    margin: 0 0 6px;
+    font-size: 10px;
+    font-weight: var(--font-weight-semibold, 600);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-muted, #6B7280);
+    line-height: 1.25;
+}
+
+/* ── Field grid ──────────────────────────────────────────────────────── */
+
+.pcs-fields {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    column-gap: 20px;
+    row-gap: 8px;
+    align-items: start;
+}
+
+.pcs-field {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.pcs-field-label {
+    font-size: 10px;
+    font-weight: var(--font-weight-semibold, 600);
+    color: var(--color-text-label, #9CA3AF);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    line-height: 1.2;
+}
+
+.pcs-field-value {
+    font-size: var(--font-size-sm, 13px);
+    font-weight: var(--font-weight-semibold, 600);
+    color: var(--color-text-primary, #111827);
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+}

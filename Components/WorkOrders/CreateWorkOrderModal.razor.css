@@ -1,0 +1,191 @@
+/*
+  Modal 2 window chrome (title bar, .k-window-content overflow, footer): global rules in
+  wwwroot/css/property-shell-pages.css — Kendo theme loads after this scoped bundle.
+*/
+
+/* ── Modal 2 — scroll shell (title/footer fixed by window; body scrolls) ─ */
+
+/*
+  Editor shell: single vertical scroll inside WindowContent.
+  Do not duplicate viewport max-height here — TelerikWindow MaxHeight already caps the dialog.
+*/
+.cwom-editor-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 0%;
+    width: 100%;
+    max-width: 100%;
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* ── Modal 2 — primary scroll region ───────────────────────────────────── */
+
+/*
+  Sole vertical scroll for Modal 2. Bottom padding = scrollHeight reserve so Notes + textareas
+  clear the fixed footer at max scroll (~footer strip + modest gap — avoid oversized dead zone).
+*/
+.cwom-content {
+    flex: 1 1 0%;
+    min-width: 0;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: clip;
+    overscroll-behavior: contain;
+    --cwom-scroll-pad-bottom: max(
+        104px,
+        calc(env(safe-area-inset-bottom, 0px) + 88px)
+    );
+    padding: 0 10px var(--cwom-scroll-pad-bottom);
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    scrollbar-gutter: stable;
+    scroll-padding-bottom: var(--cwom-scroll-pad-bottom);
+}
+
+/* ── Modal 1 — lightweight picker ─────────────────────────────────────── */
+
+.cwom-step1 {
+    display: block;
+    padding: 4px 2px 2px;
+}
+
+/*
+  .cwom-field must have an explicit block width so TelerikDropDownList
+  Width="100%" resolves to the full window content pane width.
+*/
+.cwom-step1 .cwom-field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    width: 100%;
+    margin-bottom: 14px;
+}
+
+/* Ensure the Telerik widget itself fills the field. */
+.cwom-step1 .k-dropdownlist {
+    width: 100% !important;
+    min-width: 240px;
+}
+
+.cwom-step1-hint {
+    margin: 0;
+    font-size: var(--font-size-sm, 12px);
+    color: var(--color-text-secondary, #6b7280);
+    line-height: 1.5;
+}
+
+/* ── Modal 2 — committed type bar ─────────────────────────────────────── */
+
+.cwom-section--type-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 2px 0 5px;
+    margin-top: 0;
+    border-bottom: 1px solid var(--color-border-subtle, #E8EAED);
+}
+
+.cwom-type-bar-label {
+    font-size: var(--font-size-xs, 11px);
+    font-weight: var(--font-weight-semibold, 600);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-text-muted, #6B7280);
+}
+
+.cwom-type-bar-value {
+    font-size: var(--font-size-md, 14px);
+    font-weight: var(--font-weight-semibold, 600);
+    color: var(--color-text-primary, #111827);
+}
+
+/* ── Section ─────────────────────────────────────────────────────────── */
+
+.cwom-section {
+    border-bottom: 1px solid var(--color-border-subtle, #E8EAED);
+    padding: 10px 0 12px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.cwom-section:last-child {
+    border-bottom: none;
+    padding-bottom: 12px;
+    scroll-margin-bottom: 12px;
+}
+
+/* Notes is tall — keep it from flex-compressing; scroll parent supplies height */
+.cwom-section:has(.cwom-section-hdr--notes) {
+    flex-shrink: 0;
+}
+
+.cwom-section--no-header {
+    padding: 2px 0 8px;
+    margin-bottom: 0;
+    border-bottom: none;
+}
+
+/* Even rhythm: metadata → grid → dates → notes */
+.cwom-section:has(.cwom-section-hdr--items) {
+    padding-top: 6px;
+}
+
+.cwom-section:has(.cwom-section-hdr--dates) {
+    padding-top: 8px;
+}
+
+.cwom-section:has(.cwom-section-hdr--notes) {
+    padding-top: 8px;
+}
+
+.cwom-section-body {
+    padding-top: 2px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+}
+
+.cwom-section-hdr {
+    border-radius: 3px;
+    padding: 4px 10px;
+    margin-bottom: 7px;
+    border-bottom: 1px solid #EBEEF2;
+}
+
+.cwom-section-hdr--items,
+.cwom-section-hdr--dates,
+.cwom-section-hdr--notes {
+    background: #FAFBFC;
+    border-bottom-color: #EBEEF2;
+}
+
+.cwom-section-title {
+    font-size: 10px;
+    font-weight: var(--font-weight-semibold, 600);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-text-muted, #6B7280);
+}
+
+.cwom-field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.cwom-field-label {
+    font-size: var(--font-size-xs, 11px);
+    font-weight: var(--font-weight-semibold, 600);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-muted, #6B7280);
+    margin: 0;
+}
+
+.cwom-required {
+    color: var(--color-accent-danger, #EF4444);
+    margin-left: 2px;
+}
+

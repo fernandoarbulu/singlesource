@@ -1,0 +1,111 @@
+/* ── Root ────────────────────────────────────────────────────────────── */
+
+.cwds-root {
+    width: 100%;
+}
+
+/* ── Fields layout ───────────────────────────────────────────────────── */
+/*
+  Editable date pickers sit on the left, read-only TAT values on the right.
+  Flex wrap lets the groups stack on narrow viewports.
+*/
+
+.cwds-fields {
+    display: flex;
+    align-items: flex-start;
+    gap: 32px;
+    flex-wrap: wrap;
+}
+
+/* ── Editable group ──────────────────────────────────────────────────── */
+
+.cwds-editable-group {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.cwds-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.cwds-label {
+    font-size: var(--font-size-xs, 11px);
+    font-weight: var(--font-weight-semibold, 600);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-text-muted, #6B7280);
+    margin: 0;
+}
+
+.cwds-required {
+    color: var(--color-accent-danger, #EF4444);
+    margin-left: 2px;
+}
+
+.cwds-error {
+    font-size: var(--font-size-xs, 11px);
+    color: #B91C1C;
+    margin-top: 2px;
+    display: block;
+}
+
+/* ── Informational TAT group ─────────────────────────────────────────── */
+/*
+  TAT fields carry less visual weight than the editable date pickers — they
+  are derived values, not coordinator inputs. Smaller size, muted color,
+  and no input affordance communicate this hierarchy.
+*/
+
+.cwds-info-group {
+    display: flex;
+    gap: 28px;
+    padding-left: 24px;
+    border-left: 1px solid var(--color-border-default, #E5E7EB);
+    flex-wrap: wrap;
+}
+
+.cwds-info-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.cwds-info-label {
+    font-size: var(--font-size-xs, 11px);
+    font-weight: var(--font-weight-semibold, 600);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-text-label, #9CA3AF);
+}
+
+.cwds-info-value {
+    font-size: var(--font-size-sm, 13px);
+    font-weight: var(--font-weight-medium, 500);
+    color: var(--color-text-muted, #6B7280);
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+}
+
+/* Telerik date pickers — calmer chrome */
+::deep .cwds-root .k-datepicker.k-input {
+    min-height: 36px;
+    border-color: #E3E8EF;
+    background-color: #FAFBFD;
+    border-radius: 4px;
+    box-shadow: none;
+}
+
+::deep .cwds-root .k-datepicker.k-focus.k-input,
+::deep .cwds-root .k-datepicker.k-input:focus-within {
+    border-color: var(--ss-primary, #1e6fd9);
+    background-color: #fff;
+}
+
+::deep .cwds-root .k-datepicker .k-input-inner {
+    padding-inline: 12px 10px;
+    font-size: var(--font-size-md, 14px);
+}

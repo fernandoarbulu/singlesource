@@ -1,0 +1,481 @@
+/* ── Work Items grid — stable flex layout + light numeric alignment ───── */
+/* No duplicated CSS grid column tracks; minimal ::deep on Telerik internals. */
+
+.cwoi-root {
+    --cwoi-pad-x: 11px;
+    --cwoi-pad-y: 12px;
+    --cwoi-row-min-h: 46px;
+    --cwoi-border-grid: #DDE3EA;
+    --cwoi-border-cell: #E8EDF3;
+    --cwoi-border-header-rule: #CBD5E1;
+
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+}
+
+.cwoi-grid-scroll {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: visible;
+    overflow-y: visible;
+    border: 1px solid var(--cwoi-border-grid);
+    border-bottom: none;
+    border-radius: 4px 4px 0 0;
+    box-sizing: border-box;
+    background: #fff;
+}
+
+::deep .cwoi-grid {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    border-width: 0;
+    border-radius: 0;
+}
+
+::deep .cwoi-grid .k-grid-table {
+    width: 100%;
+    min-width: 100%;
+    table-layout: fixed;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+/*
+  Instructions column (2): flexible — no GridColumn Width; ≥240px via CSS only.
+*/
+::deep .cwoi-grid colgroup col:nth-child(2) {
+    min-width: 240px;
+    width: auto;
+}
+
+::deep .cwoi-grid .k-grid-header th:nth-child(2),
+::deep .cwoi-grid .k-grid-content td:nth-child(2) {
+    min-width: 240px;
+    width: auto;
+}
+
+::deep .cwoi-grid .k-grid-header-wrap {
+    width: 100%;
+    border-bottom: 1px solid var(--cwoi-border-header-rule);
+}
+
+::deep .cwoi-grid .k-grid-content {
+    width: 100%;
+    overflow-x: visible;
+}
+
+::deep .cwoi-grid .k-grid-header {
+    background: #F4F6F9;
+}
+
+/* ── Headers (simple text-align; no inner reset) ─────────────────────── */
+
+::deep .cwoi-grid .k-grid-header th {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #475569;
+    padding: var(--cwoi-pad-y) var(--cwoi-pad-x);
+    border-color: var(--cwoi-border-cell);
+    white-space: nowrap;
+    overflow: visible;
+    text-overflow: clip;
+    vertical-align: middle;
+    box-sizing: border-box;
+}
+
+::deep .cwoi-grid .k-grid-header th:nth-child(1),
+::deep .cwoi-grid .k-grid-header th:nth-child(2) {
+    text-align: left;
+}
+
+::deep .cwoi-grid .k-grid-header th:nth-child(3) {
+    text-align: center;
+}
+
+/* Numeric + Line Total */
+::deep .cwoi-grid .k-grid-header th:nth-child(4),
+::deep .cwoi-grid .k-grid-header th:nth-child(5),
+::deep .cwoi-grid .k-grid-header th:nth-child(6),
+::deep .cwoi-grid .k-grid-header th:nth-child(7) {
+    text-align: right;
+}
+
+::deep .cwoi-grid .k-grid-header th:nth-child(8) {
+    text-align: center;
+}
+
+::deep .cwoi-grid .k-grid-header th .k-header-inner,
+::deep .cwoi-grid .k-grid-header th .k-cell-inner {
+    width: 100%;
+    box-sizing: border-box;
+    overflow: visible;
+    text-overflow: clip;
+    max-width: none;
+}
+
+::deep .cwoi-grid .k-grid-header th:nth-child(4) .k-link,
+::deep .cwoi-grid .k-grid-header th:nth-child(5) .k-link,
+::deep .cwoi-grid .k-grid-header th:nth-child(6) .k-link,
+::deep .cwoi-grid .k-grid-header th:nth-child(7) .k-link {
+    display: inline-flex;
+    justify-content: flex-end;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+::deep .cwoi-grid .k-grid-header th:nth-child(3) .k-link,
+::deep .cwoi-grid .k-grid-header th:nth-child(8) .k-link {
+    display: inline-flex;
+    justify-content: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+::deep .cwoi-grid .k-grid-header .k-link {
+    overflow: visible;
+    text-overflow: clip;
+    max-width: none;
+}
+
+/* UoM: keep short codes on one line when space allows */
+::deep .cwoi-grid .k-grid-content td:nth-child(3) .cwoi-cell-ro {
+    white-space: nowrap;
+}
+
+/* AP / Qty numeric inputs: avoid flex-shrink clipping typed values */
+::deep .cwoi-grid .k-grid-content td:nth-child(5) .k-numerictextbox .k-input-inner,
+::deep .cwoi-grid .k-grid-content td:nth-child(6) .k-numerictextbox .k-input-inner {
+    min-width: 3.25rem;
+}
+
+/* ── Body cells ───────────────────────────────────────────────────────── */
+
+::deep .cwoi-grid .k-grid-content tr td {
+    padding: var(--cwoi-pad-y) var(--cwoi-pad-x);
+    border-color: var(--cwoi-border-cell);
+    box-sizing: border-box;
+    min-height: var(--cwoi-row-min-h);
+}
+
+::deep .cwoi-grid .k-grid-content tr td:nth-child(1),
+::deep .cwoi-grid .k-grid-content tr td:nth-child(8) {
+    vertical-align: middle;
+}
+
+::deep .cwoi-grid .k-grid-content tr td:nth-child(2) {
+    vertical-align: top;
+}
+
+::deep .cwoi-grid .k-grid-content tr td:nth-child(3),
+::deep .cwoi-grid .k-grid-content tr td:nth-child(4),
+::deep .cwoi-grid .k-grid-content tr td:nth-child(5),
+::deep .cwoi-grid .k-grid-content tr td:nth-child(6),
+::deep .cwoi-grid .k-grid-content tr td:nth-child(7) {
+    vertical-align: middle;
+}
+
+::deep .cwoi-grid .k-grid-content tr td:nth-child(3) {
+    text-align: center;
+}
+
+::deep .cwoi-grid .k-grid-content tr td:nth-child(4),
+::deep .cwoi-grid .k-grid-content tr td:nth-child(5),
+::deep .cwoi-grid .k-grid-content tr td:nth-child(6),
+::deep .cwoi-grid .k-grid-content tr td:nth-child(7) {
+    text-align: right;
+}
+
+::deep .cwoi-grid .k-grid-content tr td:nth-child(8) {
+    text-align: center;
+}
+
+::deep .cwoi-grid .k-grid-content tr:hover td {
+    background: #F8FAFC;
+}
+
+.cwoi-instr-cell {
+    padding: 2px 4px 2px 0;
+}
+
+.cwoi-action-hdr {
+    display: block;
+    width: 100%;
+}
+
+.cwoi-action-cell {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    min-height: 36px;
+}
+
+/* ── Read-only cells ───────────────────────────────────────────────────── */
+
+.cwoi-cell-ro {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    color: var(--ss-text-secondary, #4B5563);
+    font-size: var(--font-size-sm, 13px);
+    font-variant-numeric: tabular-nums;
+}
+
+.cwoi-cell-ro--fill {
+    background: #EFF2F5;
+    border: 1px solid #E2E7EC;
+    border-radius: 3px;
+    padding: 8px 10px;
+    box-sizing: border-box;
+}
+
+.cwoi-cell-calc {
+    color: var(--color-text-muted, #64748B);
+    font-variant-numeric: tabular-nums;
+}
+
+.cwoi-cell-num {
+    text-align: right;
+}
+
+/* ── Work item — comfortable title / meta ─────────────────────────────── */
+
+.cwoi-wi-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    justify-content: center;
+}
+
+.cwoi-wi-name {
+    font-weight: 600;
+    color: var(--color-text-primary, #111827);
+    font-size: var(--font-size-sm, 13px);
+    line-height: 1.45;
+    letter-spacing: -0.01em;
+}
+
+.cwoi-wi-meta {
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748B;
+    line-height: 1.45;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+/* ── Instructions ──────────────────────────────────────────────────────── */
+
+.cwoi-instructions {
+    display: block;
+    font-size: var(--font-size-sm, 13px);
+    color: var(--ss-text-secondary, #4B5563);
+    line-height: 1.48;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.cwoi-instructions--preview {
+    display: inline;
+}
+
+.cwoi-instructions--full {
+    display: block;
+    margin-bottom: 4px;
+}
+
+::deep .cwoi-instr-toggle.k-button {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 0 !important;
+    min-height: auto !important;
+    vertical-align: baseline;
+    margin-left: 4px;
+}
+
+/* ── TelerikNumericTextBox — consistent min-height, right-aligned text ─── */
+/* No fixed height on row; avoid aggressive inner resets */
+
+::deep .cwoi-grid .k-grid-content .k-numerictextbox {
+    width: 100%;
+    max-width: 100%;
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+}
+
+::deep .cwoi-grid .k-grid-content .k-numerictextbox.k-input-md {
+    min-height: 34px;
+}
+
+::deep .cwoi-grid .k-grid-content .k-numerictextbox.k-input {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: stretch;
+    border-color: #D5DCE4;
+    background-color: #fff;
+    box-shadow: none;
+    border-radius: 3px;
+}
+
+::deep .cwoi-grid .k-grid-content .k-numerictextbox .k-input-inner {
+    flex: 1 1 auto;
+    min-width: 0;
+    text-align: right;
+    padding-inline: 10px 8px;
+    padding-block: 6px;
+    font-variant-numeric: tabular-nums;
+}
+
+::deep .cwoi-grid .k-grid-content .k-numerictextbox.k-focus.k-input,
+::deep .cwoi-grid .k-grid-content .k-numerictextbox.k-input:focus-within {
+    border-color: var(--ss-primary, #1e6fd9);
+    background-color: #fff;
+}
+
+::deep .cwoi-grid .k-grid-content .k-numerictextbox .k-spinner-increase,
+::deep .cwoi-grid .k-grid-content .k-numerictextbox .k-spinner-decrease {
+    opacity: 0.4;
+    border-inline-start-color: #E5E9EF !important;
+}
+
+::deep .cwoi-grid .k-grid-content .k-numerictextbox .k-spinner-increase:hover,
+::deep .cwoi-grid .k-grid-content .k-numerictextbox .k-spinner-decrease:hover {
+    opacity: 0.75;
+}
+
+::deep .cwoi-grid .k-grid-content .k-numerictextbox .k-spinner-button {
+    min-width: 26px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    align-self: stretch;
+}
+
+/* ── Totals strip (flex widths match GridColumn Width values) ─────────── */
+
+.cwoi-totals-strip {
+    display: flex;
+    align-items: stretch;
+    padding: 9px var(--cwoi-pad-x);
+    border: 1px solid var(--cwoi-border-grid);
+    border-top: 1px solid var(--cwoi-border-header-rule);
+    border-radius: 0 0 4px 4px;
+    background: #EEF2F6;
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    width: 100%;
+    box-sizing: border-box;
+    min-width: 0;
+}
+
+.cwoi-totals-label {
+    flex: 0 0 240px;
+    display: flex;
+    align-items: center;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: #475569;
+}
+
+.cwoi-totals-gap {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.cwoi-total-uom-spacer {
+    flex: 0 0 96px;
+}
+
+.cwoi-total-ar {
+    flex: 0 0 120px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    color: #475569;
+    font-weight: 600;
+}
+
+.cwoi-total-ap {
+    flex: 0 0 130px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    color: #1E293B;
+    font-weight: 700;
+}
+
+.cwoi-total-spacer {
+    flex: 0 0 110px;
+}
+
+.cwoi-total-lt {
+    flex: 0 0 130px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    color: #0F172A;
+    font-weight: 800;
+    font-size: 13px;
+    letter-spacing: -0.02em;
+}
+
+.cwoi-total-actions {
+    flex: 0 0 56px;
+}
+
+/* ── Supplemental row ─────────────────────────────────────────────────── */
+
+.cwoi-add-row {
+    margin-top: 6px;
+    padding: 8px var(--cwoi-pad-x);
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    box-sizing: border-box;
+    border: 1px solid var(--cwoi-border-cell);
+    border-radius: 4px;
+    background: #FAFBFC;
+}
+
+.cwoi-add-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: var(--font-size-xs, 11px);
+    font-weight: var(--font-weight-semibold, 600);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--ss-text-secondary, #5A6E82);
+}
+
+.cwoi-add-plus {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--ss-primary, #1e6fd9);
+    background: rgba(30, 111, 217, 0.08);
+}
+
+.cwoi-add-feedback {
+    font-size: 11px;
+    color: var(--ss-text-secondary, #5A6E82);
+}
+
+.cwoi-add-row ::deep .k-dropdownlist.k-input-md {
+    min-height: 34px;
+}

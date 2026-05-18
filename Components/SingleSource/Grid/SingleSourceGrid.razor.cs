@@ -828,6 +828,17 @@ namespace BlazorBusiness.Web.Components.SingleSourceGrid
         }
 
         /// <summary>
+        /// Determines whether the Telerik column menu (three-dot icon) should be shown for a column.
+        /// Returns <c>false</c> for columns that have explicitly opted out via
+        /// <see cref="SingleSourceGridAttribute.ShowColumnMenu"/>. Defaults to <c>true</c>.
+        /// </summary>
+        private static bool GetShowColumnMenu(PropertyInfo propertyInfo)
+        {
+            SingleSourceGridAttribute? attr = propertyInfo.GetCustomAttribute<SingleSourceGridAttribute>();
+            return attr?.ShowColumnMenu ?? true;
+        }
+
+        /// <summary>
         /// Returns <c>true</c> when there is at least one pending edit, create, or delete
         /// that has not yet been committed via <see cref="SaveCurrentEditAsync"/>.
         /// Used to drive the enabled state of the Save Changes and Reset toolbar buttons.

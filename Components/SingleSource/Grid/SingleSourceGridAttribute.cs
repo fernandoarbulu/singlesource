@@ -123,5 +123,12 @@ namespace BlazorBusiness.Web.Components.SingleSourceGrid
         /// fields from editable or plain read-only fields. Defaults to <c>false</c>.
         /// </summary>
         public bool IsCalculated { get; set; } = false;
+
+        /// <summary>
+        /// Controls whether the Telerik column menu (the three-dot icon in the column header)
+        /// is shown for this column. Set to <c>false</c> on narrow, calculated, or action-free
+        /// columns to reclaim header space. Defaults to <c>true</c>.
+        /// </summary>
+        public bool ShowColumnMenu { get; set; } = true;
     }
 }

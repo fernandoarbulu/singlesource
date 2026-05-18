@@ -1,0 +1,118 @@
+@namespace SinglesourceApp.Components.WorkOrders
+
+<div class="cwds-root">
+    <div class="cwds-fields">
+
+        @* ── Editable date inputs ───────────────────────────────────────── *@
+        <div class="cwds-editable-group">
+
+            <div class="cwds-field">
+                <label class="cwds-label">
+                    Client Due Date
+                    <span class="cwds-required" aria-label="required">*</span>
+                </label>
+                <TelerikDatePicker T="DateTime?"
+                                   Value="@ClientDueDate"
+                                   ValueChanged="@OnClientDueDateChanged"
+                                   Placeholder="Select date"
+                                   Width="200px" />
+            </div>
+
+            <div class="cwds-field">
+                <label class="cwds-label">
+                    Vendor Due Date
+                    <span class="cwds-required" aria-label="required">*</span>
+                </label>
+                <TelerikDatePicker T="DateTime?"
+                                   Value="@VendorDueDate"
+                                   ValueChanged="@OnVendorDueDateChanged"
+                                   Placeholder="Select date"
+                                   Width="200px" />
+                @if (_dateError is not null)
+                {
+                    <span class="cwds-error" role="alert">@_dateError</span>
+                }
+            </div>
+
+        </div>
+
+        @* ── Informational TAT fields ────────────────────────────────────── *@
+        <div class="cwds-info-group">
+
+            <div class="cwds-info-field">
+                <span class="cwds-info-label">Client Projected TAT</span>
+                <span class="cwds-info-value">@ClientTatLabel</span>
+            </div>
+
+            <div class="cwds-info-field">
+                <span class="cwds-info-label">Vendor Projected TAT</span>
+                <span class="cwds-info-value">@VendorTatLabel</span>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+@code {
+    [Parameter] public DateTime? ClientDueDate { get; set; }
+    [Parameter] public EventCallback<DateTime?> ClientDueDateChanged { get; set; }
+
+    [Parameter] public DateTime? VendorDueDate { get; set; }
+    [Parameter] public EventCallback<DateTime?> VendorDueDateChanged { get; set; }
+
+    /// <summary>
+    /// Raised whenever the validation state changes so the parent modal
+    /// can enable/disable the Save button.
+    /// </summary>
+    [Parameter] public EventCallback<bool> IsValidChanged { get; set; }
+
+    private string? _dateError;
+
+    private bool? _lastReportedValid;
+
+    private string ClientTatLabel =>
+        ClientDueDate.HasValue
+            ? $"{Math.Max(0, (int)(ClientDueDate.Value.Date - DateTime.Today).TotalDays)} days"
+            : "—";
+
+    private string VendorTatLabel =>
+        VendorDueDate.HasValue
+            ? $"{Math.Max(0, (int)(VendorDueDate.Value.Date - DateTime.Today).TotalDays)} days"
+            : "—";
+
+    protected override void OnParametersSet()
+    {
+        Validate(ClientDueDate, VendorDueDate);
+    }
+
+    private async Task OnClientDueDateChanged(DateTime? value)
+    {
+        await ClientDueDateChanged.InvokeAsync(value);
+        Validate(value, VendorDueDate);
+    }
+
+    private async Task OnVendorDueDateChanged(DateTime? value)
+    {
+        await VendorDueDateChanged.InvokeAsync(value);
+        Validate(ClientDueDate, value);
+    }
+
+    private void Validate(DateTime? clientDate, DateTime? vendorDate)
+    {
+        var rangeInvalid = vendorDate.HasValue && clientDate.HasValue &&
+                           vendorDate.Value.Date > clientDate.Value.Date;
+
+        _dateError = rangeInvalid
+            ? "Vendor due date cannot be later than the client due date."
+            : null;
+
+        var valid = !rangeInvalid && vendorDate.HasValue && clientDate.HasValue;
+
+        if (_lastReportedValid != valid)
+        {
+            _lastReportedValid = valid;
+            _ = IsValidChanged.InvokeAsync(valid);
+        }
+    }
+}
