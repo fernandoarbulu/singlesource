@@ -1,0 +1,78 @@
+/*
+  HOME Platform — Shared Status Pill System
+  ──────────────────────────────────────────
+  Usage: class="ss-pill ss-pill--[variant]"
+
+  Variants
+  ────────
+  approved     Approved, Completed, Done           muted sage green
+  allowable    Approved Within Allowable            muted olive (warmer green)
+  denied       Denied, Rejected                     muted rose/red
+  corrections  Needs Corrections, New, Attention    muted amber
+  pending      Pending, Submitted, In Progress      muted slate blue
+  neutral      Cancelled, Not Required, N/A         neutral gray
+  empty        Unknown / unset (prompts action)     dashed outline
+
+  Design philosophy
+  ─────────────────
+  Desaturated enterprise palette. Subtle tinted backgrounds with darker,
+  readable text. No neon, no bootstrap brightness, no consumer-app badges.
+  Consistent across tables, grids, headers, and modals.
+*/
+
+.ss-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 9px;
+    border-radius: 12px;
+    font-size: 0.6875rem;   /* 11px — readable in dense table rows */
+    font-weight: 600;
+    line-height: 1.5;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+/* ── Semantic variants ──────────────────────────────────────────────────── */
+
+/* Approved / Completed / Done — calm muted green */
+.ss-pill--approved {
+    background-color: #D6EEE2;
+    color: #166042;
+}
+
+/* Approved Within Allowable — olive/sage, warmer than approved */
+.ss-pill--allowable {
+    background-color: #DAE8CC;
+    color: #3D6124;
+}
+
+/* Denied / Rejected — muted rose, not aggressive red */
+.ss-pill--denied {
+    background-color: #F2DEDE;
+    color: #8A2424;
+}
+
+/* Needs Corrections / New / Attention — muted warm amber */
+.ss-pill--corrections {
+    background-color: #FDEFC2;
+    color: #7A450C;
+}
+
+/* Pending / Submitted / In Progress — muted slate blue */
+.ss-pill--pending {
+    background-color: #D9E7F8;
+    color: #1C3D83;
+}
+
+/* Neutral / Cancelled / Not Required — quiet gray */
+.ss-pill--neutral {
+    background-color: #EEEEF1;
+    color: #6B7280;
+}
+
+/* Unknown / unset — dashed outline prompts action without asserting a state */
+.ss-pill--empty {
+    background-color: transparent;
+    color: #C0C5CE;
+    border: 1px dashed #D1D5DB;
+}

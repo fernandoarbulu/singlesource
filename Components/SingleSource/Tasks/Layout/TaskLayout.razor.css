@@ -45,22 +45,10 @@
     flex-shrink: 0;
 }
 
-/* ── Status pill ────────────────────────────────────────────────────── */
-
-.tl-status-pill {
-    display: inline-block;
-    padding: 3px 10px;
-    border-radius: 12px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    white-space: nowrap;
-}
-
-.tl-status-pill--new         { background: #fef3c7; color: #92400e; }
-.tl-status-pill--in-progress { background: #dbeafe; color: #1e3a8a; }
-.tl-status-pill--completed   { background: #d1fae5; color: #065f46; }
-.tl-status-pill--cancelled   { background: #f3f4f6; color: #6b7280; }
-.tl-status-pill--default     { background: #f3f4f6; color: #374151; }
+/* ── Status pill ─────────────────────────────────────────────────────────────
+   Migrated to shared ss-pill system (wwwroot/css/status-pills.css).
+   The header renders: <span class="ss-pill ss-pill--@StatusCssKey">
+──────────────────────────────────────────────────────────────────────────── */
 
 /* ── Due date label ─────────────────────────────────────────────────── */
 

@@ -9,6 +9,7 @@
     --cwoi-border-cell: #E8EDF3;
     --cwoi-border-header-rule: #CBD5E1;
 
+    position: relative; /* establishes positioning context for the floating instructions panel */
     width: 100%;
     max-width: 100%;
     min-width: 0;
@@ -195,11 +196,63 @@
 }
 
 ::deep .cwoi-grid .k-grid-content tr:hover td {
-    background: #F8FAFC;
+    background: #EDF3FA;
+}
+
+::deep .cwoi-grid .k-grid-content tr.k-alt td {
+    background: #FAFBFD;
+}
+
+/* Manually-added rows: subtle left-edge indicator distinguishes them
+   from pricing-rule-generated rows without adding visual noise. */
+::deep .cwoi-grid .k-grid-content tr.cwoi-row-manual td:first-child {
+    box-shadow: inset 3px 0 0 #94A3B8;
+}
+
+/* New supplemental item: brief teal-tinted flash fades to transparent. */
+::deep .cwoi-grid .k-grid-content tr.cwoi-row-new td {
+    animation: cwoi-row-flash 2s ease forwards;
+}
+
+@keyframes cwoi-row-flash {
+    0%   { background-color: #E0F0FD; }
+    60%  { background-color: #E0F0FD; }
+    100% { background-color: transparent; }
 }
 
 .cwoi-instr-cell {
     padding: 2px 4px 2px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.cwoi-instr-preview-wrap {
+    min-height: 16px;
+}
+
+.cwoi-instr-preview-text {
+    display: block;
+    font-size: 12px;
+    color: #4B5563;
+    line-height: 1.45;
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
+.cwoi-instr-none {
+    font-size: 12px;
+    color: #CBD5E1;
+}
+
+::deep .cwoi-instr-edit-btn.k-button {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 0 !important;
+    min-height: auto !important;
+    vertical-align: baseline;
+    color: var(--ss-primary, #1e6fd9);
+    align-self: flex-start; /* prevents flex-stretch so the button sits left */
 }
 
 .cwoi-action-hdr {
@@ -260,43 +313,127 @@
     letter-spacing: -0.01em;
 }
 
+/* Muted metadata — "Suggested from pricing rules" / "Manually added" reads as
+   secondary context, not a status indicator. Plain lowercase, lighter weight. */
 .cwoi-wi-meta {
     font-size: 11px;
-    font-weight: 600;
-    color: #64748B;
+    font-weight: 400;
+    color: #94A3B8;
     line-height: 1.45;
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
+    letter-spacing: 0;
+    text-transform: none;
 }
 
-/* ── Instructions ──────────────────────────────────────────────────────── */
+/* ── Instructions editor panel ───────────────────────────────────────────
+   Renders below the totals strip when a row's Edit/Add button is clicked.
+   No absolute positioning needed — the modal's native scroll handles overflow.
+──────────────────────────────────────────────────────────────────────────── */
 
-.cwoi-instructions {
-    display: block;
-    font-size: var(--font-size-sm, 13px);
-    color: var(--ss-text-secondary, #4B5563);
-    line-height: 1.48;
-    white-space: normal;
-    overflow-wrap: anywhere;
-    word-break: break-word;
+/* Transparent overlay that captures outside-clicks to dismiss the panel.
+   Covers .cwoi-root only (which has position: relative as its stacking context). */
+.cwoi-instr-backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: 99;
+    background: transparent;
+    cursor: default;
 }
 
-.cwoi-instructions--preview {
-    display: inline;
+.cwoi-instr-panel {
+    /* Floating contextual editor — absolutely positioned so it layers above
+       the grid without pushing any surrounding content downward.
+       Left edge at 228px aligns with the start of the Instructions column
+       (Work Item column is 240px wide) so the panel feels anchored to the
+       cell being edited. Work Item names remain fully readable to the left. */
+    position: absolute;
+    top: 40px;
+    left: 228px;
+    width: 450px;
+    background: #fff;
+    border: 1px solid #D0D7E0;
+    border-radius: 6px;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.10), 0 2px 6px rgba(0, 0, 0, 0.06);
+    z-index: 100;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    animation: cwoi-panel-open 0.14s ease both;
 }
 
-.cwoi-instructions--full {
-    display: block;
-    margin-bottom: 4px;
+@keyframes cwoi-panel-open {
+    from { opacity: 0; transform: translateY(-5px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
-::deep .cwoi-instr-toggle.k-button {
+.cwoi-instr-panel-hdr {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px 12px;
+    border-bottom: 1px solid #E8EDF3;
+    background: #F4F6F9;
+    gap: 12px;
+}
+
+.cwoi-instr-panel-hdr-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.cwoi-instr-panel-label {
     font-size: 11px;
     font-weight: 600;
-    padding: 0 !important;
-    min-height: auto !important;
-    vertical-align: baseline;
-    margin-left: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #475569;
+    flex-shrink: 0;
+}
+
+.cwoi-instr-panel-divider {
+    width: 1px;
+    height: 13px;
+    background: #CBD5E1;
+    flex-shrink: 0;
+}
+
+.cwoi-instr-panel-item {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1E293B;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cwoi-instr-panel-hdr-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.cwoi-instr-panel-body {
+    padding: 0;
+}
+
+/* TelerikEditor chrome — ::deep required; styles target Kendo Editor DOM */
+.cwoi-instr-panel-body ::deep .k-editor {
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    width: 100% !important;
+}
+
+.cwoi-instr-panel-body ::deep .k-toolbar.k-editor-toolbar {
+    background: #F8F9FB;
+    border-bottom: 1px solid #EBF0F5;
+    border-top: none;
+    border-radius: 0;
+    padding: 4px 8px;
+    gap: 2px;
 }
 
 /* ── TelerikNumericTextBox — consistent min-height, right-aligned text ─── */
@@ -431,19 +568,51 @@
     flex: 0 0 56px;
 }
 
+/* ── Empty state ─────────────────────────────────────────────────────── */
+
+.cwoi-empty-state {
+    padding: 32px 20px;
+    text-align: center;
+    border: 1px solid var(--cwoi-border-grid);
+    border-radius: 4px;
+    background: #FAFBFC;
+}
+
+.cwoi-empty-msg {
+    margin: 0 0 6px;
+    font-size: var(--font-size-sm, 13px);
+    font-weight: 600;
+    color: var(--color-text-secondary, #374151);
+}
+
+.cwoi-empty-hint {
+    margin: 0;
+    font-size: var(--font-size-xs, 12px);
+    color: var(--color-text-muted, #6B7280);
+}
+
 /* ── Supplemental row ─────────────────────────────────────────────────── */
 
+/* Visually attached to the table below the totals strip — no top gap,
+   same horizontal rhythm, lighter surface than the totals row. */
 .cwoi-add-row {
-    margin-top: 6px;
+    margin-top: 4px;
     padding: 8px var(--cwoi-pad-x);
     display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 8px 12px;
+    flex-direction: column;
+    gap: 5px;
     box-sizing: border-box;
     border: 1px solid var(--cwoi-border-cell);
     border-radius: 4px;
     background: #FAFBFC;
+}
+
+/* Controls row: label + dropdown side by side */
+.cwoi-add-row-main {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px 8px;
 }
 
 .cwoi-add-label {
@@ -471,9 +640,16 @@
     background: rgba(30, 111, 217, 0.08);
 }
 
+.cwoi-add-hint {
+    font-size: 11px;
+    color: var(--color-text-muted, #9CA3AF);
+    font-style: italic;
+}
+
 .cwoi-add-feedback {
     font-size: 11px;
-    color: var(--ss-text-secondary, #5A6E82);
+    color: #92400E;
+    font-weight: 500;
 }
 
 .cwoi-add-row ::deep .k-dropdownlist.k-input-md {

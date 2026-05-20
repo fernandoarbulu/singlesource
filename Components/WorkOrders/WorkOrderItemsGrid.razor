@@ -4,6 +4,15 @@
 
 <div class="cwoi-root">
 
+    @if (_displayItems.Count == 0)
+    {
+        <div class="cwoi-empty-state">
+            <p class="cwoi-empty-msg">No services have been added yet.</p>
+            <p class="cwoi-empty-hint">Add supplemental items below to begin building this work order.</p>
+        </div>
+    }
+    else
+    {
     <div class="cwoi-grid-scroll">
         <TelerikGrid TItem="WorkOrderLineItem"
                      Data="@_displayItems"
@@ -11,8 +20,9 @@
                      Sortable="false"
                      Resizable="false"
                      Reorderable="false"
-                     Width="100%"
-                     Class="cwoi-grid">
+             Width="100%"
+             Class="cwoi-grid"
+             OnRowRender="@OnRowRenderHandler">
 
             <GridColumns>
 
@@ -130,28 +140,60 @@
             <span class="cwoi-total-actions"></span>
         </div>
     </div>
+    }
+
+    @if (_editingItem is not null)
+    {
+        <div class="cwoi-instr-backdrop" @onclick="CancelInstructions"></div>
+        <div class="cwoi-instr-panel" @onkeydown="HandlePanelKeyDown">
+            <div class="cwoi-instr-panel-hdr">
+                <div class="cwoi-instr-panel-hdr-left">
+                    <span class="cwoi-instr-panel-label">Instructions</span>
+                    <span class="cwoi-instr-panel-divider" aria-hidden="true"></span>
+                    <span class="cwoi-instr-panel-item">@_editingItem.WorkItemName</span>
+                </div>
+                <div class="cwoi-instr-panel-hdr-right">
+                    <TelerikButton FillMode="@ThemeConstants.Button.FillMode.Flat"
+                                   ThemeColor="@ThemeConstants.Button.ThemeColor.Base"
+                                   OnClick="@CancelInstructions">Cancel</TelerikButton>
+                    <TelerikButton ThemeColor="@ThemeConstants.Button.ThemeColor.Primary"
+                                   OnClick="@SaveInstructions">Save</TelerikButton>
+                </div>
+            </div>
+            <div class="cwoi-instr-panel-body">
+                <TelerikEditor @bind-Value="@_editDraft"
+                               Height="210px"
+                               Width="100%"
+                               Tools="@_editorTools" />
+            </div>
+        </div>
+    }
 
     <div class="cwoi-add-row">
-        <span class="cwoi-add-label">
-            <span class="cwoi-add-plus" aria-hidden="true">+</span>
-            Add Supplemental Item
-        </span>
-        <TelerikDropDownList Data="@FilteredAvailableNames"
-                             Value="@_selectedSupplementalItemName"
-                             ValueChanged="@((string? v) => OnSupplementalItemChangedAsync(v))"
-                             DefaultText="Select item…"
-                             Width="248px" />
+        <div class="cwoi-add-row-main">
+            <span class="cwoi-add-label">
+                <span class="cwoi-add-plus" aria-hidden="true">+</span>
+                Add Supplemental Item
+            </span>
+            <TelerikDropDownList Data="@FilteredAvailableNames"
+                                 Value="@_selectedSupplementalItemName"
+                                 ValueChanged="@((string? v) => OnSupplementalItemChangedAsync(v))"
+                                 DefaultText="Select item…"
+                                 Width="248px" />
+        </div>
         @if (!string.IsNullOrEmpty(_addItemFeedback))
         {
-            <span class="cwoi-add-feedback" role="status">@_addItemFeedback</span>
+            <span class="cwoi-add-feedback" role="alert">@_addItemFeedback</span>
+        }
+        else
+        {
+            <span class="cwoi-add-hint">Add additional services not included in pricing rules.</span>
         }
     </div>
 
 </div>
 
 @code {
-    private const int InstructionsPreviewLen = 120;
-
     private static readonly CultureInfo _us = CultureInfo.GetCultureInfo("en-US");
 
     [Parameter, EditorRequired]
@@ -169,7 +211,26 @@
     private string? _selectedSupplementalItemName;
     private string? _addItemFeedback;
 
-    private readonly HashSet<string> _expandedInstructionIds = new(StringComparer.Ordinal);
+    // ── Row-highlight state (new supplemental item flash) ─────────────────
+    private string? _newlyAddedItemId;
+    private int _highlightVersion;
+
+    // ── Instructions panel state ──────────────────────────────────────────
+    private WorkOrderLineItem? _editingItem;
+    private string _editDraft = "";
+
+    // IEditorTool lives in Telerik.Blazor.Components (already imported globally).
+    // Tool classes live in Telerik.Blazor.Components.Editor — qualify fully to
+    // avoid ambiguity with same-named types in Telerik.SvgIcons (Bold, Italic).
+    private static readonly List<IEditorTool> _editorTools = new List<IEditorTool>
+    {
+        new Telerik.Blazor.Components.Editor.EditorButtonGroup(
+            new Telerik.Blazor.Components.Editor.Bold(),
+            new Telerik.Blazor.Components.Editor.Italic()),
+        new Telerik.Blazor.Components.Editor.EditorButtonGroup(
+            new Telerik.Blazor.Components.Editor.UnorderedList(),
+            new Telerik.Blazor.Components.Editor.OrderedList()),
+    };
 
     private decimal TotalAR => _displayItems.Sum(i => (i.AR ?? 0m) * i.Qty);
 
@@ -188,52 +249,98 @@
         {
             _displayItems = Items?.ToList() ?? new();
             _lastSyncedItems = Items;
-            _expandedInstructionIds.RemoveWhere(id => _displayItems.All(r => r.Id != id));
         }
     }
 
     private RenderFragment RenderInstructions(WorkOrderLineItem row) => __builder =>
     {
-        var text = row.Instructions ?? "";
-        var longText = text.Length > InstructionsPreviewLen;
-        var expanded = _expandedInstructionIds.Contains(row.Id);
+        var preview = GetInstructionsPreview(row.Instructions, 70);
+        var hasContent = preview.Length > 0;
 
-        if (longText && !expanded)
-        {
-            <span class="cwoi-instructions cwoi-instructions--preview">@text[..InstructionsPreviewLen]…</span>
-            <TelerikButton FillMode="@ThemeConstants.Button.FillMode.Link"
-                           ThemeColor="@ThemeConstants.Button.ThemeColor.Primary"
-                           Class="cwoi-instr-toggle"
-                           OnClick="@(() => ExpandInstructions(row.Id))">
-                More
-            </TelerikButton>
-        }
-        else if (longText && expanded)
-        {
-            <span class="cwoi-instructions cwoi-instructions--full">@text</span>
-            <TelerikButton FillMode="@ThemeConstants.Button.FillMode.Link"
-                           ThemeColor="@ThemeConstants.Button.ThemeColor.Primary"
-                           Class="cwoi-instr-toggle"
-                           OnClick="@(() => CollapseInstructions(row.Id))">
-                Less
-            </TelerikButton>
-        }
-        else
-        {
-            <span class="cwoi-instructions">@text</span>
-        }
+        <div class="cwoi-instr-preview-wrap">
+            @if (hasContent)
+            {
+                <span class="cwoi-instr-preview-text">@preview</span>
+            }
+            else
+            {
+                <span class="cwoi-instr-none">—</span>
+            }
+        </div>
+        <TelerikButton FillMode="@ThemeConstants.Button.FillMode.Link"
+                       ThemeColor="@ThemeConstants.Button.ThemeColor.Base"
+                       Class="cwoi-instr-edit-btn"
+                       Title="@(hasContent ? "Edit instructions" : "Add instructions")"
+                       OnClick="@(() => OpenInstructionsPanel(row))">
+            @(hasContent ? "Edit" : "Add")
+        </TelerikButton>
     };
 
-    private void ExpandInstructions(string id)
+    private void OpenInstructionsPanel(WorkOrderLineItem row)
     {
-        _expandedInstructionIds.Add(id);
+        _editingItem = row;
+        _editDraft = row.Instructions ?? "";
         StateHasChanged();
     }
 
-    private void CollapseInstructions(string id)
+    private void CancelInstructions()
     {
-        _expandedInstructionIds.Remove(id);
+        _editingItem = null;
+        _editDraft = "";
+    }
+
+    private void SaveInstructions()
+    {
+        if (_editingItem is null) return;
+        _editingItem.Instructions = _editDraft;
+        _editingItem = null;
+        _editDraft = "";
         StateHasChanged();
+    }
+
+    private static string GetInstructionsPreview(string? instructions, int maxLen)
+    {
+        if (string.IsNullOrWhiteSpace(instructions)) return "";
+        var stripped = System.Text.RegularExpressions.Regex.Replace(instructions, "<[^>]+>", " ")
+            .Replace("&nbsp;", " ")
+            .Replace("&amp;", "&")
+            .Replace("&lt;", "<")
+            .Replace("&gt;", ">")
+            .Replace("\r\n", " ")
+            .Replace("\n", " ")
+            .Trim();
+        while (stripped.Contains("  ")) stripped = stripped.Replace("  ", " ");
+        return stripped.Length > maxLen ? stripped[..maxLen] + "…" : stripped;
+    }
+
+    private void OnRowRenderHandler(GridRowRenderEventArgs args)
+    {
+        var item = (WorkOrderLineItem)args.Item;
+        var classes = new System.Text.StringBuilder();
+        if (!item.IsInherited)
+            classes.Append("cwoi-row-manual ");
+        if (_newlyAddedItemId is not null && _newlyAddedItemId == item.Id)
+            classes.Append("cwoi-row-new ");
+        args.Class = classes.ToString().Trim();
+    }
+
+    private void HandlePanelKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Escape")
+            CancelInstructions();
+    }
+
+    private void ScheduleHighlightClear(string itemId)
+    {
+        var version = ++_highlightVersion;
+        _ = Task.Delay(2000).ContinueWith(_ =>
+        {
+            if (_highlightVersion == version)
+            {
+                _newlyAddedItemId = null;
+                InvokeAsync(StateHasChanged);
+            }
+        });
     }
 
     private static string FormatRate(decimal? value) =>
@@ -256,7 +363,8 @@
 
     private void RemoveItem(WorkOrderLineItem item)
     {
-        _expandedInstructionIds.Remove(item.Id);
+        if (ReferenceEquals(_editingItem, item))
+            CancelInstructions();
         _displayItems = _displayItems.Where(i => !ReferenceEquals(i, item)).ToList();
         _lastSyncedItems = _displayItems;
         _selectedSupplementalItemName = null;
@@ -284,6 +392,8 @@
         }
 
         var newItem = WorkOrderTypeCatalog.CreateSupplementalLine(itemName);
+        _newlyAddedItemId = newItem.Id;
+        ScheduleHighlightClear(newItem.Id);
         _displayItems = [.. _displayItems, newItem];
         _lastSyncedItems = _displayItems;
         _selectedSupplementalItemName = null;

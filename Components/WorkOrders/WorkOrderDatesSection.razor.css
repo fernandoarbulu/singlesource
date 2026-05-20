@@ -35,7 +35,7 @@
     font-size: var(--font-size-xs, 11px);
     font-weight: var(--font-weight-semibold, 600);
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.03em;
     color: var(--color-text-muted, #6B7280);
     margin: 0;
 }
@@ -75,25 +75,33 @@
 
 .cwds-info-label {
     font-size: var(--font-size-xs, 11px);
-    font-weight: var(--font-weight-semibold, 600);
+    font-weight: var(--font-weight-medium, 500);
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.03em;
     color: var(--color-text-label, #9CA3AF);
 }
 
+/* TAT values look like read-only chips — clearly calculated, not editable,
+   and visually aligned with the adjacent date picker height. */
 .cwds-info-value {
     font-size: var(--font-size-sm, 13px);
     font-weight: var(--font-weight-medium, 500);
     color: var(--color-text-muted, #6B7280);
+    font-variant-numeric: tabular-nums;
     min-height: 36px;
     display: flex;
     align-items: center;
+    background: #F5F7FA;
+    border: 1px solid #E8EDF3;
+    border-radius: 4px;
+    padding: 0 12px;
+    box-sizing: border-box;
 }
 
 /* Telerik date pickers — calmer chrome */
 ::deep .cwds-root .k-datepicker.k-input {
     min-height: 36px;
-    border-color: #E3E8EF;
+    border-color: #E8EDF3;
     background-color: #FAFBFD;
     border-radius: 4px;
     box-shadow: none;

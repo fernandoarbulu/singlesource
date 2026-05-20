@@ -23,21 +23,33 @@
 .cwns-label {
     display: flex;
     flex-direction: column;
-    gap: 1px;
+    gap: 3px;
     font-size: var(--font-size-xs, 11px);
     font-weight: var(--font-weight-semibold, 600);
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.03em;
     color: var(--color-text-muted, #6B7280);
     margin: 0;
 }
 
+/* Inline tag clarifies audience at a glance.
+   Blue = customer-facing; gray = internal only. Lowercase to reduce noise. */
 .cwns-sublabel {
-    font-size: var(--font-size-xs, 11px);
-    font-weight: var(--font-weight-regular, 400);
+    font-size: 10px;
+    font-weight: 500;
     text-transform: none;
     letter-spacing: 0;
-    color: var(--color-text-label, #9CA3AF);
+    display: inline-block;
+    width: fit-content;
+    padding: 1px 6px;
+    border-radius: 3px;
+    color: #3B82F6;
+    background: #EFF6FF;
+}
+
+.cwns-column:last-child .cwns-sublabel {
+    color: #9CA3AF;
+    background: #F3F4F6;
 }
 
 /* ── Textarea ────────────────────────────────────────────────────────── */
@@ -50,7 +62,7 @@
     font-size: var(--font-size-md, 14px);
     color: var(--color-text-primary, #111827);
     background: #FAFBFD;
-    border: 1px solid #E3E8EF;
+    border: 1px solid #E8ECF2;
     border-radius: 4px;
     resize: vertical;
     font-family: inherit;

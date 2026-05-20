@@ -104,7 +104,7 @@
                            vendorDate.Value.Date > clientDate.Value.Date;
 
         _dateError = rangeInvalid
-            ? "Vendor due date cannot be later than the client due date."
+            ? "Vendor due date cannot exceed client due date."
             : null;
 
         var valid = !rangeInvalid && vendorDate.HasValue && clientDate.HasValue;

@@ -1,0 +1,9 @@
+{
+  "installCommand": "",
+  "buildCommand": "curl -sSL https://dot.net/v1/dotnet-install.sh | bash -s -- --channel 10.0 && export PATH=\"$HOME/.dotnet:$HOME/.dotnet/tools:$PATH\" && dotnet publish -c Release -p:BlazorEnableCompression=false -o publish",
+  "outputDirectory": "publish/wwwroot",
+  "routes": [
+    { "handle": "filesystem" },
+    { "src": "/.*", "dest": "/index.html" }
+  ]
+}

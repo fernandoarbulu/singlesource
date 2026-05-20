@@ -1,0 +1,179 @@
+/*
+  SingleSource / HOME — brand tokens.
+  Loaded after Telerik theme so these win where the cascade allows.
+*/
+
+:root {
+    /* ── Brand palette ── */
+    --ss-navy:            #1b2c47;   /* sidebar / HOME brand dark navy   */
+    --ss-primary:         #1e6fd9;   /* primary action / active / links  */
+    --ss-primary-hover:   #1557c0;
+    --ss-primary-active:  #1045a0;
+    --ss-link:            #1e6fd9;
+    --ss-link-hover:      #1557c0;
+
+    /* ── Surfaces ── */
+    --ss-sidebar-bg:      #1b2c47;
+    --ss-main-bg:         #edf0f5;
+    --ss-surface:         #ffffff;
+    --ss-surface-raised:  #f6f8fc;
+
+    /* ── Borders ── */
+    --ss-border:          #d8dce4;   /* panels, cards                    */
+    --ss-border-subtle:   #e4e7ec;   /* inner dividers                   */
+
+    /* ── Text ── */
+    --ss-text-primary:    #0f172a;
+    --ss-text-secondary:  #4b5563;
+    --ss-text-muted:      #6b7280;
+    --ss-text-faint:      #9ca3ad;
+
+    /* ── Status — Success (active, no issues, complete) ── */
+    --ss-ok-bg:           #f0fdf4;
+    --ss-ok-text:         #166534;
+    --ss-ok-border:       #bbf7d0;
+
+    /* Status badge pill (property header, tables) — sentence-case labels */
+    --ss-status-badge-active-bg:  #e6f4ea;
+    --ss-status-badge-active-fg:  #1e7e34;
+
+    /* ── Status — Error (delayed, critical, failed) ── */
+    --ss-error-bg:        #fef2f2;
+    --ss-error-text:      #b91c1c;
+    --ss-error-border:    #fca5a5;
+
+    /* ── Status — Warning (at risk, pending attention) ── */
+    --ss-warn-bg:         #fffbeb;
+    --ss-warn-text:       #92400e;
+    --ss-warn-border:     #fde68a;
+
+    /* ── Status — Info (informational, in progress) ── */
+    --ss-info-bg:         #eff6ff;
+    --ss-info-text:       #1d4ed8;
+    --ss-info-border:     #bfdbfe;
+
+    /* ── Status — Neutral (draft, unknown, inactive) ── */
+    --ss-neutral-bg:      #f9fafb;
+    --ss-neutral-text:    #374151;
+    --ss-neutral-border:  #d1d5db;
+
+    /* ── Focus ring ── */
+    --ss-focus:           rgba(30, 111, 217, 0.28);
+
+    /* ══════════════════════════════════════════
+       Design-system tokens (normalized palette)
+       ══════════════════════════════════════════ */
+
+    /* ── Colors — Text ── */
+    --color-text-primary:   #111827;
+    --color-text-secondary: #4B5563;
+    --color-text-muted:     #6B7280;
+    --color-text-label:     #9CA3AF;
+
+    /* ── Colors — Borders ── */
+    --color-border-default: #E5E7EB;
+    --color-border-subtle:  #F3F4F6;
+
+    /* ── Colors — Backgrounds ── */
+    --color-bg-page:        #F9FAFB;
+    --color-bg-card:        #FFFFFF;
+    --color-bg-subtle:      #F9FAFB;
+    --color-bg-hover:       #EEF2FF;
+
+    /* ── Colors — Accent ── */
+    --color-accent-primary: #2563EB;
+    --color-accent-danger:  #EF4444;
+    --color-accent-warning: #C2410C;
+
+    /* ── Typography — Scale ── */
+    --font-size-xs:  11px;
+    --font-size-sm:  12px;
+    --font-size-md:  14px;
+    --font-size-lg:  16px;
+    --font-size-xl:  24px;
+
+    /* ── Typography — Weights ── */
+    --font-weight-regular:  400;
+    --font-weight-medium:   500;
+    --font-weight-semibold: 600;
+
+    /* ── Bootstrap overrides ── */
+    --bs-primary:         #1e6fd9;
+    --bs-primary-rgb:     30, 111, 217;
+    --bs-link-color:      #1e6fd9;
+    --bs-link-hover-color:#1557c0;
+
+    /* ── Kendo/Telerik primary overrides ── */
+    --kendo-color-primary:        #1e6fd9;
+    --kendo-color-primary-hover:  #1557c0;
+    --kendo-color-primary-active: #1045a0;
+}
+
+/* ── Workspace background ── */
+body {
+    background-color: var(--ss-main-bg);
+}
+
+/* ── Links (non-Telerik, non-nav, non-sidebar) ── */
+a:not(.nav-link):not(.navbar-brand):not(.k-picker):not(.k-link-inherit):not(.psh-child):not(.psh-item):not(.psh-footer-item):not(.psh-brand-link),
+.btn-link {
+    color: var(--ss-link);
+}
+
+a:not(.nav-link):not(.navbar-brand):not(.psh-child):not(.psh-item):not(.psh-footer-item):not(.psh-brand-link):hover,
+.btn-link:hover {
+    color: var(--ss-link-hover);
+}
+
+/* ── Bootstrap primary button ── */
+.btn-primary {
+    --bs-btn-bg:                var(--ss-primary);
+    --bs-btn-border-color:      var(--ss-primary);
+    --bs-btn-hover-bg:          var(--ss-primary-hover);
+    --bs-btn-hover-border-color:var(--ss-primary-hover);
+    --bs-btn-active-bg:         var(--ss-primary-active);
+    --bs-btn-active-border-color:var(--ss-primary-active);
+}
+
+.btn:focus-visible,
+.form-control:focus-visible,
+.form-select:focus-visible {
+    box-shadow: 0 0 0 0.2rem var(--ss-focus);
+}
+
+/* ── Telerik solid primary buttons ── */
+.k-button.k-button-solid-primary {
+    border-color: var(--ss-primary);
+    background-color: var(--ss-primary);
+    color: #fff;
+}
+
+.k-button.k-button-solid-primary:hover,
+.k-button.k-button-solid-primary.k-hover {
+    border-color: var(--ss-primary-hover);
+    background-color: var(--ss-primary-hover);
+}
+
+.k-button.k-button-solid-primary:active,
+.k-button.k-button-solid-primary.k-active {
+    border-color: var(--ss-primary-active);
+    background-color: var(--ss-primary-active);
+}
+
+/* ── Telerik inputs — brand border/focus ── */
+.k-input:focus-within,
+.k-picker:focus-within {
+    box-shadow: 0 0 0 2px rgba(30,111,217,0.18) !important;
+    border-color: #a3c0f0 !important;
+}
+
+/* ── Portfolio ── */
+.portfolio-breadcrumb .breadcrumb-item a { color: var(--ss-link); }
+.portfolio-breadcrumb .breadcrumb-item a:hover { color: var(--ss-link-hover); }
+.portfolio-address-line1 { color: var(--ss-link); }
+.portfolio-search-panel { border-color: var(--ss-border); }
+
+.portfolio-tabs .nav-link.active {
+    color: var(--ss-primary);
+    border-bottom-color: var(--ss-primary);
+}

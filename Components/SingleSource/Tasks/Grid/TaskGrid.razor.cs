@@ -92,11 +92,11 @@ namespace BlazorBusiness.Web.Components.Tasks.Grid
         protected string GetStatusClass(string? status) =>
             status?.ToLower() switch
             {
-                "new"         => "status-badge status-badge--new",
-                "in progress" => "status-badge status-badge--in-progress",
-                "cancelled"   => "status-badge status-badge--cancelled",
-                "completed"   => "status-badge status-badge--done",
-                _             => "status-badge"
+                "new"         => "ss-pill ss-pill--corrections",
+                "in progress" => "ss-pill ss-pill--pending",
+                "cancelled"   => "ss-pill ss-pill--neutral",
+                "completed"   => "ss-pill ss-pill--approved",
+                _             => "ss-pill ss-pill--neutral"
             };
 
         protected string GetRank(TaskGridDisplayModel task) =>

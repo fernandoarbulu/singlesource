@@ -1158,6 +1158,10 @@ button.pd-section-nav-item--active:hover {
     display: flex;
     flex-direction: column;
     min-height: 0;
+    /* Softer elevation — the Telerik default shadow is heavier than HOME cards */
+    box-shadow:
+        0 4px 20px rgba(15, 23, 42, 0.08),
+        0 1px 4px  rgba(15, 23, 42, 0.04) !important;
 }
 
 #cwom-editor-window-root.k-window .k-window-titlebar {

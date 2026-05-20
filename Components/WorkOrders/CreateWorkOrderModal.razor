@@ -58,7 +58,7 @@
                Modal="true"
                Id="cwom-editor-window-root"
                Width="81vw"
-               MinWidth="1100px"
+               MinWidth="860px"
                MaxWidth="1440px"
                MaxHeight="92vh"
                Class="cwom-editor-window"
@@ -137,7 +137,7 @@
         <TelerikButton ThemeColor="@ThemeConstants.Button.ThemeColor.Primary"
                        Enabled="@CanSaveEditor"
                        OnClick="@HandleSaveAsync">
-            Save
+            @(_isSaving ? "Saving…" : "Save")
         </TelerikButton>
     </WindowFooter>
 
@@ -191,10 +191,13 @@
     private string? _vendorInstructions;
     private string? _internalNotes;
 
+    private bool _isSaving;
+
     private bool CanContinueFromStep1 =>
         !string.IsNullOrWhiteSpace(_pickedTypeName);
 
     private bool CanSaveEditor =>
+        !_isSaving &&
         !string.IsNullOrWhiteSpace(_committedTypeName) &&
         _lineItems.Count > 0 &&
         _clientDueDate.HasValue &&
@@ -296,18 +299,26 @@
     {
         if (!CanSaveEditor) return;
 
-        var draft = new WorkOrderDraft
+        _isSaving = true;
+        try
         {
-            SelectedTypeName   = _committedTypeName,
-            LineItems          = _lineItems,
-            ClientDueDate      = _clientDueDate,
-            VendorDueDate      = _vendorDueDate,
-            VendorInstructions = _vendorInstructions,
-            InternalNotes      = _internalNotes,
-        };
+            var draft = new WorkOrderDraft
+            {
+                SelectedTypeName   = _committedTypeName,
+                LineItems          = _lineItems,
+                ClientDueDate      = _clientDueDate,
+                VendorDueDate      = _vendorDueDate,
+                VendorInstructions = _vendorInstructions,
+                InternalNotes      = _internalNotes,
+            };
 
-        await OnSave.InvokeAsync(draft);
-        await CloseWorkflowAsync();
+            await OnSave.InvokeAsync(draft);
+            await CloseWorkflowAsync();
+        }
+        finally
+        {
+            _isSaving = false;
+        }
     }
 
     private async Task CloseWorkflowAsync()

@@ -62,49 +62,127 @@
     padding: 0;
 }
 
+/* ── Card header: title + global search on one row ───────────────────────── */
+
+.irt-card-hdr-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    flex-wrap: wrap;
+}
+
+/* ── Aggregates / totals bar ─────────────────────────────────────────────── */
+
+.irt-totals-bar {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 8px 16px;
+    background-color: #F9FAFB;
+    border-top: 1px solid #E5E7EB;
+    font-size: 0.8125rem;
+    flex-wrap: wrap;
+}
+
+.irt-totals-label {
+    font-weight: 600;
+    color: #374151;
+    margin-right: 6px;
+}
+
+.irt-totals-count {
+    color: #9CA3AF;
+    font-size: 0.75rem;
+}
+
+.irt-totals-spacer {
+    flex: 1;
+}
+
+.irt-totals-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 0 16px;
+    border-left: 1px solid #E5E7EB;
+}
+
+.irt-totals-item__label {
+    color: #6B7280;
+    white-space: nowrap;
+}
+
+.irt-totals-item__value {
+    font-weight: 600;
+    color: #111827;
+    white-space: nowrap;
+    min-width: 5.5rem;
+    text-align: right;
+}
+
+/* Right-aligned numeric values — grid cells and totals bar */
+.irt-num {
+    display: block;
+    width: 100%;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ── Success toast ───────────────────────────────────────────────────────── */
+
+.irt-toast {
+    position: fixed;
+    top: 56px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10050;
+    padding: 10px 16px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: #334155;
+    background-color: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 6px;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+    animation: irt-toast-in 0.2s ease-out;
+    pointer-events: none;
+}
+
+@keyframes irt-toast-in {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+/* ── Newly added row highlight ───────────────────────────────────────────── */
+
+.irt-root ::deep tr:has(.irt-row-new-marker) > .k-table-td {
+    animation: irt-row-new-fade 2.4s ease-out forwards;
+}
+
+@keyframes irt-row-new-fade {
+    0%   { background-color: #EFF6FF; }
+    70%  { background-color: #F8FAFC; }
+    100% { background-color: transparent; }
+}
+
 /*
   Row styling and grouping bar are controlled by SingleSourceGrid via
   Context="Task" and HideGroupingBar="true". No ::deep rules needed here.
 */
 
-/* ── Invoice status badges ───────────────────────────────────────────────── */
-
-.irt-status {
-    display: inline-block;
-    vertical-align: middle;
-    padding: 2px 8px;
-    border-radius: 12px;
-    font-size: 0.6875rem;
-    font-weight: 600;
-    line-height: 1.5;
-    white-space: nowrap;
-}
-
-.irt-status--approved {
-    background-color: #D1FAE5;
-    color: #065F46;
-}
-
-.irt-status--warn {
-    background-color: #FEF3C7;
-    color: #92400E;
-}
-
-.irt-status--info {
-    background-color: #DBEAFE;
-    color: #1E3A8A;
-}
-
-.irt-status--neutral {
-    background-color: #F3F4F6;
-    color: #6B7280;
-}
-
-.irt-status--empty {
-    background-color: transparent;
-    color: #D1D5DB;
-    border: 1px dashed #D1D5DB;
-}
+/* ── Invoice approval status pills ───────────────────────────────────────────
+   Migrated to the shared ss-pill system (wwwroot/css/status-pills.css).
+   StatusCss() and UweStatusCss() now return ss-pill ss-pill--[variant] directly.
+   No local overrides needed — the global file handles all geometry and color.
+──────────────────────────────────────────────────────────────────────────── */
 
 /* ── Variance colours ───────────────────────────────────────────────────── */
 
@@ -139,16 +217,20 @@
 
    :has() is supported in all browsers since Chrome 105 / Firefox 121 / Safari 15.4.
 
-   Palette (enterprise-neutral, no saturated colours):
-   - WI  → cool slate            — structural/reference data
-   - WIF → warm sand             — financial input data
-   - Var → muted slate-violet    — derived/alert data
-   - Dec → neutral blue-gray     — decision/approval data
+   Palette — client-approved hues blended to 22% against white:
+   - WI  → #5F6F94  cool blue-slate      — structural/reference data
+   - WIF → #5E7C7B  muted teal           — financial input data
+   - Var → #746C63  warm taupe           — derived/alert data
+   - Dec → #75655E  warm pinkish-brown   — decision/approval data
+
+   color-mix() at 22% keeps backgrounds light enough for dark text readability
+   while making each group's hue identity clearly recognisable.
+   color-mix(in srgb) is supported Chrome 111 / Firefox 113 / Safari 16.2.
 */
-.irt-root ::deep .k-table-th:has(.irt-gh--wi)  { background-color: #e8eef5; }
-.irt-root ::deep .k-table-th:has(.irt-gh--wif) { background-color: #fef6e8; }
-.irt-root ::deep .k-table-th:has(.irt-gh--var) { background-color: #ece9fb; }
-.irt-root ::deep .k-table-th:has(.irt-gh--dec) { background-color: #edf1f6; }
+.irt-root ::deep .k-table-th:has(.irt-gh--wi)  { background-color: color-mix(in srgb, #5F6F94 22%, white); }
+.irt-root ::deep .k-table-th:has(.irt-gh--wif) { background-color: color-mix(in srgb, #5E7C7B 22%, white); }
+.irt-root ::deep .k-table-th:has(.irt-gh--var) { background-color: color-mix(in srgb, #746C63 22%, white); }
+.irt-root ::deep .k-table-th:has(.irt-gh--dec) { background-color: color-mix(in srgb, #75655E 22%, white); }
 
 /* ── Slight cell padding increase for vertical rhythm ────────────────────
    Telerik default is typically 6px 12px; bumping vertical padding to 8px
@@ -157,6 +239,12 @@
 .irt-root ::deep .k-table-td {
     padding-top: 8px;
     padding-bottom: 8px;
+}
+
+/* Header vertical rhythm — slightly taller group/sub headers */
+.irt-root ::deep .k-grid-header .k-table-th {
+    padding-top: 9px;
+    padding-bottom: 9px;
 }
 
 /* ── Editable cell affordance — subtle underline in view mode ────────────
@@ -177,4 +265,381 @@
    no extra rules needed. The italic from ssg-cell--view-calculated is kept as
    a secondary visual cue that the value is derived, not entered.
 */
+
+/* ── Sort affordances ────────────────────────────────────────────────────────
+   Sortable columns: Telerik wraps the title in <a class="k-link">. Non-sortable
+   columns use a plain <span class="k-column-title"> — no .k-link present.
+   Group header cells contain .ssg-group-header and are never sortable.
+
+   Design principles:
+   - Sortable headers get a subtle hover tint (stronger than Telerik's default)
+     so the click target is obvious without being heavy.
+   - The sort icon (.k-sort-icon) is dimmed at rest; it brightens on hover and
+     when the column is actively sorted. This reduces noise on first load.
+   - Non-sortable sub-column headers show default cursor — no pointer affordance.
+   - Group header parent cells (Work Item, Variance, etc.) look static: default
+     cursor on the cell background; the collapse toggle keeps its own pointer.
+*/
+
+/* Sortable sub-column header hover — applies only to th cells that contain a .k-link */
+.irt-root ::deep .k-grid-header th:has(.k-link):not(:has(.ssg-group-header)):hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    transition: background-color 0.1s ease;
+}
+
+/* Sort icon: dim at rest, full opacity when sorted or hovered */
+.irt-root ::deep .k-grid-header .k-sort-icon {
+    opacity: 0.3;
+    transition: opacity 0.15s ease;
+}
+
+.irt-root ::deep .k-grid-header th.k-sorted .k-sort-icon,
+.irt-root ::deep .k-grid-header th:hover .k-sort-icon {
+    opacity: 1;
+}
+
+/* Non-sortable sub-column headers — suppress pointer cursor */
+.irt-root ::deep .k-grid-header th:not(:has(.k-link)):not(:has(.ssg-group-header)) {
+    cursor: default;
+}
+
+/* Group header parent cells — always default cursor; collapse toggle keeps its own */
+.irt-root ::deep .k-table-th:has(.ssg-group-header) {
+    cursor: default;
+}
+
+/* ── Requested Work Items Without Expense section ────────────────────────────
+   Secondary/informational card — intentionally lower visual weight than the
+   primary Invoice Line Items table above it. Muted backgrounds, smaller
+   uppercase column headers, and softer row tones signal "incomplete / pending"
+   without using warning banners or heavy chrome.
+*/
+
+/* Card outer — no extra styling; TelerikCard handles border/shadow */
+.irt-uwe-card {
+    /* intentional: no extra override — inherits card chrome from Telerik */
+}
+
+/* Card header — soft slate background differentiates from primary card header */
+.irt-uwe-hdr {
+    background-color: #F1F5F9;
+    border-bottom: 1px solid #E2E8F0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.irt-uwe-hdr-row {
+    display: flex;
+    align-items: center;
+}
+
+/* Help text beneath the title */
+.irt-uwe-subtitle {
+    margin: 0;
+    font-size: 0.8125rem;
+    color: #6B7280;
+    font-weight: 400;
+    line-height: 1.5;
+}
+
+/* Card body — slightly off-white to signal secondary context */
+.irt-uwe-body {
+    padding: 0;
+    background-color: #F8FAFC;
+}
+
+/* Grid column headers — condensed uppercase for secondary table feel */
+.irt-uwe-body ::deep .k-grid-header .k-table-th {
+    background-color: #EEF2F7;
+    color: #64748B;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Grid rows — slightly muted to reinforce secondary status */
+.irt-uwe-body ::deep .k-grid tr.k-master-row,
+.irt-uwe-body ::deep .k-grid tr.k-master-row.k-alt {
+    background-color: #FAFCFE;
+}
+
+.irt-uwe-body ::deep .k-grid tr.k-master-row:hover,
+.irt-uwe-body ::deep .k-grid tr.k-master-row.k-alt:hover {
+    background-color: #EDF2F7;
+}
+
+/* Cell text — slightly muted relative to primary table */
+.irt-uwe-body ::deep .k-table-td {
+    padding-top: 6px;
+    padding-bottom: 6px;
+    color: #4B5563;
+    vertical-align: middle;
+}
+
+/* Action column — flex wrapper aligns button right without touching Telerik's <td> */
+.irt-uwe-action-cell {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+/* ── Status pills for unexpensed items ──────────────────────────────────────
+   Migrated to ss-pill system. UweStatusCss() returns ss-pill ss-pill--[variant].
+──────────────────────────────────────────────────────────────────────────── */
+
+/* ── "Add Expense" action button ─────────────────────────────────────────────
+   ThemeColor="Base" removes the primary (red) association.
+   These overrides pin the exact slate/neutral spec: muted border, dark-slate
+   text, and a very light slate tint on hover. !important is required here
+   because Telerik's base-theme button CSS uses variable-based rules that load
+   after scoped component styles in the cascade.
+*/
+.irt-uwe-body ::deep .k-button.irt-uwe-action-btn {
+    border-color: #CBD5E1 !important;
+    color: #475569 !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+}
+
+.irt-uwe-body ::deep .k-button.irt-uwe-action-btn:hover {
+    border-color: #94A3B8 !important;
+    color: #334155 !important;
+    background-color: rgba(100, 116, 139, 0.07) !important;
+}
+
+.irt-uwe-body ::deep .k-button.irt-uwe-action-btn:focus-visible {
+    outline: 2px solid #94A3B8;
+    outline-offset: 2px;
+}
+
+/* ── Add Expense modal form ──────────────────────────────────────────────────
+   .irt-ae-* styles scope the form body inside TelerikWindow.
+   TelerikWindow renders outside the component tree; use ::deep for window chrome.
+*/
+
+/* Softer elevation — aligned with HOME platform cards, not floating above them */
+::deep .k-window.irt-ae-window {
+    box-shadow:
+        0 2px 8px rgba(15, 23, 42, 0.06),
+        0 1px 3px rgba(15, 23, 42, 0.04) !important;
+}
+
+/* ── Form container ──────────────────────────────────────────────────────── */
+
+.irt-ae-intro {
+    margin: 0 0 2px;
+    font-size: 0.8125rem;
+    color: #6B7280;
+    line-height: 1.45;
+}
+
+.irt-ae-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 0 0 2px;
+}
+
+/* ── Row grid layouts ────────────────────────────────────────────────────── */
+
+.irt-ae-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+}
+
+/* Context row — equal width (Work Item / Description) */
+.irt-ae-row--2col {
+    grid-template-columns: 1fr 1fr;
+}
+
+/* Qty / UOM — compact utility fields; cost rows remain full-width primary inputs */
+.irt-ae-row--qty-uom {
+    grid-template-columns: 130px 72px;
+    width: fit-content;
+    max-width: 100%;
+}
+
+.irt-ae-field--qty {
+    width: 130px;
+    max-width: 130px;
+}
+
+.irt-ae-field--uom {
+    width: 72px;
+    max-width: 72px;
+}
+
+/* Cost / Total row — editable cost input wider; calculated total narrower */
+.irt-ae-row--cost {
+    grid-template-columns: 3fr 2fr;
+}
+
+/* ── Field wrapper ───────────────────────────────────────────────────────── */
+
+.irt-ae-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+/* Cost rows: align calculated total height with adjacent inputs */
+.irt-ae-row--cost .irt-ae-field {
+    justify-content: flex-start;
+}
+
+/* ── Labels — aligned with existing bulk-edit modal convention ───────────── */
+
+.irt-ae-label {
+    display: block;
+    font-size: 0.8125rem;
+    font-weight: normal;
+    color: #374151;
+    line-height: 1.4;
+}
+
+.irt-ae-required {
+    color: #94A3B8;
+    font-weight: 600;
+    margin-left: 1px;
+}
+
+.irt-ae-optional {
+    font-size: 0.75rem;
+    font-weight: normal;
+    color: #9CA3AF;
+    margin-left: 3px;
+}
+
+/* ── Reference context block (Work Item / Description) ──────────────────── */
+
+/* Wrapper gives the context block a quiet, distinct background */
+.irt-ae-context {
+    background-color: #F8FAFC;
+    border: 1px solid #EEF2F7;
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin: -2px 0 0;  /* pull flush to form top edge */
+}
+
+/* Values inside context display as plain text — not fake inputs */
+.irt-ae-context-val {
+    font-size: 0.875rem;
+    color: #374151;
+    font-weight: 500;
+    line-height: 1.5;
+    min-height: 20px;
+}
+
+/* ── Divider between context and form fields ─────────────────────────────── */
+
+.irt-ae-divider {
+    border: none;
+    border-top: 1px solid #E5E7EB;
+    margin: 0;
+}
+
+/* ── Calculated totals ───────────────────────────────────────────────────── */
+
+/*
+   Visually distinct from editable inputs:
+   - blue-tinted background (not the same gray as disabled fields)
+   - subtle left accent border signals "derived value"
+   - right-aligned numbers match financial table conventions
+   - tabular-nums for stable digit widths
+*/
+.irt-ae-calculated {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #1E293B;
+    font-variant-numeric: tabular-nums;
+    padding: 7px 18px 7px 10px;
+    background-color: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-left: 3px solid #94A3B8;
+    border-radius: 4px;
+    min-height: 34px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-top: 0;
+}
+
+/* ── Validation messages ─────────────────────────────────────────────────── */
+
+/* Amber-toned rather than full red — clear but not alarming */
+.irt-ae-validation {
+    font-size: 0.6875rem;
+    color: #C45309;
+    line-height: 1.3;
+    margin-top: 1px;
+}
+
+/* ── Notes textarea ──────────────────────────────────────────────────────── */
+
+/* Plain HTML textarea styled to match Telerik input visual weight */
+.irt-ae-notes {
+    width: 100%;
+    box-sizing: border-box;
+    font-family: inherit;
+    font-size: 0.875rem;
+    color: #374151;
+    line-height: 1.5;
+    padding: 6px 9px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 4px;
+    background-color: #fff;
+    resize: vertical;
+    min-height: 54px;
+    outline: none;
+    transition: border-color 0.15s ease;
+}
+
+.irt-ae-notes:focus {
+    border-color: #6EA0D4;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.12);
+}
+
+.irt-ae-notes::placeholder {
+    color: #9CA3AF;
+}
+
+/* ── Responsive: collapse two-column rows at narrow widths ──────────────── */
+
+/* Modal footer button spacing */
+.irt-ae-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    width: 100%;
+}
+
+/* Disabled primary submit — clearer but not harsh.
+   .irt-ae-footer is rendered by this component so it carries the Blazor scope
+   attribute; ::deep after it correctly reaches inside TelerikButton's output. */
+.irt-ae-footer ::deep .k-button.k-disabled {
+    opacity: 0.45;
+}
+
+@media (max-width: 480px) {
+    .irt-ae-row--2col,
+    .irt-ae-row--qty-uom,
+    .irt-ae-row--cost {
+        grid-template-columns: 1fr;
+    }
+
+    .irt-ae-row--qty-uom {
+        width: 100%;
+    }
+
+    .irt-ae-field--qty,
+    .irt-ae-field--uom {
+        width: 100%;
+        max-width: none;
+    }
+}
 

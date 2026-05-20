@@ -54,11 +54,11 @@ namespace BlazorBusiness.Web.Components.Tasks.Layout
         /// <summary>CSS modifier key derived from <see cref="TaskStatus"/>.</summary>
         private string StatusCssKey => TaskStatus?.ToLower() switch
         {
-            "new"         => "new",
-            "in progress" => "in-progress",
-            "completed"   => "completed",
-            "cancelled"   => "cancelled",
-            _             => "default"
+            "new"         => "corrections",
+            "in progress" => "pending",
+            "completed"   => "approved",
+            "cancelled"   => "neutral",
+            _             => "neutral"
         };
 
         /// <summary>CSS class applied to the due-date label.</summary>

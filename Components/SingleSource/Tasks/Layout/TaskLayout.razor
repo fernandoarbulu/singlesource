@@ -13,7 +13,7 @@
             }
         </div>
         <div class="tl-header__meta">
-            <span class="tl-status-pill tl-status-pill--@StatusCssKey">@TaskStatus</span>
+            <span class="ss-pill ss-pill--@StatusCssKey">@TaskStatus</span>
             @if (TaskDueDate.HasValue)
             {
                 <span class="tl-due @DueDateCssClass">Due @TaskDueDate.Value.ToString("MMM d, yyyy")</span>

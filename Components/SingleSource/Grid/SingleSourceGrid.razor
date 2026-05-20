@@ -21,7 +21,7 @@
                  Groupable="true"
                  Width="100%"
                  Height="@Height"
-                 ShowColumnMenu="true"
+                 ShowColumnMenu="@ShowColumnMenu"
                  @bind-PageSize="@PageSize"
                  EditMode="@(AllowCreate ? GridEditMode.Inline : GridEditMode.None)"
                  SelectionMode="@(AllowSelect ? GridSelectionMode.Multiple : GridSelectionMode.None)"
@@ -192,8 +192,9 @@
                     @* Column header group with nested sub-columns.
                        When Collapsible=true the toggle button sits in the parent group HeaderTemplate,
                        which is never draggable for grouping so there are no click conflicts.
-                       Note: GridColumn does not accept a Class parameter in Telerik Blazor.
-                       The HeaderClass is applied to a wrapper div inside HeaderTemplate instead. *@
+                       Note: parent GridColumn supports only Title, HeaderTemplate, Locked, and nested
+                       Columns — do not set ShowColumnMenu or other leaf-only parameters here.
+                       Group-header column menus are suppressed via the grid-level ShowColumnMenu parameter. *@
                     <GridColumn Title="@capturedGroup.DisplayName"
                                 Locked="@(capturedGroup.Locked)">
                         <HeaderTemplate>

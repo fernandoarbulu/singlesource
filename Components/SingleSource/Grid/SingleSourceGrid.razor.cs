@@ -108,6 +108,17 @@ namespace BlazorBusiness.Web.Components.SingleSourceGrid
         [Parameter]
         public bool HideGroupingBar { get; set; } = false;
 
+        /// <summary>
+        /// Controls whether the per-column "⋮" menu is available at the <em>grid</em> level.
+        /// Set to <c>false</c> to suppress the column menu for all columns, including multi-column
+        /// group headers (which do not support <c>ShowColumnMenu</c> on the individual
+        /// <c>GridColumn</c> element and would cause a runtime crash if set there).
+        /// Individual leaf columns can still opt in via <see cref="SingleSourceGridAttribute.ShowColumnMenu"/>
+        /// when the grid-level value is <c>true</c> (the default).
+        /// </summary>
+        [Parameter]
+        public bool ShowColumnMenu { get; set; } = true;
+
         private string WrapperCssClass
         {
             get

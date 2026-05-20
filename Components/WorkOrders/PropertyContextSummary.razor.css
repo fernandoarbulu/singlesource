@@ -1,10 +1,9 @@
-/* ── Root — HOME-style metadata card (neutral, compact) ─────────────── */
+/* ── Root — integrated into section flow; no boxing border ───────────── */
 
 .pcs-root {
-    background: #ffffff;
-    border: 1px solid #E1E6EC;
+    background: #FAFBFC;
     border-radius: 4px;
-    padding: 9px 12px 10px;
+    padding: 8px 10px 10px;
     box-sizing: border-box;
 }
 
@@ -14,9 +13,9 @@
     margin: 0 0 6px;
     font-size: 10px;
     font-weight: var(--font-weight-semibold, 600);
-    letter-spacing: 0.08em;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
-    color: var(--color-text-muted, #6B7280);
+    color: var(--color-text-label, #9CA3AF);
     line-height: 1.25;
 }
 

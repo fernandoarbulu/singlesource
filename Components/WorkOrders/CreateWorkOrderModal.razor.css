@@ -22,8 +22,9 @@
 /* ── Modal 2 — primary scroll region ───────────────────────────────────── */
 
 /*
-  Sole vertical scroll for Modal 2. Bottom padding = scrollHeight reserve so Notes + textareas
-  clear the fixed footer at max scroll (~footer strip + modest gap — avoid oversized dead zone).
+  Sole vertical scroll for Modal 2. Bottom padding just gives comfortable breathing
+  room below the Notes section. Footer is outside this scroll region (flex sibling),
+  so no large clearance reserve is needed.
 */
 .cwom-content {
     flex: 1 1 0%;
@@ -32,23 +33,19 @@
     overflow-y: auto;
     overflow-x: clip;
     overscroll-behavior: contain;
-    --cwom-scroll-pad-bottom: max(
-        104px,
-        calc(env(safe-area-inset-bottom, 0px) + 88px)
-    );
-    padding: 0 10px var(--cwom-scroll-pad-bottom);
+    padding: 0 16px 24px;
     display: flex;
     flex-direction: column;
     gap: 0;
     scrollbar-gutter: stable;
-    scroll-padding-bottom: var(--cwom-scroll-pad-bottom);
+    scroll-padding-bottom: 24px;
 }
 
 /* ── Modal 1 — lightweight picker ─────────────────────────────────────── */
 
 .cwom-step1 {
     display: block;
-    padding: 4px 2px 2px;
+    padding: 10px 4px 6px;
 }
 
 /*
@@ -82,7 +79,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 2px 0 5px;
+    padding: 6px 0 9px;
     margin-top: 0;
     border-bottom: 1px solid var(--color-border-subtle, #E8EAED);
 }
@@ -91,8 +88,8 @@
     font-size: var(--font-size-xs, 11px);
     font-weight: var(--font-weight-semibold, 600);
     text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--color-text-muted, #6B7280);
+    letter-spacing: 0.04em;
+    color: var(--color-text-label, #9CA3AF);
 }
 
 .cwom-type-bar-value {
@@ -104,15 +101,15 @@
 /* ── Section ─────────────────────────────────────────────────────────── */
 
 .cwom-section {
-    border-bottom: 1px solid var(--color-border-subtle, #E8EAED);
-    padding: 10px 0 12px;
+    border-bottom: 1px solid #EEF1F5;
+    padding: 14px 0 16px;
     width: 100%;
     box-sizing: border-box;
 }
 
 .cwom-section:last-child {
     border-bottom: none;
-    padding-bottom: 12px;
+    padding-bottom: 18px;
     scroll-margin-bottom: 12px;
 }
 
@@ -129,15 +126,15 @@
 
 /* Even rhythm: metadata → grid → dates → notes */
 .cwom-section:has(.cwom-section-hdr--items) {
-    padding-top: 6px;
+    padding-top: 10px;
 }
 
 .cwom-section:has(.cwom-section-hdr--dates) {
-    padding-top: 8px;
+    padding-top: 12px;
 }
 
 .cwom-section:has(.cwom-section-hdr--notes) {
-    padding-top: 8px;
+    padding-top: 12px;
 }
 
 .cwom-section-body {
@@ -147,26 +144,28 @@
     min-width: 0;
 }
 
+/* Section headers: strip the "sub-card" treatment — just a lightweight label
+   with a hairline rule. The background is barely-there; the border does the work. */
 .cwom-section-hdr {
-    border-radius: 3px;
-    padding: 4px 10px;
-    margin-bottom: 7px;
-    border-bottom: 1px solid #EBEEF2;
+    border-radius: 0;
+    padding: 2px 0 6px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #EEF1F5;
 }
 
 .cwom-section-hdr--items,
 .cwom-section-hdr--dates,
 .cwom-section-hdr--notes {
-    background: #FAFBFC;
-    border-bottom-color: #EBEEF2;
+    background: transparent;
+    border-bottom-color: #E8EDF4;
 }
 
 .cwom-section-title {
     font-size: 10px;
     font-weight: var(--font-weight-semibold, 600);
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--color-text-muted, #6B7280);
+    letter-spacing: 0.05em;
+    color: var(--color-text-label, #9CA3AF);
 }
 
 .cwom-field {
