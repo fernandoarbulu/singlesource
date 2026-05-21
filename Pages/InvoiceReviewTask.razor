@@ -10,32 +10,64 @@
 
 <div class="irt-root">
 
+    @* ── Success toast ───────────────────────────────────────────────── *@
     @if (_successToastVisible)
     {
         <div class="irt-toast" role="status" aria-live="polite">Expense added successfully</div>
     }
 
-    @* ── Back link ──────────────────────────────────────────────────── *@
-    <a href="/property-details?tab=Tasks" class="irt-back">← Back to Tasks</a>
+    @* ── Unsaved-changes staging indicator ───────────────────────────── *@
+    @if (_hasStagedChanges)
+    {
+        <div class="irt-staging-bar" role="status">
+            <span class="irt-staging-bar__dot" aria-hidden="true"></span>
+            <span class="irt-staging-bar__msg">Unsaved changes — not yet committed globally.</span>
+            <span class="irt-staging-bar__spacer"></span>
+            <TelerikButton Size="@ThemeConstants.Button.Size.Small"
+                           FillMode="@ThemeConstants.Button.FillMode.Flat"
+                           ThemeColor="@ThemeConstants.Button.ThemeColor.Base"
+                           OnClick="@DiscardStagedChanges">Discard</TelerikButton>
+            <TelerikButton Size="@ThemeConstants.Button.Size.Small"
+                           ThemeColor="@ThemeConstants.Button.ThemeColor.Primary"
+                           OnClick="@SaveStagedChanges">Save Draft</TelerikButton>
+        </div>
+    }
+
+    @* ── Back link — button so we can intercept when edits are pending ── *@
+    <button class="irt-back" @onclick="HandleBackClick">← Back to Tasks</button>
 
     @* ── Header ─────────────────────────────────────────────────────── *@
     <div class="irt-header">
         <div class="irt-header__left">
             <h1 class="irt-header__title">Review vendor submitted invoice</h1>
-            <span class="irt-header__meta">Last updated 9/11/2025 2:32 PM</span>
+            <span class="irt-header__meta">
+                Last updated 9/11/2025 2:32 PM
+                @if (_taskSaved)
+                {
+                    <span class="irt-header__saved-chip">Draft saved</span>
+                }
+            </span>
         </div>
         <div class="irt-header__actions">
             <TelerikButton FillMode="@ThemeConstants.Button.FillMode.Outline"
                            ThemeColor="@ThemeConstants.Button.ThemeColor.Base"
-                           OnClick="@(() => Navigation.NavigateTo("/property-details?tab=Tasks"))">
+                           OnClick="@HandleExitTask">
                 Exit Task
             </TelerikButton>
             <TelerikButton FillMode="@ThemeConstants.Button.FillMode.Outline"
-                           ThemeColor="@ThemeConstants.Button.ThemeColor.Base">
-                Save
+                           ThemeColor="@ThemeConstants.Button.ThemeColor.Base"
+                           Enabled="@_hasStagedChanges"
+                           OnClick="@SaveStagedChanges">
+                Save Draft
+            </TelerikButton>
+            <TelerikButton FillMode="@ThemeConstants.Button.FillMode.Outline"
+                           ThemeColor="@ThemeConstants.Button.ThemeColor.Base"
+                           OnClick="@(() => _sendBackVisible = true)">
+                Send Back
             </TelerikButton>
             <TelerikButton FillMode="@ThemeConstants.Button.FillMode.Solid"
-                           ThemeColor="@ThemeConstants.Button.ThemeColor.Success">
+                           ThemeColor="@ThemeConstants.Button.ThemeColor.Success"
+                           OnClick="@HandleCompleteTask">
                 Complete Task
             </TelerikButton>
         </div>
@@ -109,13 +141,19 @@
                     [nameof(IrtLineItem.ClientVariance)] = r =>
                         @<span class="irt-num @VarCss(r.ClientVariance)">@(r.ClientVariance.HasValue ? r.ClientVariance.Value.ToString("C2", _us) : "—")</span>,
 
-                    // Status pills — existing CSS reused; Editable=false prevents inline editing
+                    // Status pills — clickable: opens status-edit modal for this row
                     [nameof(IrtLineItem.BusinessStatus)] = r =>
-                        @<span class="@StatusCss(r.BusinessStatus)">@StatusLabel(r.BusinessStatus)</span>,
+                        @<span class="@StatusCss(r.BusinessStatus) irt-status-clickable"
+                               title="Click to edit status"
+                               @onclick="@(() => OpenStatusModal(r))">@StatusLabel(r.BusinessStatus)</span>,
                     [nameof(IrtLineItem.ClientStatus)] = r =>
-                        @<span class="@StatusCss(r.ClientStatus)">@StatusLabel(r.ClientStatus)</span>,
+                        @<span class="@StatusCss(r.ClientStatus) irt-status-clickable"
+                               title="Click to edit status"
+                               @onclick="@(() => OpenStatusModal(r))">@StatusLabel(r.ClientStatus)</span>,
                     [nameof(IrtLineItem.InvestorStatus)] = r =>
-                        @<span class="@StatusCss(r.InvestorStatus)">@StatusLabel(r.InvestorStatus)</span>,
+                        @<span class="@StatusCss(r.InvestorStatus) irt-status-clickable"
+                               title="Click to edit status"
+                               @onclick="@(() => OpenStatusModal(r))">@StatusLabel(r.InvestorStatus)</span>,
                 };
 
                 // ── Edit templates ────────────────────────────────────────────────
@@ -162,8 +200,8 @@
                         </span>
                         <TelerikButton ThemeColor="@ThemeConstants.Button.ThemeColor.Primary"
                                        Size="@ThemeConstants.Button.Size.Small"
-                                       OnClick="@(() => OpenBulkEditDialog(selected.ToList()))">
-                            Bulk Edit
+                                       OnClick="@(() => OpenStatusModalBulk(selected.ToList()))">
+                            Edit Status
                         </TelerikButton>
                     }
                 </SelectionCommands>
@@ -238,54 +276,169 @@
         </CardBody>
     </TelerikCard>
 
-    @* ── Bulk edit dialog ─────────────────────────────────────────────────── *@
-    <TelerikWindow @bind-Visible="@_bulkDialogVisible"
+    @* ── Status Edit Modal ─────────────────────────────────────────────────── *@
+    @* Used for both single-row click (clickable status pills) and bulk selection. *@
+    <TelerikWindow @bind-Visible="@_statusModalVisible"
                    Modal="true"
                    Width="380px"
+                   Class="irt-sm-window"
                    Draggable="false"
                    Resizable="false"
                    FooterLayoutAlign="WindowFooterLayoutAlign.End">
-        <WindowTitle>Bulk Edit — @_bulkTargets.Count row(s)</WindowTitle>
+        <WindowTitle>
+            @if (_statusModalIsBulk)
+            {
+                <span>Bulk Status Edit — @_statusModalTargets.Count item(s)</span>
+            }
+            else if (_statusModalTargets.Count == 1)
+            {
+                <span>Edit Status — @_statusModalTargets[0].Description</span>
+            }
+        </WindowTitle>
         <WindowActions>
-            <WindowAction Name="Close" OnClick="@(() => _bulkDialogVisible = false)" />
+            <WindowAction Name="Close" OnClick="@(() => _statusModalVisible = false)" />
         </WindowActions>
         <WindowContent>
-            <p style="margin: 0 0 14px; font-size: 0.8125rem; color: #6B7280;">
-                Leave a field blank to keep existing values unchanged.
-            </p>
-            <div style="display: flex; flex-direction: column; gap: 14px;">
-                <div>
-                    <label style="display: block; font-size: 0.8125rem; margin-bottom: 4px; color: #374151;">Qty</label>
-                    <TelerikNumericTextBox T="decimal?"
-                                          @bind-Value="@_bulkQty"
-                                          Min="0" Decimals="2" Width="100%" />
+            <div class="irt-sm-form">
+                @if (_statusModalIsBulk)
+                {
+                    <p class="irt-sm-hint">Leave a field as "No change" to keep existing values on all selected rows.</p>
+                }
+                <div class="irt-sm-field">
+                    <label class="irt-sm-label">Business Status</label>
+                    <TelerikDropDownList Data="@StatusOptsForModal"
+                                         TItem="StatusOption"
+                                         TValue="string"
+                                         TextField="@nameof(StatusOption.Label)"
+                                         ValueField="@nameof(StatusOption.Value)"
+                                         Value="@_statusDraftBusiness"
+                                         ValueChanged="@((string v) => _statusDraftBusiness = v)"
+                                         Width="100%" />
                 </div>
-                <div>
-                    <label style="display: block; font-size: 0.8125rem; margin-bottom: 4px; color: #374151;">Vendor Unit Cost</label>
-                    <TelerikNumericTextBox T="decimal?"
-                                          @bind-Value="@_bulkVendorUnitCost"
-                                          Min="0" Decimals="2" Width="100%" />
+                <div class="irt-sm-field">
+                    <label class="irt-sm-label">Client Status</label>
+                    <TelerikDropDownList Data="@StatusOptsForModal"
+                                         TItem="StatusOption"
+                                         TValue="string"
+                                         TextField="@nameof(StatusOption.Label)"
+                                         ValueField="@nameof(StatusOption.Value)"
+                                         Value="@_statusDraftClient"
+                                         ValueChanged="@((string v) => _statusDraftClient = v)"
+                                         Width="100%" />
                 </div>
-                <div>
-                    <label style="display: block; font-size: 0.8125rem; margin-bottom: 4px; color: #374151;">Client Unit Cost</label>
-                    <TelerikNumericTextBox T="decimal?"
-                                          @bind-Value="@_bulkClientUnitCost"
-                                          Min="0" Decimals="2" Width="100%" />
+                <div class="irt-sm-field">
+                    <label class="irt-sm-label">Investor Status</label>
+                    <TelerikDropDownList Data="@StatusOptsForModal"
+                                         TItem="StatusOption"
+                                         TValue="string"
+                                         TextField="@nameof(StatusOption.Label)"
+                                         ValueField="@nameof(StatusOption.Value)"
+                                         Value="@_statusDraftInvestor"
+                                         ValueChanged="@((string v) => _statusDraftInvestor = v)"
+                                         Width="100%" />
+                </div>
+                <div class="irt-sm-field">
+                    <label class="irt-sm-label">
+                        Comment
+                        <span class="irt-sm-optional">(optional)</span>
+                    </label>
+                    <textarea class="irt-sm-comment"
+                              @bind="@_statusDraftComment"
+                              placeholder="Add a note about this status change…"
+                              rows="2"></textarea>
                 </div>
             </div>
         </WindowContent>
         <WindowFooter>
             <TelerikButton FillMode="@ThemeConstants.Button.FillMode.Outline"
-                           OnClick="@(() => _bulkDialogVisible = false)">Cancel</TelerikButton>
+                           OnClick="@(() => _statusModalVisible = false)">Cancel</TelerikButton>
             <TelerikButton ThemeColor="@ThemeConstants.Button.ThemeColor.Primary"
-                           OnClick="@ApplyBulkEdit">Apply</TelerikButton>
+                           OnClick="@SaveStatusModal">Save Changes</TelerikButton>
+        </WindowFooter>
+    </TelerikWindow>
+
+    @* ── Exit / navigation guard modal ──────────────────────────────────────── *@
+    @* Shown when user tries to exit while _hasStagedChanges is true. *@
+    <TelerikWindow @bind-Visible="@_exitGuardVisible"
+                   Modal="true"
+                   Width="400px"
+                   Draggable="false"
+                   Resizable="false"
+                   FooterLayoutAlign="WindowFooterLayoutAlign.End">
+        <WindowTitle>Unsaved Changes</WindowTitle>
+        <WindowActions>
+            <WindowAction Name="Close" OnClick="@(() => _exitGuardVisible = false)" />
+        </WindowActions>
+        <WindowContent>
+            <div class="irt-guard-body">
+                <p class="irt-guard-msg">You have unsaved changes in this task.</p>
+                <p class="irt-guard-sub">
+                    <strong>Save Draft</strong> — preserves your edits in task staging. Changes will be visible when you reopen this task but are <em>not yet committed globally</em>.
+                </p>
+                <p class="irt-guard-sub">
+                    <strong>Discard</strong> — your in-session edits will be lost.
+                </p>
+            </div>
+        </WindowContent>
+        <WindowFooter>
+            <TelerikButton FillMode="@ThemeConstants.Button.FillMode.Outline"
+                           ThemeColor="@ThemeConstants.Button.ThemeColor.Base"
+                           OnClick="@(() => _exitGuardVisible = false)">Cancel</TelerikButton>
+            <TelerikButton FillMode="@ThemeConstants.Button.FillMode.Outline"
+                           ThemeColor="@ThemeConstants.Button.ThemeColor.Base"
+                           OnClick="@DiscardAndNavigate">Discard &amp; Exit</TelerikButton>
+            <TelerikButton ThemeColor="@ThemeConstants.Button.ThemeColor.Primary"
+                           OnClick="@SaveDraftAndNavigate">Save Draft &amp; Exit</TelerikButton>
+        </WindowFooter>
+    </TelerikWindow>
+
+    @* ── Send Back for Corrections modal ─────────────────────────────────────── *@
+    @* Reusable pattern: send-back with required reason, confirmation before action. *@
+    <TelerikWindow @bind-Visible="@_sendBackVisible"
+                   Modal="true"
+                   Width="420px"
+                   Class="irt-sb-window"
+                   Draggable="false"
+                   Resizable="false"
+                   FooterLayoutAlign="WindowFooterLayoutAlign.End">
+        <WindowTitle>Send Back for Corrections</WindowTitle>
+        <WindowActions>
+            <WindowAction Name="Close" OnClick="@CloseSendBack" />
+        </WindowActions>
+        <WindowContent>
+            <div class="irt-sb-form">
+                <p class="irt-sb-intro">
+                    This will return the work order to the vendor for corrections. Add a required comment before sending.
+                </p>
+                <div class="irt-sb-field">
+                    <label class="irt-sb-label">
+                        Reason / Required Corrections
+                        <span class="irt-sb-required" aria-hidden="true">*</span>
+                    </label>
+                    <textarea class="irt-sb-textarea"
+                              @bind="@_sendBackComment"
+                              placeholder="Describe the corrections required before resubmission…"
+                              rows="4"></textarea>
+                    @if (_sendBackAttempted && string.IsNullOrWhiteSpace(_sendBackComment))
+                    {
+                        <span class="irt-sb-validation">A correction comment is required.</span>
+                    }
+                </div>
+            </div>
+        </WindowContent>
+        <WindowFooter>
+            <TelerikButton FillMode="@ThemeConstants.Button.FillMode.Outline"
+                           OnClick="@CloseSendBack">Cancel</TelerikButton>
+            <TelerikButton ThemeColor="@ThemeConstants.Button.ThemeColor.Warning"
+                           OnClick="@ConfirmSendBack">Confirm Send Back</TelerikButton>
         </WindowFooter>
     </TelerikWindow>
 
     @* ── Add Expense modal ────────────────────────────────────────────────── *@
+    @* Updated: work-item-type combobox (searchable) replaces the read-only context block. *@
     <TelerikWindow @bind-Visible="@_addExpenseModalVisible"
                    Modal="true"
-                   Width="500px"
+                   Width="520px"
                    Class="irt-ae-window"
                    Draggable="false"
                    Resizable="false"
@@ -296,19 +449,31 @@
         </WindowActions>
         <WindowContent>
             <div class="irt-ae-form">
-                <p class="irt-ae-intro">Enter expense details for the selected work item.</p>
+                <p class="irt-ae-intro">Map to a work item type and enter expense details.</p>
 
-                @* ── Reference context — read-only, above the divider ─ *@
-                <div class="irt-ae-context">
-                    <div class="irt-ae-row irt-ae-row--2col">
-                        <div class="irt-ae-field">
-                            <span class="irt-ae-label">Work Item</span>
-                            <div class="irt-ae-context-val">@_addExpenseTarget?.WorkItem</div>
-                        </div>
-                        <div class="irt-ae-field">
-                            <span class="irt-ae-label">Description</span>
-                            <div class="irt-ae-context-val">@_addExpenseTarget?.Description</div>
-                        </div>
+                @* ── Work Item Type selector + Description ───────────────────── *@
+                <div class="irt-ae-row irt-ae-row--2col">
+                    <div class="irt-ae-field">
+                        <label class="irt-ae-label">
+                            Work Item Type
+                            <span class="irt-ae-required" aria-hidden="true">*</span>
+                        </label>
+                        <TelerikComboBox Data="@_workItemCatalogKeys"
+                                         TItem="string"
+                                         TValue="string"
+                                         Value="@_aeWorkItemName"
+                                         ValueChanged="@((string v) => OnAeWorkItemChanged(v))"
+                                         Filterable="true"
+                                         Placeholder="Search or select…"
+                                         Width="100%" />
+                        @if (_aeAttempted && string.IsNullOrWhiteSpace(_aeWorkItemName))
+                        {
+                            <span class="irt-ae-validation">Work item type is required.</span>
+                        }
+                    </div>
+                    <div class="irt-ae-field">
+                        <label class="irt-ae-label">Description</label>
+                        <TelerikTextBox @bind-Value="@_aeDescription" Width="100%" />
                     </div>
                 </div>
 
@@ -420,102 +585,288 @@
     private decimal TotalVendorVariance  => FilteredLines.Sum(l => l.VendorVariance ?? 0m);
     private decimal TotalClientVariance  => FilteredLines.Sum(l => l.ClientVariance ?? 0m);
 
-    // ── Inline-edit handlers — trigger StateHasChanged for live calculated fields ──
+    // ── Staging / draft state ─────────────────────────────────────────────────
+    // LOCAL: edits are in-memory until the user explicitly saves to staging.
+    // STAGED: staging saves preserve the task-scoped state; not yet globally visible.
+    // COMMITTED: only after Complete Task do changes become live in global views.
+    private bool _hasStagedChanges;
+    private bool _taskSaved;
+
+    private void SaveStagedChanges()
+    {
+        // TODO: persist to task staging table via API when data layer is wired.
+        _hasStagedChanges = false;
+        _taskSaved = true;
+        StateHasChanged();
+    }
+
+    private void DiscardStagedChanges()
+    {
+        // TODO: reload from last persisted staging state via API.
+        _hasStagedChanges = false;
+        StateHasChanged();
+    }
+
+    // ── Navigation / exit guard ──────────────────────────────────────────────
+    private bool   _exitGuardVisible;
+    private string _pendingNavUrl = "/property-details?tab=Tasks";
+
+    private void HandleBackClick()
+    {
+        if (_hasStagedChanges)
+            _exitGuardVisible = true;
+        else
+            Navigation.NavigateTo(_pendingNavUrl);
+    }
+
+    private void HandleExitTask()
+    {
+        if (_hasStagedChanges)
+            _exitGuardVisible = true;
+        else
+            Navigation.NavigateTo(_pendingNavUrl);
+    }
+
+    private void DiscardAndNavigate()
+    {
+        _hasStagedChanges = false;
+        _exitGuardVisible = false;
+        Navigation.NavigateTo(_pendingNavUrl);
+    }
+
+    private void SaveDraftAndNavigate()
+    {
+        SaveStagedChanges();
+        _exitGuardVisible = false;
+        Navigation.NavigateTo(_pendingNavUrl);
+    }
+
+    private void HandleCompleteTask()
+    {
+        // Commit all staged edits before marking task complete.
+        // TODO: call task-completion API endpoint when wired.
+        if (_hasStagedChanges)
+            SaveStagedChanges();
+        Navigation.NavigateTo(_pendingNavUrl);
+    }
+
+    // ── Inline-edit handlers ─────────────────────────────────────────────────
+    // Setting _hasStagedChanges here keeps the staging indicator in sync with
+    // every field-level edit without requiring an explicit per-row save action.
 
     private void OnQtyChanged(IrtLineItem item, decimal v)
     {
         item.Qty = v;
+        _hasStagedChanges = true;
         StateHasChanged();
     }
 
     private void OnVendorUnitCostChanged(IrtLineItem item, decimal v)
     {
         item.VendorUnitCost = v;
+        _hasStagedChanges = true;
         StateHasChanged();
     }
 
     private void OnClientUnitCostChanged(IrtLineItem item, decimal v)
     {
         item.ClientUnitCost = v;
+        _hasStagedChanges = true;
         StateHasChanged();
     }
 
-    // ── Save handler ──────────────────────────────────────────────────────────
     // TODO: Persist changes via API when invoice data layer is wired.
-    // changes.EditedItems contains every row that was modified.
     private Task HandleSaveClicked(SingleSourceGridChangeSet<IrtLineItem> changes)
         => Task.CompletedTask;
 
-    // ── Bulk edit state ───────────────────────────────────────────────────────
+    // ── Status edit modal ─────────────────────────────────────────────────────
+    // Single-row: clicking any status pill opens the modal pre-filled with that row's statuses.
+    // Bulk: selecting rows and clicking "Edit Status" opens with empty/no-change defaults.
+    //
+    // "" (empty string) is used as the sentinel meaning "not set" (single mode) or
+    // "no change" (bulk mode).  The placeholder option in each list has Value="".
 
-    private bool _bulkDialogVisible;
-    private List<IrtLineItem> _bulkTargets = [];
-    private decimal? _bulkQty;
-    private decimal? _bulkVendorUnitCost;
-    private decimal? _bulkClientUnitCost;
+    private bool _statusModalVisible;
+    private bool _statusModalIsBulk;
+    private List<IrtLineItem> _statusModalTargets = [];
+    private string _statusDraftBusiness = "";
+    private string _statusDraftClient   = "";
+    private string _statusDraftInvestor = "";
+    private string? _statusDraftComment;
 
-    private void OpenBulkEditDialog(List<IrtLineItem> targets)
+    // StatusOption is a simple value/label pair for TelerikDropDownList.
+    private sealed record StatusOption(string Value, string Label);
+
+    private static readonly List<StatusOption> _statusOptsCore =
+    [
+        new("Approved",                   "Approved"),
+        new("Approved Within Allowable",  "Approved Within Allowable"),
+        new("Denied",                     "Denied"),
+        new("Needs Corrections",          "Needs Corrections"),
+        new("Pending Review",             "Pending Review"),
+        new("Not Required",               "Not Required"),
+        new("Not Submitted",              "Not Submitted"),
+        new("Awaiting Approval",          "Awaiting Approval"),
+        new("Submitted",                  "Submitted"),
+    ];
+
+    // Prepend the context-appropriate placeholder as the first option.
+    private IReadOnlyList<StatusOption> StatusOptsForModal =>
+        _statusModalIsBulk
+            ? [new("", "— No change —"),  .. _statusOptsCore]
+            : [new("", "— Not Set —"),    .. _statusOptsCore];
+
+    private void OpenStatusModal(IrtLineItem item)
     {
-        _bulkTargets = targets;
-        _bulkQty = null;
-        _bulkVendorUnitCost = null;
-        _bulkClientUnitCost = null;
-        _bulkDialogVisible = true;
+        _statusModalIsBulk   = false;
+        _statusModalTargets  = [item];
+        _statusDraftBusiness = item.BusinessStatus ?? "";
+        _statusDraftClient   = item.ClientStatus   ?? "";
+        _statusDraftInvestor = item.InvestorStatus  ?? "";
+        _statusDraftComment  = null;
+        _statusModalVisible  = true;
     }
 
-    private void ApplyBulkEdit()
+    private void OpenStatusModalBulk(List<IrtLineItem> items)
     {
-        foreach (var item in _bulkTargets)
+        _statusModalIsBulk   = true;
+        _statusModalTargets  = items;
+        _statusDraftBusiness = "";   // "" = no change
+        _statusDraftClient   = "";
+        _statusDraftInvestor = "";
+        _statusDraftComment  = null;
+        _statusModalVisible  = true;
+    }
+
+    private void SaveStatusModal()
+    {
+        foreach (var item in _statusModalTargets)
         {
-            if (_bulkQty.HasValue)             item.Qty = _bulkQty.Value;
-            if (_bulkVendorUnitCost.HasValue)   item.VendorUnitCost = _bulkVendorUnitCost.Value;
-            if (_bulkClientUnitCost.HasValue)   item.ClientUnitCost = _bulkClientUnitCost.Value;
+            // In bulk mode, "" means "no change" — skip those fields so existing values
+            // on other rows are not overwritten.
+            if (!_statusModalIsBulk || !string.IsNullOrEmpty(_statusDraftBusiness))
+                item.BusinessStatus = string.IsNullOrEmpty(_statusDraftBusiness) ? null : _statusDraftBusiness;
+            if (!_statusModalIsBulk || !string.IsNullOrEmpty(_statusDraftClient))
+                item.ClientStatus   = string.IsNullOrEmpty(_statusDraftClient)   ? null : _statusDraftClient;
+            if (!_statusModalIsBulk || !string.IsNullOrEmpty(_statusDraftInvestor))
+                item.InvestorStatus = string.IsNullOrEmpty(_statusDraftInvestor) ? null : _statusDraftInvestor;
         }
-        _bulkDialogVisible = false;
+        _statusModalVisible = false;
+        _hasStagedChanges   = true;
         StateHasChanged();
     }
 
-    // ── Add Expense state ─────────────────────────────────────────────────────
+    // ── Send Back for Corrections ─────────────────────────────────────────────
+    // Reusable component concept: required reason comment + confirmation before action.
 
-    private bool             _addExpenseModalVisible;
+    private bool   _sendBackVisible;
+    private string _sendBackComment  = "";
+    private bool   _sendBackAttempted;
+
+    private void CloseSendBack()
+    {
+        _sendBackVisible   = false;
+        _sendBackAttempted = false;
+        _sendBackComment   = "";
+    }
+
+    private void ConfirmSendBack()
+    {
+        _sendBackAttempted = true;
+        if (string.IsNullOrWhiteSpace(_sendBackComment)) return;
+        // TODO: submit send-back action via API (attach comment to work order).
+        CloseSendBack();
+        Navigation.NavigateTo(_pendingNavUrl);
+    }
+
+    // ── Add Expense state ─────────────────────────────────────────────────────
+    // Form fields reset each time the modal opens.
+
+    private bool               _addExpenseModalVisible;
     private IrtUnexpensedItem? _addExpenseTarget;
     private TelerikNumericTextBox<decimal>? _aeQtyRef;
-    private bool             _aeFocusQtyOnOpen;
+    private bool               _aeFocusQtyOnOpen;
 
-    // Form fields — reset each time the modal opens
+    private string   _aeWorkItemName = "";
+    private string   _aeDescription  = "";
     private decimal  _aeQty;
-    private string   _aeUnit      = "";
+    private string   _aeUnit         = "";
     private decimal? _aeVendorCost;
     private decimal? _aeClientCost;
-    private string   _aeNotes     = "";
-    private bool     _aeAttempted;   // true after first field interaction; gates validation messages
-
-    // Success toast + newly added row highlight
-    private bool     _successToastVisible;
-    private string?  _newlyAddedLineItem;
-    private CancellationTokenSource? _toastCts;
-    private CancellationTokenSource? _highlightCts;
+    private string   _aeNotes        = "";
+    private bool     _aeAttempted;
 
     // Live-calculated totals shown in the modal
     private decimal AeVendorTotal => _aeQty * (_aeVendorCost ?? 0m);
     private decimal AeClientTotal => _aeQty * (_aeClientCost ?? 0m);
 
-    // Submit is enabled only when all required fields are valid
+    // Submit enabled only when all required fields are valid
     private bool AeFormIsValid =>
+        !string.IsNullOrWhiteSpace(_aeWorkItemName) &&
         _aeQty > 0 &&
         _aeVendorCost.HasValue &&
         _aeClientCost.HasValue;
 
+    // ── Work-item type catalog ───────────────────────────────────────────────
+    // Maps display name → (description template, default UOM).
+    // Selecting a known type auto-populates description and UOM; user can edit afterward.
+    // TODO: replace with API-backed service catalog when wired.
+
+    private static readonly Dictionary<string, (string Description, string Unit)> _workItemCatalog
+        = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["Appliance Removal"]   = ("Remove and dispose of appliances from property", "EA"),
+        ["Boarding"]            = ("Board windows and doors for property security",  "EA"),
+        ["Debris Removal"]      = ("Remove debris from property",                    "LS"),
+        ["Exterior Power Wash"] = ("Pressure wash exterior surfaces",                "LS"),
+        ["Fertilization"]       = ("Apply fertilizer treatment to lawn",             "LS"),
+        ["Gutter Cleaning"]     = ("Clean gutters and downspouts",                   "EA"),
+        ["Hedge Trimming"]      = ("Trim hedges and shrubs",                         "EA"),
+        ["HVAC Inspection"]     = ("Inspect and service HVAC system",                "EA"),
+        ["Irrigation Check"]    = ("Inspect and service irrigation system",          "EA"),
+        ["Lawn Mowing"]         = ("Mow lawn and edge borders",                      "EA"),
+        ["Lock Change"]         = ("Change locks on all exterior doors",             "EA"),
+        ["Mulch Installation"]  = ("Install fresh mulch in landscaped areas",        "CY"),
+        ["Pest Treatment"]      = ("Apply pest control treatment",                   "LS"),
+        ["Pool Cleanup"]        = ("Clean and treat pool water and surfaces",        "EA"),
+        ["Stump Grinding"]      = ("Grind tree stumps to ground level",              "EA"),
+        ["Tree Trimming"]       = ("Trim and shape trees",                           "EA"),
+        ["Trash Out"]           = ("Remove trash and unwanted items from property",  "LS"),
+    };
+
+    private static readonly List<string> _workItemCatalogKeys =
+        [.. _workItemCatalog.Keys.OrderBy(k => k)];
+
+    private void OnAeWorkItemChanged(string value)
+    {
+        _aeWorkItemName = value ?? "";
+        // Auto-populate description and UOM from the catalog when a known type is selected.
+        // Always overwrite description so the user sees the canonical template.
+        if (!string.IsNullOrWhiteSpace(value) && _workItemCatalog.TryGetValue(value, out var meta))
+        {
+            _aeDescription = meta.Description;
+            if (string.IsNullOrWhiteSpace(_aeUnit))
+                _aeUnit = meta.Unit;
+        }
+        StateHasChanged();
+    }
+
     private void HandleAddExpense(IrtUnexpensedItem item)
     {
-        _addExpenseTarget    = item;
-        _aeQty               = item.RequestedQty;  // pre-fill from WO requested qty
-        _aeUnit              = item.Unit;
-        _aeVendorCost        = null;
-        _aeClientCost        = null;
-        _aeNotes             = "";
-        _aeAttempted         = false;
-        _aeFocusQtyOnOpen    = true;
+        _addExpenseTarget     = item;
+        // Pre-fill work item name from the Description column (human-readable);
+        // trigger catalog lookup to populate description template if it exists.
+        _aeWorkItemName       = item.Description;
+        _aeDescription        = item.Description;
+        if (_workItemCatalog.TryGetValue(item.Description, out var catalogMeta))
+            _aeDescription = catalogMeta.Description;
+        _aeQty                = item.RequestedQty;
+        _aeUnit               = item.Unit;
+        _aeVendorCost         = null;
+        _aeClientCost         = null;
+        _aeNotes              = "";
+        _aeAttempted          = false;
+        _aeFocusQtyOnOpen     = true;
         _addExpenseModalVisible = true;
     }
 
@@ -532,11 +883,11 @@
 
         var newItem = new IrtLineItem
         {
-            LineItem       = _addExpenseTarget!.WorkItem,
-            Description    = _addExpenseTarget.Description,
-            WoUnit         = _addExpenseTarget.Unit,
+            LineItem       = _aeWorkItemName,
+            Description    = string.IsNullOrWhiteSpace(_aeDescription) ? _aeWorkItemName : _aeDescription,
+            WoUnit         = _aeUnit,
             WoUnitCost     = null,   // no WO pricing rule — variance columns will show "—"
-            OriginalQty    = _addExpenseTarget.RequestedQty,
+            OriginalQty    = _addExpenseTarget?.RequestedQty,
             Qty            = _aeQty,
             Unit           = _aeUnit,
             VendorUnitCost = _aeVendorCost,
@@ -546,17 +897,17 @@
             InvestorStatus = null,
         };
 
-        // Create a new list reference so SingleSourceGrid.OnParametersSet detects the change
-        // and rebuilds its working copy. TODO: persist via API when wired.
-        var updatedLines = new List<IrtLineItem>(_lines) { newItem };
-        _lines = updatedLines;
+        // Create a new list reference so SingleSourceGrid.OnParametersSet detects the change.
+        // TODO: persist via API when wired.
+        _lines = [.. _lines, newItem];
 
         // Remove the satisfied row from the unexpensed section.
-        // ToList() produces a new reference so TelerikGrid re-renders.
-        _unexpensedItems = _unexpensedItems.Where(i => i != _addExpenseTarget).ToList();
+        if (_addExpenseTarget is not null)
+            _unexpensedItems = _unexpensedItems.Where(i => i != _addExpenseTarget).ToList();
 
         _addExpenseModalVisible = false;
-        _aeFocusQtyOnOpen = false;
+        _aeFocusQtyOnOpen       = false;
+        _hasStagedChanges       = true;
 
         _newlyAddedLineItem = newItem.LineItem;
         await ShowSuccessToastAsync();
@@ -573,6 +924,13 @@
             await _aeQtyRef.FocusAsync();
         }
     }
+
+    // ── Toast / row-highlight helpers ─────────────────────────────────────────
+
+    private bool     _successToastVisible;
+    private string?  _newlyAddedLineItem;
+    private CancellationTokenSource? _toastCts;
+    private CancellationTokenSource? _highlightCts;
 
     private async Task ShowSuccessToastAsync()
     {
@@ -631,6 +989,7 @@
         "approved within allowable"         => "ss-pill ss-pill--allowable",
         "denied"                            => "ss-pill ss-pill--denied",
         "corrections needed"                => "ss-pill ss-pill--corrections",
+        "needs corrections"                 => "ss-pill ss-pill--corrections",
         "needs approval"                    => "ss-pill ss-pill--corrections",
         "needs client approval"             => "ss-pill ss-pill--corrections",
         "needs investor approval"           => "ss-pill ss-pill--corrections",
@@ -659,7 +1018,7 @@
         _                           => "ss-pill ss-pill--neutral"
     };
 
-    // ── Placeholder data — replace with API call once the invoice data layer is wired ─────
+    // ── Placeholder data ──────────────────────────────────────────────────────
     // LI-003: Qty mismatch (vendor submitted 1, WO expected 2).
     // LI-005: no pricing rule (WoUnitCost null → variance displays "—").
     // Instance field (not static) so CommitAddExpense can replace the reference.
@@ -696,10 +1055,9 @@
                 BusinessStatus = "Approved",       ClientStatus = "Not Required",  InvestorStatus = "Not Required" },
     ];
 
-    // ── Line item model ───────────────────────────────────────────────────────────────────
+    // ── Line item model ───────────────────────────────────────────────────────
     // SingleSourceGridGroup attributes drive the collapsible column header groups via reflection.
-    // Computed properties (VendorFeeTotal, ClientFeeTotal, VendorVariance, ClientVariance)
-    // update live because the EditTemplates call StateHasChanged() on each field change.
+    // Computed properties update live because the EditTemplates call StateHasChanged() on each change.
     // HasQtyMismatch drives the orange Qty highlight in the ColumnTemplate.
 
     [SingleSourceGridGroup(DisplayName = "Work Item",            Key = "WI",  Order = 1, Collapsible = true, HeaderClass = "irt-gh--wi")]
@@ -757,7 +1115,7 @@
                 ? Qty * (ClientUnitCost.Value - WoUnitCost.Value)
                 : null;
 
-        // ── Status group — hardcoded pills; Editable=false blocks inline editing ───
+        // ── Status group — clickable pills open status-edit modal ─────────────
         [SingleSourceGridAttribute(DisplayName = "Business",     Width = "150px", GroupKey = "Dec", Order = 1, Groupable = false, Sortable = true,  Filterable = false, Editable = false, ShowColumnMenu = false)]
         public string? BusinessStatus { get; set; }
 
@@ -772,10 +1130,8 @@
         public bool HasQtyMismatch => OriginalQty.HasValue && Qty != OriginalQty.Value;
     }
 
-    // ── Unexpensed work items mock data ───────────────────────────────────────────────────
+    // ── Unexpensed work items mock data ───────────────────────────────────────
     // TODO: replace with API query (work order items where no invoice expense exists).
-    // "No Expense Submitted"      — item was requested; vendor has not submitted any cost.
-    // "Completed Without Expense" — item was completed/signed off but no expense was raised.
     // Instance field so CommitAddExpense can remove rows without touching static state.
 
     private List<IrtUnexpensedItem> _unexpensedItems =
@@ -786,13 +1142,13 @@
         new() { WorkItem = "LI-010", Description = "Exterior Power Wash", RequestedQty = 1, Unit = "LS", Status = "No Expense Submitted" },
     ];
 
-    // ── Unexpensed item model ─────────────────────────────────────────────────────────────
+    // ── Unexpensed item model ─────────────────────────────────────────────────
     private sealed class IrtUnexpensedItem
     {
-        public string WorkItem    { get; set; } = "";
-        public string Description { get; set; } = "";
+        public string  WorkItem    { get; set; } = "";
+        public string  Description { get; set; } = "";
         public decimal RequestedQty { get; set; }
-        public string Unit        { get; set; } = "";
-        public string Status      { get; set; } = "";
+        public string  Unit        { get; set; } = "";
+        public string  Status      { get; set; } = "";
     }
 }

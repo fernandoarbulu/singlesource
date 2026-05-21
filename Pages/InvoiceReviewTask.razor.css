@@ -9,7 +9,56 @@
     box-sizing: border-box;
 }
 
-/* ── Back link ──────────────────────────────────────────────────────────── */
+/* ── Unsaved-changes staging indicator ───────────────────────────────────── */
+/*
+  A slim, quiet bar that appears whenever _hasStagedChanges is true.
+  Design intent: visible enough to reassure the user their edits are known,
+  but not alarming — this is expected behavior in a task-staging workflow.
+*/
+
+.irt-staging-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 12px;
+    background: #FFFBEB;
+    border: 1px solid #FDE68A;
+    border-radius: 5px;
+    font-size: 0.8125rem;
+    color: #78350F;
+}
+
+.irt-staging-bar__dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background-color: #F59E0B;
+    flex-shrink: 0;
+}
+
+.irt-staging-bar__msg {
+    font-weight: 500;
+}
+
+.irt-staging-bar__spacer {
+    flex: 1;
+}
+
+/* "Draft saved" chip shown inline in the header meta line */
+.irt-header__saved-chip {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 8px;
+    padding: 1px 7px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: #065F46;
+    background: #D1FAE5;
+    border-radius: 10px;
+    letter-spacing: 0.01em;
+}
+
+/* ── Back link — now a <button> for navigation-guard support ─────────────── */
 
 .irt-back {
     display: inline-flex;
@@ -17,8 +66,13 @@
     gap: 4px;
     font-size: 0.8125rem;
     color: #4B5563;
-    text-decoration: none;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
     width: fit-content;
+    line-height: inherit;
+    font-family: inherit;
 }
 
 .irt-back:hover {
@@ -641,5 +695,183 @@
         width: 100%;
         max-width: none;
     }
+}
+
+/* ── Clickable status pills ───────────────────────────────────────────────── */
+/*
+  Status cells in the main grid are interactive: clicking any pill opens the
+  status-edit modal for that row.  Cursor and a subtle focus outline signal
+  interactivity without redesigning the pill itself.
+*/
+.irt-status-clickable {
+    cursor: pointer;
+    transition: filter 0.1s ease;
+}
+
+.irt-status-clickable:hover {
+    filter: brightness(0.94);
+}
+
+.irt-status-clickable:focus-visible {
+    outline: 2px solid #6EA0D4;
+    outline-offset: 2px;
+    border-radius: 3px;
+}
+
+/* ── Status Edit Modal (.irt-sm-*) ────────────────────────────────────────── */
+/*
+  Dense, operational form — three status dropdowns + optional comment.
+  Feels like table tooling: tight rows, minimal whitespace, no wizard padding.
+  Window content padding is Telerik's default (~12px); no extra outer padding needed.
+*/
+
+.irt-sm-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 0 0 2px;
+}
+
+.irt-sm-hint {
+    margin: 0;
+    font-size: 0.8125rem;
+    color: #6B7280;
+    line-height: 1.4;
+}
+
+.irt-sm-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.irt-sm-label {
+    font-size: 0.8125rem;
+    color: #374151;
+    line-height: 1.3;
+}
+
+.irt-sm-optional {
+    font-size: 0.75rem;
+    color: #9CA3AF;
+    margin-left: 3px;
+}
+
+.irt-sm-comment {
+    width: 100%;
+    box-sizing: border-box;
+    font-family: inherit;
+    font-size: 0.875rem;
+    color: #374151;
+    line-height: 1.45;
+    padding: 5px 8px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 4px;
+    background: #fff;
+    resize: vertical;
+    min-height: 64px;
+    max-height: 120px;
+    outline: none;
+    transition: border-color 0.15s ease;
+}
+
+.irt-sm-comment:focus {
+    border-color: #6EA0D4;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.12);
+}
+
+/* ── Exit guard modal (.irt-guard-*) ──────────────────────────────────────── */
+/*
+  Explains the three-state save model to the user in plain language.
+  Two short paragraphs, no table, no icons — just clear copy.
+*/
+
+.irt-guard-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 2px 0 4px;
+}
+
+.irt-guard-msg {
+    margin: 0;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #111827;
+}
+
+.irt-guard-sub {
+    margin: 0;
+    font-size: 0.8125rem;
+    color: #4B5563;
+    line-height: 1.5;
+}
+
+/* ── Send Back for Corrections modal (.irt-sb-*) ─────────────────────────── */
+/*
+  Required-comment pattern: intro context, labeled textarea, validation message.
+  Reusable shape — same structure could back vendor/client/investor send-backs.
+*/
+
+.irt-sb-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 0 0 2px;
+}
+
+.irt-sb-intro {
+    margin: 0;
+    font-size: 0.8125rem;
+    color: #6B7280;
+    line-height: 1.5;
+}
+
+.irt-sb-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.irt-sb-label {
+    font-size: 0.8125rem;
+    color: #374151;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.irt-sb-required {
+    color: #94A3B8;
+    font-weight: 600;
+    margin-left: 1px;
+}
+
+.irt-sb-textarea {
+    width: 100%;
+    box-sizing: border-box;
+    font-family: inherit;
+    font-size: 0.875rem;
+    color: #374151;
+    line-height: 1.5;
+    padding: 7px 9px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 4px;
+    background: #fff;
+    resize: vertical;
+    min-height: 80px;
+    outline: none;
+    transition: border-color 0.15s ease;
+}
+
+.irt-sb-textarea:focus {
+    border-color: #6EA0D4;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.12);
+}
+
+.irt-sb-validation {
+    font-size: 0.6875rem;
+    color: #C45309;
+    line-height: 1.3;
+    margin-top: 1px;
 }
 
