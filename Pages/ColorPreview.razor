@@ -1,0 +1,190 @@
+@page "/color-preview"
+@layout PropertyShellLayout
+
+<PageTitle>Invoice Review Color Preview</PageTitle>
+
+<div class="icp-root">
+
+    <header class="icp-header">
+        <h1 class="icp-title">Invoice Review Color Preview</h1>
+        <p class="icp-subtitle">Temporary client review screen — colors shown here do not affect production invoice review workflows.</p>
+    </header>
+
+    @* ── Section 1: Column Group Header Colors ──────────────────────────── *@
+    <section class="icp-section">
+        <h2 class="icp-section-title">Column Group Header Colors</h2>
+        <p class="icp-section-desc">Group header backgrounds as used in the invoice line items table. The first three match the current invoice table CSS exactly.</p>
+
+        <div class="icp-swatch-grid">
+            @foreach (var group in _columnGroups)
+            {
+                <article class="icp-swatch-card">
+                    <div class="icp-swatch-header @group.CssClass">@group.Label</div>
+                    <div class="icp-swatch-meta">
+                        <div class="icp-meta-row">
+                            <span class="icp-meta-label">Background</span>
+                            <code class="icp-meta-value">@group.BackgroundHex</code>
+                        </div>
+                        @if (!string.IsNullOrEmpty(group.BackgroundNote))
+                        {
+                            <p class="icp-meta-note">@group.BackgroundNote</p>
+                        }
+                        <div class="icp-meta-row">
+                            <span class="icp-meta-label">Text</span>
+                            <code class="icp-meta-value">@group.TextHex</code>
+                        </div>
+                    </div>
+                </article>
+            }
+        </div>
+    </section>
+
+    @* ── Section 2: In-Context Mini Table Preview ───────────────────────── *@
+    <section class="icp-section">
+        <h2 class="icp-section-title">In-Context Mini Table Preview</h2>
+        <p class="icp-section-desc">Sample table showing group headers, columns, and status pills together in realistic context.</p>
+
+        <div class="icp-table-wrap">
+            <table class="icp-table" aria-label="Invoice color preview table">
+                <thead>
+                    <tr class="icp-table-group-row">
+                        <th colspan="2" class="icp-gh icp-gh--business">Business</th>
+                        <th colspan="2" class="icp-gh icp-gh--customer">Customer</th>
+                        <th colspan="2" class="icp-gh icp-gh--investor">Investor</th>
+                        <th colspan="2" class="icp-gh icp-gh--workflow">Workflow Links</th>
+                    </tr>
+                    <tr class="icp-table-col-row">
+                        <th>Line Item</th>
+                        <th>Status</th>
+                        <th>Qty</th>
+                        <th>Status</th>
+                        <th>Variance</th>
+                        <th>Status</th>
+                        <th>Link</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Lawn Mowing</td>
+                        <td class="icp-pill-cell"><span class="icp-pill icp-pill--approved">Approved</span></td>
+                        <td class="icp-num">4</td>
+                        <td class="icp-pill-cell"><span class="icp-pill icp-pill--pending">Pending</span></td>
+                        <td class="icp-num">$0.00</td>
+                        <td class="icp-pill-cell"><span class="icp-pill icp-pill--allowable">Approved within Allowable</span></td>
+                        <td>WO-882741</td>
+                        <td class="icp-pill-cell"><span class="icp-pill icp-pill--neutral">Not Required</span></td>
+                    </tr>
+                    <tr>
+                        <td>Debris Removal</td>
+                        <td class="icp-pill-cell"><span class="icp-pill icp-pill--corrections">Needs Corrections</span></td>
+                        <td class="icp-num">1</td>
+                        <td class="icp-pill-cell"><span class="icp-pill icp-pill--denied">Denied</span></td>
+                        <td class="icp-num">$95.00</td>
+                        <td class="icp-pill-cell"><span class="icp-pill icp-pill--pending">Submitted</span></td>
+                        <td>Bid-1042</td>
+                        <td class="icp-pill-cell"><span class="icp-pill icp-pill--approved">Approved</span></td>
+                    </tr>
+                    <tr>
+                        <td>Tree Trimming</td>
+                        <td class="icp-pill-cell"><span class="icp-pill icp-pill--pending">Pending</span></td>
+                        <td class="icp-num">1</td>
+                        <td class="icp-pill-cell"><span class="icp-pill icp-pill--allowable">Approved within Allowable</span></td>
+                        <td class="icp-num">$50.00</td>
+                        <td class="icp-pill-cell"><span class="icp-pill icp-pill--corrections">Needs Corrections</span></td>
+                        <td>INV-29481</td>
+                        <td class="icp-pill-cell"><span class="icp-pill icp-pill--denied">Denied</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    @* ── Section 3: Status Pill Colors ──────────────────────────────────── *@
+    <section class="icp-section">
+        <h2 class="icp-section-title">Status Pill Colors</h2>
+        <p class="icp-section-desc">Proposed muted status pill palette for dense financial review tables.</p>
+
+        <div class="icp-pill-grid">
+            @foreach (var pill in _statusPills)
+            {
+                <article class="icp-pill-card">
+                    <span class="icp-pill-label">@pill.Label</span>
+                    <span class="icp-pill @pill.CssClass">@pill.Label</span>
+                    <div class="icp-swatch-meta">
+                        <div class="icp-meta-row">
+                            <span class="icp-meta-label">Background</span>
+                            <code class="icp-meta-value">@pill.BackgroundHex</code>
+                        </div>
+                        <div class="icp-meta-row">
+                            <span class="icp-meta-label">Text</span>
+                            <code class="icp-meta-value">@pill.TextHex</code>
+                        </div>
+                    </div>
+                </article>
+            }
+        </div>
+    </section>
+
+    @* ── Section 4: Design Notes ──────────────────────────────────────────── *@
+    <section class="icp-section icp-section--notes">
+        <h2 class="icp-section-title">Design Notes</h2>
+        <p class="icp-notes">
+            These colors were intentionally kept muted, low-saturation, and enterprise-friendly so they work well in dense financial review tables without overpowering the interface.
+        </p>
+    </section>
+
+</div>
+
+@code {
+    private sealed record ColumnGroupPreview(
+        string Label,
+        string CssClass,
+        string BackgroundHex,
+        string TextHex,
+        string? BackgroundNote = null);
+
+    private sealed record StatusPillPreview(
+        string Label,
+        string CssClass,
+        string BackgroundHex,
+        string TextHex);
+
+    // Background hex values for color-mix results are computed equivalents of the
+    // exact CSS used in InvoiceReviewTask.razor.css (22% base hue on white).
+    private static readonly ColumnGroupPreview[] _columnGroups =
+    [
+        new(
+            "Business / Work Item",
+            "icp-swatch-header--business",
+            "#DCDFE7",
+            "#374151",
+            "color-mix(in srgb, #5F6F94 22%, white) — base hue #5F6F94"),
+        new(
+            "Customer / Work Item Financials",
+            "icp-swatch-header--customer",
+            "#DCE2E2",
+            "#374151",
+            "color-mix(in srgb, #5E7C7B 22%, white) — base hue #5E7C7B"),
+        new(
+            "Investor / Variance",
+            "icp-swatch-header--investor",
+            "#E0DEDF",
+            "#374151",
+            "color-mix(in srgb, #746C63 22%, white) — base hue #746C63"),
+        new(
+            "Workflow Links",
+            "icp-swatch-header--workflow",
+            "#E6E0E5",
+            "#374151"),
+    ];
+
+    private static readonly StatusPillPreview[] _statusPills =
+    [
+        new("Approved",                  "icp-pill--approved",    "#DDEFE3", "#2F6B47"),
+        new("Approved within Allowable", "icp-pill--allowable",   "#E7ECFA", "#4F67A5"),
+        new("Denied",                    "icp-pill--denied",      "#F5E7E7", "#A94F4F"),
+        new("Needs Corrections",         "icp-pill--corrections", "#F7E8C8", "#9A6A12"),
+        new("Pending / Submitted",       "icp-pill--pending",     "#E5EAF0", "#5B6575"),
+    ];
+}

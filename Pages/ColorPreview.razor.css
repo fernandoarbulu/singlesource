@@ -1,0 +1,339 @@
+/* ── Invoice Review Color Preview (temporary client review page) ─────────── */
+
+.icp-root {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding: 20px 24px 28px;
+    max-width: 1200px;
+    box-sizing: border-box;
+    background-color: #F3F4F6;
+    min-height: 100%;
+}
+
+.icp-header {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.icp-title {
+    margin: 0;
+    font-size: 1.375rem;
+    font-weight: 600;
+    color: #111827;
+    line-height: 1.3;
+}
+
+.icp-subtitle {
+    margin: 0;
+    font-size: 0.8125rem;
+    color: #757B87;
+    line-height: 1.45;
+}
+
+/* ── Sections ───────────────────────────────────────────────────────────── */
+
+.icp-section {
+    background: #fff;
+    border: 1px solid #D8DEE6;
+    border-radius: 8px;
+    padding: 15px 16px 16px;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.icp-section-title {
+    margin: 0 0 4px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #111827;
+}
+
+.icp-section-desc {
+    margin: 0 0 12px;
+    font-size: 0.8125rem;
+    color: #707784;
+    line-height: 1.45;
+}
+
+.icp-section--notes {
+    background: #F9FAFB;
+    padding: 11px 16px 12px;
+    box-shadow: none;
+    border-color: #E2E6EC;
+}
+
+.icp-section--notes .icp-section-title {
+    margin-bottom: 3px;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.icp-notes {
+    margin: 0;
+    font-size: 0.8125rem;
+    color: #6B7280;
+    line-height: 1.5;
+}
+
+/* ── Column group swatches ────────────────────────────────────────────────── */
+
+.icp-swatch-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+}
+
+.icp-swatch-card {
+    border: 1px solid #DDE1E6;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #fff;
+}
+
+.icp-swatch-header {
+    min-height: 62px;
+    display: flex;
+    align-items: center;
+    padding: 14px 14px;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #374151;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+/* Exact invoice table group header formulas (InvoiceReviewTask.razor.css) */
+.icp-swatch-header--business {
+    background-color: color-mix(in srgb, #5F6F94 22%, white);
+}
+
+.icp-swatch-header--customer {
+    background-color: color-mix(in srgb, #5E7C7B 22%, white);
+}
+
+.icp-swatch-header--investor {
+    background-color: color-mix(in srgb, #746C63 22%, white);
+}
+
+.icp-swatch-header--workflow {
+    background-color: #E6E0E5;
+}
+
+.icp-swatch-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 12px 12px 11px;
+}
+
+.icp-meta-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-height: 20px;
+}
+
+.icp-meta-label {
+    font-size: 0.75rem;
+    color: #6B7280;
+}
+
+.icp-meta-value {
+    font-size: 0.6875rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    color: #4B5563;
+    background: #F8FAFC;
+    border: 1px solid #EEF2F6;
+    padding: 1px 5px;
+    border-radius: 3px;
+    letter-spacing: 0.01em;
+}
+
+.icp-meta-note {
+    margin: 0;
+    font-size: 0.6875rem;
+    color: #9CA3AF;
+    line-height: 1.4;
+}
+
+/* ── Status pill swatches ─────────────────────────────────────────────────── */
+
+.icp-pill-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+}
+
+.icp-pill-card {
+    border: 1px solid #DDE1E6;
+    border-radius: 6px;
+    padding: 9px 12px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: #FAFAFA;
+}
+
+.icp-pill-card .icp-swatch-meta {
+    gap: 4px;
+    padding: 0;
+}
+
+.icp-pill-label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+/* Preview-only pill geometry — matches ss-pill compact enterprise style */
+.icp-pill {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    padding: 2px 9px;
+    border-radius: 12px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 1.5;
+    white-space: nowrap;
+}
+
+.icp-pill--approved {
+    background-color: #DDEFE3;
+    color: #2F6B47;
+}
+
+.icp-pill--allowable {
+    background-color: #E7ECFA;
+    color: #4F67A5;
+}
+
+.icp-pill--denied {
+    background-color: #F5E7E7;
+    color: #A94F4F;
+}
+
+.icp-pill--corrections {
+    background-color: #F7E8C8;
+    color: #9A6A12;
+}
+
+.icp-pill--pending {
+    background-color: #E5EAF0;
+    color: #5B6575;
+}
+
+.icp-pill--neutral {
+    background-color: #E7E9EE;
+    color: #6B7280;
+}
+
+/* ── Mini table preview ─────────────────────────────────────────────────────── */
+
+.icp-table-wrap {
+    border: 1px solid #DDE1E6;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #fff;
+}
+
+.icp-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8125rem;
+    color: #374151;
+}
+
+.icp-table th,
+.icp-table td {
+    padding: 7px 12px;
+    border-right: 1px solid #E5E7EB;
+    border-bottom: 1px solid #E5E7EB;
+    vertical-align: middle;
+    line-height: 1.35;
+}
+
+.icp-table tbody td:first-child {
+    padding-left: 12px;
+}
+
+.icp-table th:last-child,
+.icp-table td:last-child {
+    border-right: none;
+}
+
+.icp-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.icp-table-group-row th {
+    text-align: left;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #374151;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.icp-gh--business {
+    background-color: color-mix(in srgb, #5F6F94 22%, white);
+}
+
+.icp-gh--customer {
+    background-color: color-mix(in srgb, #5E7C7B 22%, white);
+}
+
+.icp-gh--investor {
+    background-color: color-mix(in srgb, #746C63 22%, white);
+}
+
+.icp-gh--workflow {
+    background-color: #E6E0E5;
+}
+
+.icp-table-col-row th {
+    background: #F9FAFB;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #64748B;
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
+.icp-pill-cell {
+    text-align: center;
+    vertical-align: middle;
+    padding-top: 6px;
+    padding-bottom: 6px;
+}
+
+.icp-pill-cell .icp-pill {
+    vertical-align: middle;
+}
+
+.icp-table tbody tr:nth-child(even) {
+    background: #FCFCFD;
+}
+
+.icp-num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 768px) {
+    .icp-root {
+        padding: 16px;
+    }
+
+    .icp-table-wrap {
+        overflow-x: auto;
+    }
+
+    .icp-table {
+        min-width: 760px;
+    }
+}
