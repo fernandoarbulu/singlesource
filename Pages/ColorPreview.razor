@@ -81,19 +81,39 @@
                         <td class="icp-num">1</td>
                         <td class="icp-pill-cell"><span class="icp-pill icp-pill--denied">Denied</span></td>
                         <td class="icp-num">$95.00</td>
-                        <td class="icp-pill-cell"><span class="icp-pill icp-pill--pending">Submitted</span></td>
+                        <td class="icp-pill-cell"><span class="icp-pill icp-pill--submitted">Submitted</span></td>
                         <td>Bid-1042</td>
                         <td class="icp-pill-cell"><span class="icp-pill icp-pill--approved">Approved</span></td>
                     </tr>
                     <tr>
                         <td>Tree Trimming</td>
-                        <td class="icp-pill-cell"><span class="icp-pill icp-pill--pending">Pending</span></td>
+                        <td class="icp-pill-cell"><span class="icp-pill icp-pill--add-bid">Additional Bid Requested</span></td>
                         <td class="icp-num">1</td>
-                        <td class="icp-pill-cell"><span class="icp-pill icp-pill--allowable">Approved within Allowable</span></td>
+                        <td class="icp-pill-cell"><span class="icp-pill icp-pill--partial">Partial Approval</span></td>
                         <td class="icp-num">$50.00</td>
-                        <td class="icp-pill-cell"><span class="icp-pill icp-pill--corrections">Needs Corrections</span></td>
+                        <td class="icp-pill-cell"><span class="icp-pill icp-pill--mgmt-review">Pending - Mgmt Review</span></td>
                         <td>INV-29481</td>
-                        <td class="icp-pill-cell"><span class="icp-pill icp-pill--denied">Denied</span></td>
+                        <td class="icp-pill-cell"><span class="icp-pill icp-pill--doc-needed">Documentation Needed</span></td>
+                    </tr>
+                    <tr>
+                        <td>Stump Grinding</td>
+                        <td class="icp-pill-cell"><span class="icp-pill icp-pill--convey">Convey As Is</span></td>
+                        <td class="icp-num">2</td>
+                        <td class="icp-pill-cell"><span class="icp-pill icp-pill--adjusted">Adjusted</span></td>
+                        <td class="icp-num">$12.00</td>
+                        <td class="icp-pill-cell"><span class="icp-pill icp-pill--undecided">Undecided</span></td>
+                        <td>—</td>
+                        <td class="icp-pill-cell"><span class="icp-pill icp-pill--no-status">No Status</span></td>
+                    </tr>
+                    <tr>
+                        <td>Irrigation Check</td>
+                        <td class="icp-pill-cell"><span class="icp-pill icp-pill--not-submitted">Pending - Not Submitted</span></td>
+                        <td class="icp-num">1</td>
+                        <td class="icp-pill-cell"><span class="icp-pill icp-pill--no-status">No Status</span></td>
+                        <td class="icp-num">—</td>
+                        <td class="icp-pill-cell"><span class="icp-pill icp-pill--allowable">Approved within Allowable</span></td>
+                        <td>WO-882755</td>
+                        <td class="icp-pill-cell"><span class="icp-pill icp-pill--approved">Approved</span></td>
                     </tr>
                 </tbody>
             </table>
@@ -103,27 +123,33 @@
     @* ── Section 3: Status Pill Colors ──────────────────────────────────── *@
     <section class="icp-section">
         <h2 class="icp-section-title">Status Pill Colors</h2>
-        <p class="icp-section-desc">Proposed muted status pill palette for dense financial review tables.</p>
+        <p class="icp-section-desc">Full status pill palette for dense financial review tables. Grouped by semantic category.</p>
 
-        <div class="icp-pill-grid">
-            @foreach (var pill in _statusPills)
-            {
-                <article class="icp-pill-card">
-                    <span class="icp-pill-label">@pill.Label</span>
-                    <span class="icp-pill @pill.CssClass">@pill.Label</span>
-                    <div class="icp-swatch-meta">
-                        <div class="icp-meta-row">
-                            <span class="icp-meta-label">Background</span>
-                            <code class="icp-meta-value">@pill.BackgroundHex</code>
-                        </div>
-                        <div class="icp-meta-row">
-                            <span class="icp-meta-label">Text</span>
-                            <code class="icp-meta-value">@pill.TextHex</code>
-                        </div>
-                    </div>
-                </article>
-            }
-        </div>
+        @foreach (var group in _statusPillGroups)
+        {
+            <div class="icp-pill-group">
+                <h3 class="icp-pill-group-label">@group.GroupLabel</h3>
+                <div class="icp-pill-grid">
+                    @foreach (var pill in group.Items)
+                    {
+                        <article class="icp-pill-card">
+                            <span class="icp-pill-label">@pill.Label</span>
+                            <span class="icp-pill @pill.CssClass">@pill.Label</span>
+                            <div class="icp-swatch-meta">
+                                <div class="icp-meta-row">
+                                    <span class="icp-meta-label">Background</span>
+                                    <code class="icp-meta-value">@pill.BackgroundHex</code>
+                                </div>
+                                <div class="icp-meta-row">
+                                    <span class="icp-meta-label">Text</span>
+                                    <code class="icp-meta-value">@pill.TextHex</code>
+                                </div>
+                            </div>
+                        </article>
+                    }
+                </div>
+            </div>
+        }
     </section>
 
     @* ── Section 4: Design Notes ──────────────────────────────────────────── *@
@@ -149,6 +175,10 @@
         string CssClass,
         string BackgroundHex,
         string TextHex);
+
+    private sealed record StatusPillGroup(
+        string GroupLabel,
+        StatusPillPreview[] Items);
 
     // Background hex values for color-mix results are computed equivalents of the
     // exact CSS used in InvoiceReviewTask.razor.css (22% base hue on white).
@@ -179,12 +209,34 @@
             "#374151"),
     ];
 
-    private static readonly StatusPillPreview[] _statusPills =
+    private static readonly StatusPillGroup[] _statusPillGroups =
     [
-        new("Approved",                  "icp-pill--approved",    "#DDEFE3", "#2F6B47"),
-        new("Approved within Allowable", "icp-pill--allowable",   "#E7ECFA", "#4F67A5"),
-        new("Denied",                    "icp-pill--denied",      "#F5E7E7", "#A94F4F"),
-        new("Needs Corrections",         "icp-pill--corrections", "#F7E8C8", "#9A6A12"),
-        new("Pending / Submitted",       "icp-pill--pending",     "#E5EAF0", "#5B6575"),
+        new("Approval States",
+        [
+            new("Approved",                  "icp-pill--approved",  "#DDEFE3", "#2F6B47"),
+            new("Approved within Allowable", "icp-pill--allowable", "#E7ECFA", "#4F67A5"),
+            new("Partial Approval",          "icp-pill--partial",   "#E8F1EA", "#4F7658"),
+            new("Adjusted",                  "icp-pill--adjusted",  "#E8EEF7", "#4F6385"),
+            new("Convey As Is",              "icp-pill--convey",    "#E9F2EF", "#4E7469"),
+            new("Denied",                    "icp-pill--denied",    "#F5E7E7", "#A94F4F"),
+        ]),
+        new("Pending / Review States",
+        [
+            new("Pending / Submitted",          "icp-pill--pending",       "#E5EAF0", "#5B6575"),
+            new("Pending - Submitted",          "icp-pill--submitted",     "#E5EAF0", "#5B6575"),
+            new("Pending - Not Submitted",      "icp-pill--not-submitted", "#F0F2F5", "#6B7280"),
+            new("Pending - Management Review",  "icp-pill--mgmt-review",   "#E8ECF3", "#596579"),
+        ]),
+        new("Exception / Action Needed",
+        [
+            new("Needs Corrections",       "icp-pill--corrections", "#F7E8C8", "#9A6A12"),
+            new("Documentation Needed",    "icp-pill--doc-needed",  "#F6EDDA", "#8A641E"),
+            new("Additional Bid Requested","icp-pill--add-bid",     "#F1E8F5", "#7A4E8A"),
+        ]),
+        new("Neutral / Uncategorized",
+        [
+            new("Undecided",            "icp-pill--undecided",    "#EEEAF2", "#6D6174"),
+            new("No Status / Empty",    "icp-pill--no-status",    "#E7E9EE", "#6B7280"),
+        ]),
     ];
 }

@@ -160,10 +160,29 @@
 
 /* ── Status pill swatches ─────────────────────────────────────────────────── */
 
+.icp-pill-group {
+    margin-bottom: 16px;
+}
+
+.icp-pill-group:last-child {
+    margin-bottom: 0;
+}
+
+.icp-pill-group-label {
+    margin: 0 0 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #9CA3AF;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #EEF0F3;
+}
+
 .icp-pill-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 12px;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
 }
 
 .icp-pill-card {
@@ -226,6 +245,56 @@
 }
 
 .icp-pill--neutral {
+    background-color: #E7E9EE;
+    color: #6B7280;
+}
+
+.icp-pill--add-bid {
+    background-color: #F1E8F5;
+    color: #7A4E8A;
+}
+
+.icp-pill--adjusted {
+    background-color: #E8EEF7;
+    color: #4F6385;
+}
+
+.icp-pill--convey {
+    background-color: #E9F2EF;
+    color: #4E7469;
+}
+
+.icp-pill--mgmt-review {
+    background-color: #E8ECF3;
+    color: #596579;
+}
+
+.icp-pill--not-submitted {
+    background-color: #F0F2F5;
+    color: #6B7280;
+}
+
+.icp-pill--submitted {
+    background-color: #E5EAF0;
+    color: #5B6575;
+}
+
+.icp-pill--undecided {
+    background-color: #EEEAF2;
+    color: #6D6174;
+}
+
+.icp-pill--doc-needed {
+    background-color: #F6EDDA;
+    color: #8A641E;
+}
+
+.icp-pill--partial {
+    background-color: #E8F1EA;
+    color: #4F7658;
+}
+
+.icp-pill--no-status {
     background-color: #E7E9EE;
     color: #6B7280;
 }

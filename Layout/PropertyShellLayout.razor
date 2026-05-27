@@ -51,11 +51,7 @@
 
                     <!-- Dashboard -->
                     <div class="@Grp("dashboard")">
-                        <TelerikButton ButtonType="@Telerik.Blazor.ButtonType.Button"
-                                       FillMode="@ThemeConstants.Button.FillMode.Flat"
-                                       ThemeColor="@ThemeConstants.Button.ThemeColor.Base"
-                                       Class="psh-parent"
-                                       OnClick="@(() => Toggle("dashboard"))">
+                        <button type="button" class="psh-parent" @onclick="@(() => Toggle("dashboard"))">
                             <span class="psh-ico psh-ico--dashboard" aria-hidden="true"></span>
                             <span class="psh-label">Dashboard</span>
                             <svg class="psh-chev" width="12" height="12" viewBox="0 0 24 24"
@@ -63,7 +59,7 @@
                                  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                 <path d="M6 9l6 6 6-6"/>
                             </svg>
-                        </TelerikButton>
+                        </button>
                         <div class="psh-children">
                             <a class="psh-child @(IsActive("/dashboard/insights") ? "is-active" : null)"
                                href="/dashboard/insights">Insights</a>
@@ -78,11 +74,7 @@
 
                     <!-- Properties -->
                     <div class="@Grp("properties")">
-                        <TelerikButton ButtonType="@Telerik.Blazor.ButtonType.Button"
-                                       FillMode="@ThemeConstants.Button.FillMode.Flat"
-                                       ThemeColor="@ThemeConstants.Button.ThemeColor.Base"
-                                       Class="psh-parent"
-                                       OnClick="@(() => Toggle("properties"))">
+                        <button type="button" class="psh-parent" @onclick="@(() => Toggle("properties"))">
                             <span class="psh-ico psh-ico--properties" aria-hidden="true"></span>
                             <span class="psh-label">Properties</span>
                             <svg class="psh-chev" width="12" height="12" viewBox="0 0 24 24"
@@ -90,7 +82,7 @@
                                  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                 <path d="M6 9l6 6 6-6"/>
                             </svg>
-                        </TelerikButton>
+                        </button>
                         <div class="psh-children">
                             <a class="psh-child @(IsActive("/properties/portfolio") ? "is-active" : null)"
                                href="/properties/portfolio">Portfolio</a>
@@ -107,11 +99,7 @@
 
                     <!-- Management -->
                     <div class="@Grp("management")">
-                        <TelerikButton ButtonType="@Telerik.Blazor.ButtonType.Button"
-                                       FillMode="@ThemeConstants.Button.FillMode.Flat"
-                                       ThemeColor="@ThemeConstants.Button.ThemeColor.Base"
-                                       Class="psh-parent"
-                                       OnClick="@(() => Toggle("management"))">
+                        <button type="button" class="psh-parent" @onclick="@(() => Toggle("management"))">
                             <span class="psh-ico psh-ico--mgmt" aria-hidden="true"></span>
                             <span class="psh-label">Management</span>
                             <svg class="psh-chev" width="12" height="12" viewBox="0 0 24 24"
@@ -119,7 +107,7 @@
                                  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                 <path d="M6 9l6 6 6-6"/>
                             </svg>
-                        </TelerikButton>
+                        </button>
                         <div class="psh-children">
                             <a class="psh-child @(IsActive("/management/customers") ? "is-active" : null)"
                                href="/management/customers">Customers</a>
@@ -155,14 +143,10 @@
                             1
                         </TelerikBadge>
                     </a>
-                    <TelerikButton ButtonType="@Telerik.Blazor.ButtonType.Button"
-                                   FillMode="@ThemeConstants.Button.FillMode.Flat"
-                                   ThemeColor="@ThemeConstants.Button.ThemeColor.Base"
-                                   Class="psh-footer-item psh-logout"
-                                   OnClick="@Logout">
+                    <button type="button" class="psh-footer-item" @onclick="Logout">
                         <span class="psh-ico psh-ico--logout" aria-hidden="true"></span>
                         <span class="psh-label">Logout</span>
-                    </TelerikButton>
+                    </button>
                 </footer>
 
             </div>
