@@ -4,16 +4,31 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <!-- Fingerprint placeholders in index.html are not reliably rewritten in all publish/watch paths (aspnetcore#65710), which leaves a literal #[.{fingerprint}] URL and breaks boot (404). Use the stable loader name instead. -->
-    <OverrideHtmlAssetPlaceholders>false</OverrideHtmlAssetPlaceholders>
+    <!-- index.html references _framework/blazor.webassembly.js by its stable name, so the
+         loader script must not be fingerprinted in any configuration. -->
     <BlazorFingerprintBlazorJs>false</BlazorFingerprintBlazorJs>
-    <!-- Runtime requests fingerprinted _framework/*.wasm paths; dev server only serves label routes (e.g. SinglesourceApp.wasm → 200, SinglesourceApp.{hash}.wasm → 404). Align boot config with served URLs. -->
+  </PropertyGroup>
+
+  <!-- DEV-ONLY workarounds.
+       The WASM dev server only serves stable label routes (SinglesourceApp.wasm → 200,
+       SinglesourceApp.{hash}.wasm → 404), and index.html fingerprint placeholders are not
+       reliably rewritten on the watch path (aspnetcore#65710). Disabling fingerprinting and
+       placeholder rewriting keeps `dotnet run`/`dotnet watch` working locally.
+       These MUST stay Debug-only — Release relies on fingerprinting for integrity safety. -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <WasmFingerprintAssets>false</WasmFingerprintAssets>
-    <!-- Disable SRI hash checking in the boot manifest. With WasmFingerprintAssets=false,
-         filenames are stable across deploys, so Vercel CDN can serve a stale .wasm while
-         the new blazor.boot.json lists new hashes → integrity mismatch → boot failure.
-         BlazorCacheBootResources=false strips the integrity fields so no hash check is done. -->
-    <BlazorCacheBootResources>false</BlazorCacheBootResources>
+    <OverrideHtmlAssetPlaceholders>false</OverrideHtmlAssetPlaceholders>
+  </PropertyGroup>
+
+  <!-- RELEASE / publish (Vercel).
+       Fingerprinting is ON (SDK default). Every runtime asset is content-addressed
+       (dotnet.native.[hash].wasm, etc.) so its URL is its content hash — a CDN cannot
+       serve bytes that mismatch the integrity hash in the boot manifest. This is the
+       version-safe design and the real fix for the SRI mismatch on Vercel.
+       OverrideHtmlAssetPlaceholders is left at its default (true) so index.html receives
+       the fingerprinted asset URLs. -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <WasmFingerprintAssets>true</WasmFingerprintAssets>
   </PropertyGroup>
 
   <ItemGroup>
