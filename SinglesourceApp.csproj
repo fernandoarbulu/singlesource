@@ -9,6 +9,11 @@
     <BlazorFingerprintBlazorJs>false</BlazorFingerprintBlazorJs>
     <!-- Runtime requests fingerprinted _framework/*.wasm paths; dev server only serves label routes (e.g. SinglesourceApp.wasm → 200, SinglesourceApp.{hash}.wasm → 404). Align boot config with served URLs. -->
     <WasmFingerprintAssets>false</WasmFingerprintAssets>
+    <!-- Disable SRI hash checking in the boot manifest. With WasmFingerprintAssets=false,
+         filenames are stable across deploys, so Vercel CDN can serve a stale .wasm while
+         the new blazor.boot.json lists new hashes → integrity mismatch → boot failure.
+         BlazorCacheBootResources=false strips the integrity fields so no hash check is done. -->
+    <BlazorCacheBootResources>false</BlazorCacheBootResources>
   </PropertyGroup>
 
   <ItemGroup>

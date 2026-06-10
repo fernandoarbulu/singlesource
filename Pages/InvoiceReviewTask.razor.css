@@ -90,8 +90,15 @@
     flex-wrap: wrap;
 }
 
+.irt-header__left {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
 .irt-header__title {
-    margin: 0 0 4px;
+    margin: 0;
     font-size: 1.25rem;
     font-weight: 600;
     color: #111827;
@@ -110,10 +117,83 @@
     flex-shrink: 0;
 }
 
+/* ── Workflow status indicator (header left — exceptions state) ───────────── */
+/*
+  Sits below the title/meta as a status block, not a button.
+  Communicates blocking state without being an alarming error.
+*/
+
+.irt-workflow-status {
+    display: inline-flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 4px;
+    padding: 7px 12px;
+    background: #FFFBEB;
+    border: 1px solid #FDE68A;
+    border-left: 3px solid #D97706;
+    border-radius: 5px;
+    max-width: fit-content;
+}
+
+.irt-workflow-status__icon {
+    font-size: 0.8125rem;
+    color: #D97706;
+    line-height: 1.5;
+    flex-shrink: 0;
+}
+
+.irt-workflow-status__body {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.irt-workflow-status__title {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #92400E;
+    line-height: 1.3;
+}
+
+.irt-workflow-status__sub {
+    font-size: 0.75rem;
+    color: #B45309;
+    line-height: 1.3;
+}
+
 /* ── Grid card: remove card body padding so grid fills edge-to-edge ──────── */
 
 .irt-grid-body {
     padding: 0;
+}
+
+/* ── Exception card (Step 1) — no card header, just the body ─────────────── */
+
+.irt-exceptions-card {
+    /* Extra bottom margin creates the visual gap before the Step 2 card.
+       irt-root already provides 16px gap; this adds an extra 20px = 36px total. */
+    margin-bottom: 20px;
+}
+
+/* ── Step 2 card header title + step badge ───────────────────────────────── */
+
+.irt-card-hdr-row--step2 {
+    align-items: center;
+}
+
+.irt-step2-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.irt-step2-subtitle {
+    display: block;
+    font-size: 0.75rem;
+    color: #9CA3AF;
+    margin-top: 1px;
+    font-weight: 400;
 }
 
 /* ── Card header: title + global search on one row ───────────────────────── */
@@ -239,6 +319,8 @@
 ──────────────────────────────────────────────────────────────────────────── */
 
 /* ── Variance colours ───────────────────────────────────────────────────── */
+/* Positive = red (cost increased, needs attention)                          */
+/* Negative = blue (cost reduced — NOT green; green implies success/done)    */
 
 .irt-var-over {
     color: #DC2626;
@@ -246,8 +328,18 @@
 }
 
 .irt-var-under {
-    color: #059669;
+    color: #1D4ED8;
     font-weight: 500;
+}
+
+/* Variance cell — never wrap; arrow and value stay on one line */
+.irt-var-cell {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
 }
 
 /* ── Qty mismatch highlight (vendor Qty ≠ WO Qty) ───────────────────────── */
@@ -291,8 +383,8 @@
    gives rows a little more breathing room without losing the compact feel.
 */
 .irt-root ::deep .k-table-td {
-    padding-top: 8px;
-    padding-bottom: 8px;
+    padding-top: 6px;
+    padding-bottom: 6px;
 }
 
 /* Header vertical rhythm — slightly taller group/sub headers */
@@ -874,4 +966,1580 @@
     line-height: 1.3;
     margin-top: 1px;
 }
+
+/* ── Line Item cell review button (.irt-cell-review-btn) ─────────────────────
+   Replaces the plain <span> in the LineItem column template.
+   Looks like a subtle link to signal clickability without dominating the cell.
+*/
+.irt-cell-review-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: inherit;
+    font-family: inherit;
+    font-variant-numeric: tabular-nums;
+    color: #1D4ED8;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+    line-height: inherit;
+}
+
+.irt-cell-review-btn:hover {
+    color: #1E40AF;
+    text-decoration: underline;
+}
+
+.irt-cell-review-btn:focus-visible {
+    outline: 2px solid #6EA0D4;
+    outline-offset: 2px;
+    border-radius: 2px;
+}
+
+/* ── Review Drawer — overlay ─────────────────────────────────────────────────
+   position:fixed so it covers the full viewport regardless of scroll position.
+   z-index below TelerikWindow (~2000) so modals stack correctly on top.
+*/
+.irt-drawer-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.18);
+    z-index: 300;
+    cursor: pointer;
+}
+
+/* ── Review Drawer — panel ───────────────────────────────────────────────────
+   Right-side fixed panel. Slides in from the right on mount via animation.
+   Height 100vh, flex column so header is sticky and body scrolls independently.
+*/
+.irt-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100vh;
+    width: 580px;
+    max-width: calc(100vw - 48px);
+    background: #fff;
+    border-left: 1px solid #E5E7EB;
+    box-shadow: -4px 0 28px rgba(15, 23, 42, 0.10), -1px 0 6px rgba(15, 23, 42, 0.04);
+    z-index: 400;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: irt-drawer-slide-in 0.22s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+@keyframes irt-drawer-slide-in {
+    from { transform: translateX(100%); opacity: 0.85; }
+    to   { transform: translateX(0);   opacity: 1; }
+}
+
+/* ── Drawer header ───────────────────────────────────────────────────────────
+   Fixed at the top of the panel. White background so it stays readable when
+   body scrolls beneath it.
+*/
+.irt-drawer-hdr {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 20px 14px;
+    border-bottom: 1px solid #E5E7EB;
+    background: #fff;
+    flex-shrink: 0;
+}
+
+.irt-drawer-hdr-left {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+
+.irt-drawer-hdr-eyebrow {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    color: #9CA3AF;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.irt-drawer-hdr-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #111827;
+    line-height: 1.3;
+}
+
+.irt-drawer-hdr-pills {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px 8px;
+    margin-top: 5px;
+}
+
+.irt-drawer-hdr-pill-lbl {
+    font-size: 0.6875rem;
+    color: #9CA3AF;
+    font-weight: 500;
+}
+
+.irt-drawer-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    font-size: 1.25rem;
+    line-height: 1;
+    color: #6B7280;
+    background: none;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.1s ease, color 0.1s ease;
+}
+
+.irt-drawer-close:hover {
+    background: #F3F4F6;
+    color: #111827;
+}
+
+.irt-drawer-close:focus-visible {
+    outline: 2px solid #6EA0D4;
+    outline-offset: 2px;
+}
+
+/* ── Drawer scrollable body ──────────────────────────────────────────────────
+   Fills remaining height and scrolls independently of the header.
+*/
+.irt-drawer-body {
+    flex: 1 1 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0 0 24px;
+}
+
+/* ── Drawer sections ─────────────────────────────────────────────────────────
+   Each section is padded, separated by a hairline divider below.
+   Last section omits the divider.
+*/
+.irt-drawer-section {
+    padding: 16px 20px;
+    border-bottom: 1px solid #F3F4F6;
+}
+
+.irt-drawer-section:last-child {
+    border-bottom: none;
+}
+
+.irt-drawer-section-title {
+    margin: 0 0 10px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #374151;
+    letter-spacing: 0.01em;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+/* Source label — "From original work order" / "Submitted by vendor" */
+.irt-drawer-section-source {
+    font-size: 0.6875rem;
+    font-weight: 400;
+    color: #9CA3AF;
+    margin-left: 2px;
+}
+
+.irt-drawer-section-sub {
+    margin: -4px 0 10px;
+    font-size: 0.8125rem;
+    color: #6B7280;
+    line-height: 1.45;
+}
+
+/* Decision section gets a very light tinted background to signal finality */
+.irt-drawer-section--decision {
+    background: #FAFAFA;
+}
+
+/* ── Key-value grid layout ───────────────────────────────────────────────────
+   Two-column CSS grid: label | value.
+   Labels are right-aligned with a muted color; values are left-aligned.
+*/
+.irt-drawer-kv-grid {
+    display: grid;
+    grid-template-columns: 130px 1fr;
+    gap: 5px 12px;
+    align-items: baseline;
+}
+
+.irt-drawer-kv-lbl {
+    font-size: 0.8125rem;
+    color: #9CA3AF;
+    text-align: right;
+    line-height: 1.4;
+    white-space: nowrap;
+}
+
+.irt-drawer-kv-val {
+    font-size: 0.8125rem;
+    color: #1E293B;
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+/* ── Variance analysis table ─────────────────────────────────────────────────
+   Compact comparison table: Original / Submitted / Variance columns.
+   Neutral styling — no red/green alarmism, just clear data presentation.
+*/
+.irt-drawer-var-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8125rem;
+}
+
+.irt-drawer-var-table thead tr th {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: #9CA3AF;
+    text-align: right;
+    padding: 0 8px 6px;
+    border-bottom: 1px solid #E5E7EB;
+    white-space: nowrap;
+}
+
+.irt-drawer-var-table thead tr th:first-child {
+    text-align: left;
+}
+
+.irt-drawer-var-table tbody tr td {
+    padding: 5px 8px;
+    border-bottom: 1px solid #F3F4F6;
+}
+
+.irt-drawer-var-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.irt-drawer-var-row-lbl {
+    font-size: 0.8125rem;
+    color: #6B7280;
+    text-align: left;
+}
+
+.irt-drawer-var-num {
+    font-size: 0.8125rem;
+    color: #1E293B;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.irt-drawer-var-total-row td {
+    font-weight: 600;
+    background: #F9FAFB;
+}
+
+/* ── Variance badge ───────────────────────────────────────────────────────────
+   Small inline pill that summarizes the variance direction.
+   Neutral palette — this is informational, not pass/fail.
+*/
+.irt-drawer-var-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 1px 7px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    border-radius: 10px;
+    white-space: nowrap;
+}
+
+.irt-drawer-var-badge--neutral {
+    background: #F3F4F6;
+    color: #6B7280;
+}
+
+/* Muted amber — over expected (vendor higher than original) */
+.irt-drawer-var-badge--over {
+    background: #FEF3C7;
+    color: #92400E;
+}
+
+/* Muted slate/blue — under expected (vendor lower than original) */
+.irt-drawer-var-badge--under {
+    background: #DBEAFE;
+    color: #1E40AF;
+}
+
+/* ── Photo evidence area ─────────────────────────────────────────────────────
+   Simple thumbnail grid for mock photo evidence. Photos are review-only.
+*/
+.irt-drawer-photos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.irt-drawer-photo-thumb {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    width: 80px;
+    height: 72px;
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 5px;
+    cursor: default;
+    transition: border-color 0.1s ease;
+}
+
+.irt-drawer-photo-thumb:hover {
+    border-color: #94A3B8;
+}
+
+.irt-drawer-photo-icon {
+    font-size: 1.25rem;
+    color: #94A3B8;
+}
+
+.irt-drawer-photo-lbl {
+    font-size: 0.625rem;
+    color: #9CA3AF;
+    text-align: center;
+}
+
+.irt-drawer-photo-more {
+    margin: 6px 0 0;
+    font-size: 0.75rem;
+    color: #6B7280;
+}
+
+/* ── Related work items list ─────────────────────────────────────────────────
+   Compact scannable list. Each row shows the work item summary and a link action.
+   The linked row gets a subtle tinted highlight.
+*/
+.irt-drawer-related-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border: 1px solid #E5E7EB;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.irt-drawer-related-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 9px 12px;
+    border-bottom: 1px solid #F3F4F6;
+    background: #fff;
+    transition: background 0.1s ease;
+}
+
+.irt-drawer-related-row:last-child {
+    border-bottom: none;
+}
+
+.irt-drawer-related-row--linked {
+    background: #F0FDF4;
+    border-left: 3px solid #16A34A;
+}
+
+.irt-drawer-related-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+}
+
+.irt-drawer-related-name {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: #1E293B;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.irt-drawer-related-meta {
+    font-size: 0.75rem;
+    color: #9CA3AF;
+}
+
+.irt-drawer-related-action {
+    flex-shrink: 0;
+}
+
+/* "Currently linked" badge — muted green, mirrors the row tint */
+.irt-drawer-linked-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: #166534;
+    background: #DCFCE7;
+    border-radius: 10px;
+    white-space: nowrap;
+}
+
+/* ── Status / Decision area ──────────────────────────────────────────────────
+   Shows three status pills in a row and an "Update Statuses" button.
+   Pills are clickable (inherits irt-status-clickable).
+*/
+.irt-drawer-status-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.irt-drawer-status-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.irt-drawer-status-lbl {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    color: #9CA3AF;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.irt-drawer-status-actions {
+    margin-bottom: 10px;
+}
+
+/* Decision explanatory note — shows under the Update button */
+.irt-drawer-decision-note {
+    margin: 0;
+    font-size: 0.8125rem;
+    color: #6B7280;
+    line-height: 1.5;
+    padding-top: 2px;
+}
+
+/* ── Orphan mode actions ─────────────────────────────────────────────────────
+   Simple flex row for the add-expense action in orphan drawer mode.
+*/
+.irt-drawer-orphan-actions {
+    margin-bottom: 10px;
+}
+
+/* ── Empty state ─────────────────────────────────────────────────────────────
+   Used for "no photos", "no expense linked", "no related items" states.
+*/
+.irt-drawer-empty-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 8px;
+    padding: 20px 16px;
+    background: #F9FAFB;
+    border: 1px dashed #D1D5DB;
+    border-radius: 6px;
+    text-align: center;
+}
+
+.irt-drawer-empty-state--sm {
+    padding: 12px 16px;
+}
+
+.irt-drawer-empty-icon {
+    font-size: 1.5rem;
+    color: #D1D5DB;
+    line-height: 1;
+}
+
+.irt-drawer-empty-msg {
+    font-size: 0.8125rem;
+    color: #9CA3AF;
+    line-height: 1.4;
+}
+
+/* ── UWE card: two-button action cells ───────────────────────────────────────
+   The orphan table now has two action buttons (Review + Add Expense).
+   Wrap in flex gap so they align cleanly.
+*/
+.irt-uwe-action-cell {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+/* ── Orphan drawer header: ID/status sub-line ─────────────────────────────────
+   "LI-010 • No Expense Submitted" — sits directly below the title.
+*/
+.irt-drawer-hdr-sub {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 2px;
+    font-size: 0.8125rem;
+    color: #6B7280;
+    line-height: 1.3;
+}
+
+.irt-drawer-hdr-sep {
+    color: #D1D5DB;
+    font-weight: 400;
+    margin: 0 1px;
+    user-select: none;
+}
+
+/* ── Orphan drawer header: metadata chips ─────────────────────────────────────
+   Work Order and Vendor rendered as small labeled chips — visually distinct
+   from the title content and clearly readable as contextual metadata.
+*/
+.irt-drawer-hdr-chips {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 9px;
+}
+
+.irt-drawer-hdr-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px 2px 6px;
+    background: #F3F4F6;
+    border: 1px solid #E5E7EB;
+    border-radius: 4px;
+    line-height: 1.4;
+}
+
+.irt-drawer-hdr-chip__lbl {
+    font-size: 0.5625rem;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: #9CA3AF;
+}
+
+.irt-drawer-hdr-chip__val {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+/* ── Orphan review summary band ───────────────────────────────────────────────
+   Asymmetric two-zone layout that lives between the drawer header and the
+   scrollable body sections. Creates a clear visual break and promotes the
+   financially meaningful number to the top of the reviewer's attention.
+
+   Left zone  — Expected Total (hero): large numeral, ~55% of the band width.
+   Right zone — Secondary trio (Qty / Unit / Unit Cost): smaller, ~45%.
+   A vertical rule divides the two zones.
+
+   Background tint distinguishes this band from both the white header above
+   and the white section body below.
+*/
+.irt-orphan-summary {
+    display: flex;
+    align-items: stretch;
+    background: #F0F4FF;
+    border-top: 1px solid #DBEAFE;
+    border-bottom: 1px solid #DBEAFE;
+    padding: 14px 20px;
+    gap: 0;
+}
+
+.irt-orphan-summary__hero {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 3px;
+    flex: 0 0 auto;
+    min-width: 148px;
+    padding-right: 20px;
+    border-right: 1px solid #BFDBFE;
+}
+
+.irt-orphan-summary__hero-lbl {
+    font-size: 0.5625rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: #4B5563;
+    line-height: 1.2;
+}
+
+.irt-orphan-summary__hero-val {
+    font-size: 1.625rem;
+    font-weight: 700;
+    color: #1E3A8A;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+}
+
+.irt-orphan-summary__secondary {
+    display: flex;
+    align-items: center;
+    flex: 1 1 0;
+    padding-left: 20px;
+    gap: 0;
+}
+
+.irt-orphan-summary__sec-item {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1 1 0;
+    padding: 0 12px;
+    border-right: 1px solid #DBEAFE;
+}
+
+.irt-orphan-summary__sec-item:first-child {
+    padding-left: 0;
+}
+
+.irt-orphan-summary__sec-item:last-child {
+    border-right: none;
+}
+
+.irt-orphan-summary__sec-lbl {
+    font-size: 0.5625rem;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: #6B7280;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.irt-orphan-summary__sec-val {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #374151;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.2;
+}
+
+/* ── Orphan missing-expense notice banner ─────────────────────────────────────
+   Compact amber-tinted information strip: icon + headline + sub-message.
+   Occupies minimal vertical space — no large empty dashed box.
+*/
+.irt-orphan-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    background: #FFFBEB;
+    border: 1px solid #FDE68A;
+    border-radius: 5px;
+    margin-bottom: 12px;
+}
+
+.irt-orphan-notice__icon {
+    font-size: 0.9375rem;
+    color: #B45309;
+    flex-shrink: 0;
+    line-height: 1.4;
+}
+
+.irt-orphan-notice__body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.irt-orphan-notice__headline {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #92400E;
+    line-height: 1.4;
+}
+
+.irt-orphan-notice__sub {
+    font-size: 0.75rem;
+    color: #78350F;
+    line-height: 1.45;
+}
+
+/* Primary action container — no top gap after the notice */
+.irt-orphan-action {
+    display: flex;
+    align-items: center;
+}
+
+/* ── Related work items list (orphan drawer) ──────────────────────────────────
+   Compact list of all work items on the work order.
+   Expensed items: green checkmark.
+   Current orphan: amber ⚠ + highlighted row.
+   Other orphans: muted dash.
+*/
+.irt-drawer-wo-items {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #E5E7EB;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.irt-drawer-wo-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border-bottom: 1px solid #F3F4F6;
+    font-size: 0.8125rem;
+    line-height: 1.3;
+}
+
+.irt-drawer-wo-item:last-child {
+    border-bottom: none;
+}
+
+/* Expensed — green tint */
+.irt-drawer-wo-item--done {
+    background: #fff;
+}
+
+.irt-drawer-wo-item--done .irt-drawer-wo-item__icon {
+    color: #16A34A;
+    font-size: 0.75rem;
+    flex-shrink: 0;
+}
+
+/* Current orphan — amber highlight + left accent */
+.irt-drawer-wo-item--current {
+    background: #FFFBEB;
+    border-left: 3px solid #F59E0B;
+}
+
+.irt-drawer-wo-item--current .irt-drawer-wo-item__icon {
+    color: #B45309;
+    font-size: 0.8125rem;
+    flex-shrink: 0;
+}
+
+/* Other orphans — muted */
+.irt-drawer-wo-item--missing {
+    background: #fff;
+}
+
+.irt-drawer-wo-item--missing .irt-drawer-wo-item__icon {
+    color: #D1D5DB;
+    flex-shrink: 0;
+}
+
+.irt-drawer-wo-item__name {
+    flex: 1 1 0;
+    color: #374151;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.irt-drawer-wo-item--current .irt-drawer-wo-item__name {
+    color: #92400E;
+    font-weight: 600;
+}
+
+.irt-drawer-wo-item--missing .irt-drawer-wo-item__name {
+    color: #9CA3AF;
+}
+
+.irt-drawer-wo-item__id {
+    font-size: 0.6875rem;
+    color: #9CA3AF;
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+}
+
+/* ── Reviewer guidance text ───────────────────────────────────────────────────
+   "Why am I seeing this?" — muted, reads like product guidance, not a warning.
+*/
+.irt-drawer-guidance {
+    margin: 0;
+    font-size: 0.8125rem;
+    color: #6B7280;
+    line-height: 1.55;
+}
+
+/* ── LineItem cell wrapper (added to normalise both mapped and unmapped renders) */
+.irt-cell-lineid-wrap {
+    display: flex;
+    align-items: center;
+}
+
+/* ── Unmapped product type — row-level and cell indicators ──────────────────
+
+   Row highlight: amber-50 background via :has() targeting the unmapped ID span.
+   Uses the same :has() pattern as group header tinting (supported Chrome 105+).
+*/
+.irt-root ::deep tr:has(.irt-cell-unmapped-id) > .k-table-td {
+    background-color: #FFFBEB;
+}
+
+/* Amber left border on first cell of unmapped rows for strong edge signal */
+.irt-root ::deep tr:has(.irt-cell-unmapped-id) > .k-table-td:first-child {
+    border-left: 3px solid #F59E0B;
+}
+
+/* The ⚠ + LineItem text in the LineItem column */
+.irt-cell-unmapped-id {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #92400E;
+}
+
+.irt-cell-unmapped-icon {
+    font-size: 0.75rem;
+    color: #D97706;
+    flex-shrink: 0;
+}
+
+/* Description cell for unmapped rows */
+.irt-cell-unmapped-desc {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.irt-cell-unmapped-raw {
+    font-size: 0.8125rem;
+    color: #92400E;
+    font-style: italic;
+    font-weight: 500;
+}
+
+/* "Resolve Mapping" inline action button */
+.irt-cell-resolve-btn {
+    display: inline-block;
+    background: none;
+    border: 1px solid #D97706;
+    border-radius: 4px;
+    padding: 1px 7px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: #B45309;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    width: fit-content;
+    transition: background-color 0.12s, color 0.12s;
+}
+
+.irt-cell-resolve-btn:hover {
+    background-color: #FEF3C7;
+    color: #92400E;
+}
+
+/* ── Resolve Mapping modal ─────────────────────────────────────────────────── */
+
+.irt-rm-body {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 4px 0;
+}
+
+.irt-rm-title {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #111827;
+}
+
+.irt-rm-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.irt-rm-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6B7280;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.irt-rm-required {
+    color: #DC2626;
+    margin-left: 2px;
+}
+
+/* Read-only vendor description display */
+.irt-rm-vendor-desc {
+    display: block;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #1F2937;
+    padding: 8px 10px;
+    background: #F9FAFB;
+    border: 1px solid #E5E7EB;
+    border-radius: 5px;
+    font-style: italic;
+}
+
+.irt-rm-help {
+    margin: 0;
+    font-size: 0.8125rem;
+    color: #6B7280;
+    line-height: 1.5;
+    padding: 8px 10px;
+    background: #EFF6FF;
+    border-left: 3px solid #93C5FD;
+    border-radius: 0 4px 4px 0;
+}
+
+.irt-rm-error {
+    font-size: 0.75rem;
+    color: #DC2626;
+    margin-top: 2px;
+}
+
+.irt-rm-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+/* ── Italic auto-calculated totals (F and H columns) ──────────────────────── */
+
+.irt-total-italic {
+    font-style: italic;
+    color: #6B7280;
+}
+
+/* ── Work Item cell container ─────────────────────────────────────────────── */
+
+.irt-wi-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+/* ── UOM changed indicator ────────────────────────────────────────────────── */
+
+.irt-uom-changed {
+    color: #D97706;
+    font-weight: 600;
+}
+
+/* ── Externally Created badge (Scenario A) ────────────────────────────────── */
+/* Blue-gray treatment — distinct from amber unmapped and green approved.      */
+
+.irt-cell-external-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: #3B5BDB;
+    background: #EDF2FF;
+    border: 1px solid #BAC8FF;
+    border-radius: 4px;
+    padding: 1px 6px;
+    width: fit-content;
+    letter-spacing: 0.02em;
+}
+
+.irt-cell-external-name {
+    font-size: 0.8125rem;
+    color: #374151;
+    font-style: italic;
+}
+
+/* Externally created rows get a blue-gray left border + faint background */
+.irt-root ::deep tr:has(.irt-cell-external-badge) > .k-table-td {
+    background-color: #F0F4FF;
+}
+
+.irt-root ::deep tr:has(.irt-cell-external-badge) > .k-table-td:first-child {
+    border-left: 3px solid #748FFC;
+}
+
+/* ── Summary cards row ─────────────────────────────────────────────────────── */
+
+.irt-summary-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.irt-summary-card {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    background: #fff;
+    border: 1px solid #E5E7EB;
+    border-radius: 7px;
+    padding: 12px 14px 10px;
+    box-shadow: 0 1px 2px rgba(0,0,0,.04);
+}
+
+.irt-summary-card__label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #9CA3AF;
+}
+
+.irt-summary-card__value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #111827;
+    line-height: 1.2;
+}
+
+.irt-summary-card__sub {
+    font-size: 0.6875rem;
+    color: #9CA3AF;
+}
+
+/* Alert card — positive variance overage */
+.irt-summary-card--alert {
+    border-color: #FECACA;
+    background: #FFF5F5;
+}
+
+.irt-summary-card--alert .irt-summary-card__label {
+    color: #DC2626;
+}
+
+/* Warning card — items needing review */
+.irt-summary-card--warning {
+    border-color: #FDE68A;
+    background: #FFFBEB;
+}
+
+.irt-summary-card--warning .irt-summary-card__label {
+    color: #B45309;
+}
+
+.irt-summary-card--warning .irt-summary-card__value {
+    color: #92400E;
+}
+
+/* ── Orphaned Work Items section ─────────────────────────────────────────── */
+
+.irt-orphan-card {
+    border-color: #FECACA !important;
+}
+
+.irt-orphan-collapse-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    color: inherit;
+    font-size: inherit;
+}
+
+.irt-orphan-collapse-icon {
+    font-size: 0.625rem;
+    color: #9CA3AF;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.irt-orphan-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #DC2626;
+    color: #fff;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    border-radius: 10px;
+    padding: 0 6px;
+    min-width: 20px;
+    height: 18px;
+}
+
+.irt-orphan-empty {
+    font-size: 0.875rem;
+    color: #6B7280;
+    padding: 16px 0;
+    text-align: center;
+}
+
+/* Orphan grid row tint */
+.irt-uwe-grid ::deep .k-table-row > td:first-child {
+    border-left: 3px solid #FCA5A5;
+}
+
+/* ── Complete Task validation modal ─────────────────────────────────────── */
+
+.irt-cv-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.irt-cv-intro {
+    font-size: 0.875rem;
+    color: #374151;
+    margin: 0;
+    font-weight: 500;
+}
+
+.irt-cv-list {
+    margin: 0;
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.irt-cv-list li {
+    font-size: 0.8125rem;
+    color: #DC2626;
+    line-height: 1.4;
+}
+
+/* ── Status modal NC comment ─────────────────────────────────────────────── */
+
+.irt-sm-comment--required {
+    border-color: #F59E0B;
+    background: #FFFBEB;
+}
+
+.irt-sm-required {
+    color: #DC2626;
+    margin-left: 2px;
+}
+
+.irt-sm-error {
+    font-size: 0.75rem;
+    color: #DC2626;
+    margin-top: 2px;
+}
+
+/* ── Step badge — used by Needs Review (1) and Matched Items (2) ─────────── */
+
+.irt-step-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    background: #E0542E;   /* warm operational orange — attention, not error */
+    color: #fff;
+    line-height: 1;
+}
+
+.irt-step-badge--done {
+    background: #059669;
+}
+
+.irt-step-badge--secondary {
+    background: #4B5563;
+}
+
+/* ── Needs Review / Orphaned section ─────────────────────────────────────── */
+/*
+  Design: warm-tinted surface (very light blue-gray) draws the eye without
+  screaming error. The left accent line and step badge do the hierarchy work.
+*/
+
+.irt-needs-review {
+    border: 1px solid #D0D7E2;
+    border-left: 3px solid #E0542E;   /* warm left accent — the only strong color */
+    border-radius: 6px;
+    background: #F7F8FB;              /* very light blue-gray surface */
+    overflow: hidden;
+}
+
+.irt-needs-review--resolved {
+    border-color: #BDD8C3;
+    border-left-color: #059669;
+    border-radius: 6px;
+    background: #F3FAF5;
+}
+
+.irt-needs-review-hdr {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px 10px 12px;
+    cursor: pointer;
+    user-select: none;
+    background: #EEF1F7;
+    border-bottom: 1px solid #D0D7E2;
+}
+
+.irt-needs-review--resolved .irt-needs-review-hdr {
+    background: #E8F5EC;
+    border-bottom-color: #BDD8C3;
+}
+
+/* Title + subtitle stacked inside the header */
+.irt-needs-review-titles {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.irt-needs-review-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #1F2937;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.irt-needs-review-subtitle {
+    font-size: 0.75rem;
+    color: #6B7280;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+/* Unresolved count badge — amber-tinted, not red */
+.irt-needs-review-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 1px 8px;
+    border-radius: 10px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    background: #FEF3C7;
+    color: #92400E;
+    border: 1px solid #FCD34D;
+}
+
+.irt-needs-review-badge--clear {
+    background: #D1FAE5;
+    color: #065F46;
+    border-color: #6EE7B7;
+}
+
+.irt-needs-review-hdr-spacer {
+    flex: 1;
+}
+
+/* Inline "Blocks approval" — part of the subtitle line, not a chip */
+.irt-needs-review-blocking {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: #B45309;
+}
+
+.irt-needs-review-collapse {
+    font-size: 0.5625rem;
+    color: #9CA3AF;
+    flex-shrink: 0;
+}
+
+.irt-needs-review-empty {
+    padding: 14px 16px;
+    font-size: 0.875rem;
+    color: #6B7280;
+}
+
+/* ── Exception breakdown (bullet list in header) ─────────────────────────── */
+
+.irt-exception-breakdown {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 16px;
+    margin-top: 3px;
+}
+
+.irt-exc-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75rem;
+    color: #6B7280;
+    white-space: nowrap;
+}
+
+.irt-exc-item::before {
+    content: "•";
+    color: #D1D5DB;
+    font-size: 0.625rem;
+    line-height: 1;
+}
+
+.irt-exc-icon {
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+    opacity: 0.7;
+}
+
+/* ── Resolved state body ─────────────────────────────────────────────────── */
+
+.irt-needs-review-resolved-body {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 18px 16px 16px;
+    background: #F3FAF5;
+}
+
+.irt-resolved-check {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #059669;
+    color: #fff;
+    font-size: 0.875rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.irt-resolved-title {
+    margin: 0 0 3px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #065F46;
+}
+
+.irt-resolved-sub {
+    margin: 0;
+    font-size: 0.8125rem;
+    color: #4B7A52;
+    line-height: 1.4;
+}
+
+/* ── Exception Type cell (icon + label) ──────────────────────────────────── */
+
+.irt-orphan-type-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+}
+
+.irt-type-icon {
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+}
+
+.irt-type-icon--unmatched { color: #D97706; }
+.irt-type-icon--external  { color: #4F46E5; }
+.irt-type-icon--missing   { color: #64748B; }
+
+/* ── Icon button vertical separator ─────────────────────────────────────── */
+
+
+/* ── Exception exposure totals footer ────────────────────────────────────── */
+
+.irt-orphan-totals {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 14px;
+    background: #F1F3F8;
+    border-top: 1px solid #D0D7E2;
+    font-size: 0.8125rem;
+}
+
+.irt-orphan-totals__label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #9CA3AF;
+}
+
+.irt-orphan-totals__spacer {
+    flex: 1;
+}
+
+.irt-orphan-totals__item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.irt-orphan-totals__key {
+    font-size: 0.75rem;
+    color: #6B7280;
+}
+
+.irt-orphan-totals__val {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #1F2937;
+}
+
+/* ── Orphan grid ──────────────────────────────────────────────────────────── */
+
+.irt-orphan-grid {
+    border: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+}
+
+/* Compact row height — ~20% denser than default Telerik rows */
+.irt-orphan-grid ::deep .k-table-td {
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
+}
+
+/* Type-keyed left accent only — no full-row tint (reduces visual noise) */
+.irt-orphan-grid ::deep .k-table-row > .k-table-td:first-child {
+    border-left: 3px solid #CBD5E1;
+}
+
+.irt-orphan-grid ::deep tr:has(.irt-orphan-type--unmatched) > .k-table-td:first-child {
+    border-left-color: #D97706;
+}
+
+.irt-orphan-grid ::deep tr:has(.irt-orphan-type--external) > .k-table-td:first-child {
+    border-left-color: #6366F1;
+}
+
+.irt-orphan-grid ::deep tr:has(.irt-orphan-type--missing) > .k-table-td:first-child {
+    border-left-color: #94A3B8;
+}
+
+/* ── Orphan type label — text-only system annotation ─────────────────────── */
+
+.irt-orphan-type {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    white-space: nowrap;
+    letter-spacing: 0.01em;
+}
+
+.irt-orphan-type--unmatched { color: #B45309; }
+.irt-orphan-type--external  { color: #4338CA; }
+.irt-orphan-type--missing   { color: #475569; }
+
+/* ── Orphan grid cell text ────────────────────────────────────────────────── */
+
+.irt-orphan-ref {
+    font-size: 0.8125rem;
+    color: #9CA3AF;
+    white-space: nowrap;
+}
+
+.irt-orphan-desc {
+    font-size: 0.8125rem;
+    color: #1F2937;
+}
+
+.irt-orphan-placeholder {
+    font-size: 0.8125rem;
+    color: #D1D5DB;
+}
+
+/* ── Compact status pills (orphan section) ───────────────────────────────── */
+
+.irt-pill-sm {
+    font-size: 0.6875rem !important;
+    padding: 2px 8px !important;
+    line-height: 1.35 !important;
+    white-space: nowrap !important;
+}
+
+/* ── Icon-only action buttons ────────────────────────────────────────────── */
+/*
+  28 × 28 square buttons with inline SVG icons.
+  Tooltip: CSS-only via [data-tip] + ::before/::after so it shows in ~60ms
+  instead of the OS-native ~1s delay on title= attributes.
+  The [title] attribute is kept for a11y screen readers; the CSS tooltip fires first.
+*/
+
+.irt-icon-actions {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    flex-wrap: nowrap;
+}
+
+/*
+  Tooltips are handled by a single TelerikTooltip component
+  (TargetSelector=".irt-action-tip") placed outside the grid.
+  Telerik renders tooltips at body level — no overflow clipping.
+  No CSS pseudo-element tooltips exist on this page.
+*/
+
+.irt-icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border: 1px solid #E2E5EA;
+    border-radius: 4px;
+    background: transparent;
+    color: #9CA3AF;
+    cursor: pointer;
+    padding: 0;
+    flex-shrink: 0;
+    transition: border-color 0.1s, color 0.1s, background 0.1s;
+}
+
+.irt-icon-btn svg {
+    width: 13px;
+    height: 13px;
+}
+
+.irt-icon-btn:hover {
+    border-color: #B0B8C8;
+    color: #374151;
+    background: #F4F6F9;
+}
+
+/* Primary — slightly more prominent at rest */
+.irt-icon-btn--primary {
+    border-color: #D0D7E2;
+    color: #6B7280;
+}
+
+.irt-icon-btn--primary:hover {
+    border-color: #E0542E;
+    color: #E0542E;
+    background: #FFF5F2;
+}
+
+/* Deny — ghosted at rest, red on hover */
+.irt-icon-btn--deny:hover {
+    border-color: #FCA5A5;
+    color: #DC2626;
+    background: #FFF5F5;
+}
+
 

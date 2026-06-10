@@ -13,7 +13,7 @@
     @* ── Success toast ───────────────────────────────────────────────── *@
     @if (_successToastVisible)
     {
-        <div class="irt-toast" role="status" aria-live="polite">Expense added successfully</div>
+        <div class="irt-toast" role="status" aria-live="polite">@_toastMessage</div>
     }
 
     @* ── Unsaved-changes staging indicator ───────────────────────────── *@
@@ -47,6 +47,16 @@
                     <span class="irt-header__saved-chip">Draft saved</span>
                 }
             </span>
+            @if (_orphanRows.Count > 0)
+            {
+                <div class="irt-workflow-status">
+                    <span class="irt-workflow-status__icon" aria-hidden="true">⚠</span>
+                    <div class="irt-workflow-status__body">
+                        <span class="irt-workflow-status__title">@_orphanRows.Count Financial Exception@(_orphanRows.Count == 1 ? "" : "s")</span>
+                        <span class="irt-workflow-status__sub">Business approval blocked until all exceptions are resolved</span>
+                    </div>
+                </div>
+            }
         </div>
         <div class="irt-header__actions">
             <TelerikButton FillMode="@ThemeConstants.Button.FillMode.Outline"
@@ -97,49 +107,452 @@
        TODO: pass Files="@_attachedFiles" and OnSelectFiles="@HandleSelectFiles" when file service is wired. *@
     <TaskSupportingDocumentsCard />
 
-    @* ── Invoice line items grid ─────────────────────────────────────── *@
+    @* ── Summary cards ───────────────────────────────────────────────────── *@
+    <div class="irt-summary-cards">
+        <div class="irt-summary-card">
+            <span class="irt-summary-card__label">Prescribed Total</span>
+            <span class="irt-summary-card__value irt-num">@TotalPrescribed.ToString("C2", _us)</span>
+            <span class="irt-summary-card__sub">WO AP work item totals</span>
+        </div>
+        <div class="irt-summary-card">
+            <span class="irt-summary-card__label">Submitted Total</span>
+            <span class="irt-summary-card__value irt-num">@TotalVendorFeeTotal.ToString("C2", _us)</span>
+            <span class="irt-summary-card__sub">Vendor submitted</span>
+        </div>
+        <div class="irt-summary-card @(TotalVendorVariance > 0 ? "irt-summary-card--alert" : "")">
+            <span class="irt-summary-card__label">Variance</span>
+            <span class="irt-summary-card__value irt-num irt-var-cell @VarCss(TotalVendorVariance == 0m ? (decimal?)null : TotalVendorVariance)">@VarFormatted(TotalVendorVariance == 0m ? (decimal?)null : (decimal?)TotalVendorVariance)</span>
+            <span class="irt-summary-card__sub">vs. work item totals</span>
+        </div>
+        <div class="irt-summary-card @(RequiresReviewCount > 0 ? "irt-summary-card--warning" : "")">
+            <span class="irt-summary-card__label">Requires Review</span>
+            <span class="irt-summary-card__value">@RequiresReviewCount</span>
+            <span class="irt-summary-card__sub">rows without Business status</span>
+        </div>
+    </div>
+
+    @* ── STEP 1 card — Review Financial Exceptions ───────────────────── *@
+    <TelerikCard Class="irt-exceptions-card" ThemeColor="@ThemeConstants.Card.ThemeColor.Light">
+        <CardBody Class="irt-grid-body">
+
+            @* ── STEP 1 — Review Financial Exceptions ─────────────────────── *@
+            <div class="irt-needs-review @(_orphanRows.Count == 0 ? "irt-needs-review--resolved" : "")">
+                <div class="irt-needs-review-hdr" @onclick="@(() => _orphansCollapsed = !_orphansCollapsed)">
+                    <span class="irt-step-badge @(_orphanRows.Count == 0 ? "irt-step-badge--done" : "")">1</span>
+                    <div class="irt-needs-review-titles">
+                        <span class="irt-needs-review-title">
+                            Review Financial Exceptions
+                            @if (_orphanRows.Count > 0)
+                            {
+                                <span class="irt-needs-review-badge">@_orphanRows.Count unresolved</span>
+                            }
+                            else
+                            {
+                                <span class="irt-needs-review-badge irt-needs-review-badge--clear">✓ All clear</span>
+                            }
+                        </span>
+                        @if (_orphanRows.Count > 0)
+                        {
+                            <span class="irt-needs-review-subtitle">
+                                Business approval is unavailable until all @_orphanRows.Count exception@(_orphanRows.Count == 1 ? "" : "s") @(_orphanRows.Count == 1 ? "is" : "are") resolved.
+                                <span class="irt-needs-review-blocking">Blocks completion.</span>
+                            </span>
+                            <div class="irt-exception-breakdown">
+                                @if (_orphanRows.Count(r => r.OrphanTypeCss == "unmatched") is int u && u > 0)
+                                {
+                                    <span class="irt-exc-item">
+                                        <svg class="irt-exc-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M5.5 8.5a3 3 0 0 0 4.24 0l1.3-1.3a3 3 0 0 0-4.24-4.24l-.74.74"/>
+                                            <path d="M8.5 5.5a3 3 0 0 0-4.24 0L2.96 6.8a3 3 0 0 0 4.24 4.24l.74-.74"/>
+                                        </svg>
+                                        @u unmatched invoice@(u == 1 ? "" : "s")
+                                    </span>
+                                }
+                                @if (_orphanRows.Count(r => r.OrphanTypeCss == "external") is int e && e > 0)
+                                {
+                                    <span class="irt-exc-item">
+                                        <svg class="irt-exc-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                            <rect x="2" y="1.5" width="10" height="11" rx="1"/>
+                                            <line x1="4.5" y1="4.5" x2="9.5" y2="4.5"/>
+                                            <line x1="4.5" y1="7" x2="9.5" y2="7"/>
+                                            <line x1="4.5" y1="9.5" x2="7" y2="9.5"/>
+                                        </svg>
+                                        @e external item@(e == 1 ? "" : "s") without work item
+                                    </span>
+                                }
+                                @if (_orphanRows.Count(r => r.OrphanTypeCss == "missing") is int m && m > 0)
+                                {
+                                    <span class="irt-exc-item">
+                                        <svg class="irt-exc-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M8 1H3.5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V5L8 1z"/>
+                                            <path d="M8 1v4h3.5"/>
+                                            <line x1="4.5" y1="7.5" x2="9.5" y2="7.5"/>
+                                            <line x1="4.5" y1="9.5" x2="7.5" y2="9.5"/>
+                                        </svg>
+                                        @m missing invoice@(m == 1 ? "" : "s")
+                                    </span>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <span class="irt-needs-review-subtitle">
+                                All items resolved — business approval is not blocked by this section.
+                            </span>
+                        }
+                    </div>
+                    <span class="irt-needs-review-hdr-spacer"></span>
+                    <span class="irt-needs-review-collapse" aria-hidden="true">@(_orphansCollapsed ? "▶" : "▼")</span>
+                </div>
+
+                @if (!_orphansCollapsed)
+                {
+                    @if (_orphanRows.Count == 0)
+                    {
+                        @* ── Resolved state ───────────────────────────────────────── *@
+                        <div class="irt-needs-review-resolved-body">
+                            <span class="irt-resolved-check" aria-hidden="true">✓</span>
+                            <div>
+                                <p class="irt-resolved-title">All financial exceptions resolved</p>
+                                <p class="irt-resolved-sub">All invoice items have been matched and are ready for approval.</p>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        @* Single TelerikTooltip renders at body level — bypasses grid cell overflow clipping *@
+                        <TelerikTooltip TargetSelector=".irt-action-tip" />
+
+                        <TelerikGrid Data="@_orphanRows"
+                                     Pageable="false"
+                                     Sortable="false"
+                                     ShowColumnMenu="false"
+                                     Class="irt-orphan-grid">
+                            <GridColumns>
+                                <GridColumn Title="Exception Type" Width="154px">
+                                    <Template Context="row">
+                                        @{ var or = (IrtOrphanRow)row; }
+                                        <div class="irt-orphan-type-cell">
+                                            @* Per-type inline icon *@
+                                            @if (or.OrphanTypeCss == "unmatched")
+                                            {
+                                                <svg class="irt-type-icon irt-type-icon--unmatched" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M5.5 8.5a3 3 0 0 0 4.24 0l1.3-1.3a3 3 0 0 0-4.24-4.24l-.74.74"/>
+                                                    <path d="M8.5 5.5a3 3 0 0 0-4.24 0L2.96 6.8a3 3 0 0 0 4.24 4.24l.74-.74"/>
+                                                </svg>
+                                            }
+                                            else if (or.OrphanTypeCss == "external")
+                                            {
+                                                <svg class="irt-type-icon irt-type-icon--external" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                                    <rect x="2" y="1.5" width="10" height="11" rx="1"/>
+                                                    <line x1="4.5" y1="4.5" x2="9.5" y2="4.5"/>
+                                                    <line x1="4.5" y1="7" x2="9.5" y2="7"/>
+                                                    <line x1="4.5" y1="9.5" x2="7" y2="9.5"/>
+                                                </svg>
+                                            }
+                                            else
+                                            {
+                                                <svg class="irt-type-icon irt-type-icon--missing" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M8 1H3.5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V5L8 1z"/>
+                                                    <path d="M8 1v4h3.5"/>
+                                                    <line x1="5" y1="8" x2="9" y2="8"/>
+                                                    <line x1="5" y1="10" x2="7" y2="10"/>
+                                                </svg>
+                                            }
+                                            <span class="irt-orphan-type irt-orphan-type--@or.OrphanTypeCss">@or.OrphanType</span>
+                                        </div>
+                                    </Template>
+                                </GridColumn>
+                                <GridColumn Title="Work Item" Width="100px">
+                                    <Template Context="row">
+                                        @{ var or = (IrtOrphanRow)row; }
+                                        <span class="irt-orphan-ref">@or.WorkItemRef</span>
+                                    </Template>
+                                </GridColumn>
+                                <GridColumn Title="Description">
+                                    <Template Context="row">
+                                        @{ var or = (IrtOrphanRow)row; }
+                                        <span class="irt-orphan-desc">@or.VendorDescription</span>
+                                    </Template>
+                                </GridColumn>
+                                <GridColumn Title="Qty" Width="52px">
+                                    <Template Context="row">
+                                        @{ var or = (IrtOrphanRow)row; }
+                                        <span class="irt-num">@or.Qty.ToString("0.##")</span>
+                                    </Template>
+                                </GridColumn>
+                                <GridColumn Title="Unit" Width="50px">
+                                    <Template Context="row">
+                                        @{ var or = (IrtOrphanRow)row; }
+                                        <span>@or.Unit</span>
+                                    </Template>
+                                </GridColumn>
+                                <GridColumn Title="Vendor AP" Width="94px">
+                                    <Template Context="row">
+                                        @{ var or = (IrtOrphanRow)row; }
+                                        @if (or.ApAmount.HasValue)
+                                        {
+                                            <span class="irt-num">@or.ApAmount.Value.ToString("C2", _us)</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="irt-orphan-placeholder">—</span>
+                                        }
+                                    </Template>
+                                </GridColumn>
+                                <GridColumn Title="Customer AR" Width="102px">
+                                    <Template Context="row">
+                                        @{ var or = (IrtOrphanRow)row; }
+                                        @if (or.ArAmount.HasValue && or.ArAmount.Value > 0)
+                                        {
+                                            <span class="irt-num">@or.ArAmount.Value.ToString("C2", _us)</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="irt-orphan-placeholder">—</span>
+                                        }
+                                    </Template>
+                                </GridColumn>
+                                <GridColumn Title="Variance" Width="104px">
+                                    <Template Context="row">
+                                        @{ var or = (IrtOrphanRow)row; }
+                                        @if (or.Variance.HasValue)
+                                        {
+                                            <span class="irt-num irt-var-cell irt-var-over" title="Full amount is unplanned">@VarFormatted(or.Variance)</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="irt-orphan-placeholder">—</span>
+                                        }
+                                    </Template>
+                                </GridColumn>
+                                <GridColumn Title="Status" Width="130px">
+                                    <Template Context="row">
+                                        @{ var or = (IrtOrphanRow)row; }
+                                        <span class="@OrphanStatusCss(or) irt-pill-sm">@or.OrphanStatus</span>
+                                    </Template>
+                                </GridColumn>
+                                <GridColumn Title="Actions" Width="112px">
+                                    <Template Context="row">
+                                        @{ var or = (IrtOrphanRow)row; }
+                                        <div class="irt-icon-actions">
+                                            @* Primary action — context-dependent *@
+                                            @if (or.OrphanTypeCss == "unmatched")
+                                            {
+                                                <button class="irt-icon-btn irt-icon-btn--primary irt-action-tip"
+                                                        title="Match to Work Item"
+                                                        aria-label="Match to Work Item"
+                                                        @onclick="@(() => OpenResolveMapping(or.SourceLine!))">
+                                                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M6.5 9.5a3.5 3.5 0 0 0 4.95 0l1.5-1.5a3.5 3.5 0 0 0-4.95-4.95l-.86.86"/>
+                                                        <path d="M9.5 6.5a3.5 3.5 0 0 0-4.95 0L3.05 8a3.5 3.5 0 0 0 4.95 4.95l.86-.86"/>
+                                                    </svg>
+                                                </button>
+                                                <button class="irt-icon-btn irt-action-tip"
+                                                        title="Create Work Item"
+                                                        aria-label="Create Work Item"
+                                                        @onclick="@(() => CreateWorkItemForOrphan(or))">
+                                                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                                        <rect x="2.5" y="2" width="11" height="12" rx="1.5"/>
+                                                        <line x1="8" y1="5.5" x2="8" y2="10.5"/>
+                                                        <line x1="5.5" y1="8" x2="10.5" y2="8"/>
+                                                    </svg>
+                                                </button>
+                                            }
+                                            else if (or.OrphanTypeCss == "missing")
+                                            {
+                                                <button class="irt-icon-btn irt-icon-btn--primary irt-action-tip"
+                                                        title="Match Invoice"
+                                                        aria-label="Match Invoice"
+                                                        @onclick="@(() => HandleAddExpense(or.SourceItem!))">
+                                                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M9 2H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V6L9 2z"/>
+                                                        <path d="M9 2v4h4"/>
+                                                        <path d="M5.5 9.5l1.5 1.5 3-3"/>
+                                                    </svg>
+                                                </button>
+                                                <button class="irt-icon-btn irt-action-tip"
+                                                        title="Mark Not Done"
+                                                        aria-label="Mark Not Done"
+                                                        @onclick="@(() => MarkOrphanNotDone(or.SourceItem!))">
+                                                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+                                                        <circle cx="8" cy="8" r="5.5"/>
+                                                        <line x1="5.5" y1="8" x2="10.5" y2="8"/>
+                                                    </svg>
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                <button class="irt-icon-btn irt-icon-btn--primary irt-action-tip"
+                                                        title="Review &amp; Decide"
+                                                        aria-label="Review and Decide"
+                                                        @onclick="@(() => OpenStatusModal(or.SourceLine!))">
+                                                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                                        <rect x="4" y="3" width="8" height="10" rx="1"/>
+                                                        <path d="M6.5 3V2.5a1.5 1.5 0 0 1 3 0V3"/>
+                                                        <line x1="6" y1="7" x2="10" y2="7"/>
+                                                        <line x1="6" y1="9.5" x2="9" y2="9.5"/>
+                                                    </svg>
+                                                </button>
+                                                <button class="irt-icon-btn irt-action-tip"
+                                                        title="Create Work Item"
+                                                        aria-label="Create Work Item"
+                                                        @onclick="@(() => CreateWorkItemForOrphan(or))">
+                                                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                                        <rect x="2.5" y="2" width="11" height="12" rx="1.5"/>
+                                                        <line x1="8" y1="5.5" x2="8" y2="10.5"/>
+                                                        <line x1="5.5" y1="8" x2="10.5" y2="8"/>
+                                                    </svg>
+                                                </button>
+                                            }
+                                            <button class="irt-icon-btn irt-action-tip"
+                                                    title="Needs Corrections"
+                                                    aria-label="Needs Corrections"
+                                                    @onclick="@(() => OpenNcOrphan(or))">
+                                                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M13 2H3a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7l3 2V3a1 1 0 0 0-1-1z"/>
+                                                    <line x1="5" y1="6" x2="11" y2="6"/>
+                                                    <line x1="5" y1="8.5" x2="8.5" y2="8.5"/>
+                                                </svg>
+                                            </button>
+                                            @if (or.SourceLine is not null)
+                                            {
+                                                <button class="irt-icon-btn irt-icon-btn--deny irt-action-tip"
+                                                        title="Deny"
+                                                        aria-label="Deny"
+                                                        @onclick="@(() => DenyOrphanItem(or))">
+                                                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+                                                        <circle cx="8" cy="8" r="5.5"/>
+                                                        <line x1="10" y1="6" x2="6" y2="10"/>
+                                                        <line x1="6" y1="6" x2="10" y2="10"/>
+                                                    </svg>
+                                                </button>
+                                            }
+                                        </div>
+                                    </Template>
+                                </GridColumn>
+                            </GridColumns>
+                        </TelerikGrid>
+
+                        @* ── Exception exposure totals footer ──────────────────── *@
+                        <div class="irt-orphan-totals">
+                            <span class="irt-orphan-totals__label">Unresolved Exposure</span>
+                            <span class="irt-orphan-totals__spacer"></span>
+                            <span class="irt-orphan-totals__item">
+                                <span class="irt-orphan-totals__key">Vendor AP</span>
+                                <span class="irt-orphan-totals__val irt-num">@OrphanVendorExposure.ToString("C2", _us)</span>
+                            </span>
+                            <span class="irt-orphan-totals__item">
+                                <span class="irt-orphan-totals__key">Customer AR</span>
+                                <span class="irt-orphan-totals__val irt-num">@OrphanCustomerExposure.ToString("C2", _us)</span>
+                            </span>
+                        </div>
+                    }
+                }
+            </div>
+
+        </CardBody>
+    </TelerikCard>
+
+    @* ── STEP 2 card — Review Matched Financials ─────────────────────── *@
     <TelerikCard Class="irt-card" ThemeColor="@ThemeConstants.Card.ThemeColor.Light">
         <CardHeader Class="irt-card-hdr">
-            <div class="irt-card-hdr-row">
-                <CardTitle>Invoice Line Items</CardTitle>
+            <div class="irt-card-hdr-row irt-card-hdr-row--step2">
+                <div class="irt-step2-title">
+                    <span class="irt-step-badge irt-step-badge--secondary">2</span>
+                    <div>
+                        <CardTitle>Review Matched Financials</CardTitle>
+                        <span class="irt-step2-subtitle">@FilteredMatchedLines.Count() matched rows</span>
+                    </div>
+                </div>
                 <TelerikTextBox @bind-Value="@_searchTerm"
                                 PlaceHolder="Search description or line item…"
-                                Width="280px" />
+                                Width="260px" />
             </div>
         </CardHeader>
         <CardBody Class="irt-grid-body">
+
             @{
                 // ── Display templates ─────────────────────────────────────────────
                 var colTpl = new Dictionary<string, RenderFragment<IrtLineItem>>
                 {
-                    [nameof(IrtLineItem.LineItem)] = r =>
-                        @<span class="@LineItemCellClass(r)">@r.LineItem</span>,
+                    // "Work Item" column — work item type name.
+                    // Normal: review button. Unmapped: ⚠ badge + resolve action. External: blue-gray badge.
+                    [nameof(IrtLineItem.Description)] = r =>
+                        @<div class="irt-wi-cell">
+                            @if (r.IsUnmapped)
+                            {
+                                <span class="irt-cell-unmapped-id">
+                                    <span class="irt-cell-unmapped-icon" aria-hidden="true">⚠</span>Requires Mapping
+                                </span>
+                                <button class="irt-cell-resolve-btn"
+                                        @onclick="@(() => OpenResolveMapping(r))"
+                                        @onclick:stopPropagation>
+                                    Resolve
+                                </button>
+                            }
+                            else if (r.IsExternallyCreated)
+                            {
+                                <span class="irt-cell-external-badge">⬡ Externally Created</span>
+                                <span class="irt-cell-external-name">@r.VendorRawDescription</span>
+                            }
+                            else
+                            {
+                                <button class="irt-cell-review-btn @LineItemCellClass(r)"
+                                        title="Open detailed review"
+                                        @onclick="@(() => OpenReviewDrawer(r))">@r.Description</button>
+                            }
+                        </div>,
 
-                    // Work Item — WO reference cost as currency
+                    // (A) Original WO qty — expand-only, read-only
+                    [nameof(IrtLineItem.OriginalQty)] = r =>
+                        @<span class="irt-num">@(r.OriginalQty.HasValue ? r.OriginalQty.Value.ToString("0.##") : "—")</span>,
+
+                    // (B) WO Unit Cost AP — expand-only
                     [nameof(IrtLineItem.WoUnitCost)] = r =>
                         @<span class="irt-num">@(r.WoUnitCost.HasValue ? r.WoUnitCost.Value.ToString("C2", _us) : "—")</span>,
 
-                    // Qty — orange when vendor Qty ≠ original WO Qty
+                    // (C) WO Unit Cost AR — expand-only
+                    [nameof(IrtLineItem.WoCustomerUnitCost)] = r =>
+                        @<span class="irt-num">@(r.WoCustomerUnitCost.HasValue ? r.WoCustomerUnitCost.Value.ToString("C2", _us) : "—")</span>,
+
+                    // (AB) WO Total AP — expand-only
+                    [nameof(IrtLineItem.WoTotalAP)] = r =>
+                        @<span class="irt-num">@(r.WoUnitCost.HasValue ? r.WoTotalAP.ToString("C2", _us) : "—")</span>,
+
+                    // (AC) WO Total AR — expand-only
+                    [nameof(IrtLineItem.WoTotalAR)] = r =>
+                        @<span class="irt-num">@(r.WoCustomerUnitCost.HasValue ? r.WoTotalAR.ToString("C2", _us) : "—")</span>,
+
+                    // (D) Qty — orange when vendor Qty ≠ original WO Qty
                     [nameof(IrtLineItem.Qty)] = r =>
                         @<span class="irt-num @(r.HasQtyMismatch ? "irt-qty-mismatch" : null)">@r.Qty.ToString("0.##")</span>,
 
-                    // Unit costs — "—" when not set
+                    // Unit — flag if differs from WO unit
+                    [nameof(IrtLineItem.Unit)] = r =>
+                        @<span class="@(r.HasUomMismatch ? "irt-uom-changed" : null)" title="@(r.HasUomMismatch ? $"WO unit: {r.WoUnit}" : null)">@r.Unit</span>,
+
+                    // (E) Vendor Cost — expand-only, show "—" when null
                     [nameof(IrtLineItem.VendorUnitCost)] = r =>
                         @<span class="irt-num">@(r.VendorUnitCost.HasValue ? r.VendorUnitCost.Value.ToString("C2", _us) : "—")</span>,
+
+                    // (F) Vendor Total — expand-only, italic (read-only auto-calc)
+                    [nameof(IrtLineItem.VendorFeeTotal)] = r =>
+                        @<span class="irt-num irt-total-italic">@r.VendorFeeTotal.ToString("C2", _us)</span>,
+
+                    // (G) Customer Cost — expand-only
                     [nameof(IrtLineItem.ClientUnitCost)] = r =>
                         @<span class="irt-num">@(r.ClientUnitCost.HasValue ? r.ClientUnitCost.Value.ToString("C2", _us) : "—")</span>,
 
-                    // Auto-calculated totals
-                    [nameof(IrtLineItem.VendorFeeTotal)] = r =>
-                        @<span class="irt-num">@r.VendorFeeTotal.ToString("C2", _us)</span>,
+                    // (H) Customer Total — expand-only, italic
                     [nameof(IrtLineItem.ClientFeeTotal)] = r =>
-                        @<span class="irt-num">@r.ClientFeeTotal.ToString("C2", _us)</span>,
+                        @<span class="irt-num irt-total-italic">@r.ClientFeeTotal.ToString("C2", _us)</span>,
 
-                    // Variance — "—" when WoUnitCost is null (no pricing rule)
+                    // Variance — icon + signed value; "—" when no expense (null)
                     [nameof(IrtLineItem.VendorVariance)] = r =>
-                        @<span class="irt-num @VarCss(r.VendorVariance)">@(r.VendorVariance.HasValue ? r.VendorVariance.Value.ToString("C2", _us) : "—")</span>,
+                        @<span class="irt-num irt-var-cell @VarCss(r.VendorVariance)" title="@VarDirectionLabel(r.VendorVariance)">@VarFormatted(r.VendorVariance)</span>,
                     [nameof(IrtLineItem.ClientVariance)] = r =>
-                        @<span class="irt-num @VarCss(r.ClientVariance)">@(r.ClientVariance.HasValue ? r.ClientVariance.Value.ToString("C2", _us) : "—")</span>,
+                        @<span class="irt-num irt-var-cell @VarCss(r.ClientVariance)" title="@VarDirectionLabel(r.ClientVariance)">@VarFormatted(r.ClientVariance)</span>,
 
                     // Status pills — clickable: opens status-edit modal for this row
                     [nameof(IrtLineItem.BusinessStatus)] = r =>
@@ -161,6 +574,17 @@
                 // update live while the row is open for editing.
                 var editTpl = new Dictionary<string, RenderFragment<IrtLineItem>>
                 {
+                    // Work Item type — dropdown of mapped work item types
+                    [nameof(IrtLineItem.Description)] = item =>
+                        @<TelerikComboBox Data="@_workItemCatalogKeys"
+                            TItem="string"
+                            TValue="string"
+                            Value="@item.Description"
+                            ValueChanged="@((string v) => OnDescriptionChanged(item, v))"
+                            Filterable="true"
+                            Placeholder="Select work item type…"
+                            Width="100%" />,
+
                     [nameof(IrtLineItem.Qty)] = item =>
                         @<TelerikNumericTextBox T="decimal"
                             Value="@item.Qty"
@@ -182,7 +606,7 @@
             }
 
             <SingleSourceGrid TItem="IrtLineItem"
-                               Data="@FilteredLines"
+                               Data="@FilteredMatchedLines"
                                Context="@SsgGridContext.Task"
                                HideGroupingBar="true"
                                ShowColumnMenu="false"
@@ -209,72 +633,29 @@
 
             @* ── Aggregates bar ── shown below the grid, outside Telerik pagination *@
             <div class="irt-totals-bar">
-                <span class="irt-totals-label">Totals</span>
-                <span class="irt-totals-count">@FilteredLines.Count() items</span>
+                <span class="irt-totals-label">Matched Totals</span>
+                <span class="irt-totals-count">@FilteredMatchedLines.Count() rows</span>
                 <span class="irt-totals-spacer"></span>
                 <span class="irt-totals-item">
                     <span class="irt-totals-item__label">Vendor</span>
                     <span class="irt-totals-item__value irt-num">@TotalVendorFeeTotal.ToString("C2", _us)</span>
                 </span>
                 <span class="irt-totals-item">
-                    <span class="irt-totals-item__label">Client</span>
+                    <span class="irt-totals-item__label">Customer</span>
                     <span class="irt-totals-item__value irt-num">@TotalClientFeeTotal.ToString("C2", _us)</span>
                 </span>
                 <span class="irt-totals-item">
                     <span class="irt-totals-item__label">Vendor Var.</span>
-                    <span class="irt-totals-item__value irt-num @VarCss(TotalVendorVariance == 0m ? (decimal?)null : TotalVendorVariance)">@TotalVendorVariance.ToString("C2", _us)</span>
+                    <span class="irt-totals-item__value irt-num irt-var-cell @VarCss(TotalVendorVariance == 0m ? (decimal?)null : TotalVendorVariance)">@VarFormatted((decimal?)TotalVendorVariance)</span>
                 </span>
                 <span class="irt-totals-item">
-                    <span class="irt-totals-item__label">Client Var.</span>
-                    <span class="irt-totals-item__value irt-num @VarCss(TotalClientVariance == 0m ? (decimal?)null : TotalClientVariance)">@TotalClientVariance.ToString("C2", _us)</span>
+                    <span class="irt-totals-item__label">Customer Var.</span>
+                    <span class="irt-totals-item__value irt-num irt-var-cell @VarCss(TotalClientVariance == 0m ? (decimal?)null : TotalClientVariance)">@VarFormatted((decimal?)TotalClientVariance)</span>
                 </span>
             </div>
         </CardBody>
     </TelerikCard>
 
-    @* ── Requested work items without expense ──────────────────────────────── *@
-    <TelerikCard Class="irt-uwe-card" ThemeColor="@ThemeConstants.Card.ThemeColor.Light">
-        <CardHeader Class="irt-uwe-hdr">
-            <div class="irt-uwe-hdr-row">
-                <CardTitle>Requested Work Items Without Expense</CardTitle>
-            </div>
-            <p class="irt-uwe-subtitle">These work items were included in the work order but do not currently have associated invoice expenses.</p>
-        </CardHeader>
-        <CardBody Class="irt-uwe-body">
-            <TelerikGrid Data="@_unexpensedItems"
-                         Pageable="false"
-                         Sortable="false"
-                         ShowColumnMenu="false"
-                         Class="irt-uwe-grid">
-                <GridColumns>
-                    <GridColumn Field="@nameof(IrtUnexpensedItem.WorkItem)"     Title="Work Item"  Width="110px" />
-                    <GridColumn Field="@nameof(IrtUnexpensedItem.Description)"  Title="Description" />
-                    <GridColumn Field="@nameof(IrtUnexpensedItem.RequestedQty)" Title="Req. Qty"   Width="90px" />
-                    <GridColumn Field="@nameof(IrtUnexpensedItem.Unit)"         Title="UOM"        Width="72px" />
-                    <GridColumn Field="@nameof(IrtUnexpensedItem.Status)"       Title="Status"     Width="218px">
-                        <Template Context="item">
-                            @{ var uweRow = (IrtUnexpensedItem)item; }
-                            <span class="@UweStatusCss(uweRow.Status)">@uweRow.Status</span>
-                        </Template>
-                    </GridColumn>
-                    <GridColumn Title="Action" Width="150px">
-                        <Template Context="item">
-                            @{ var uweRow = (IrtUnexpensedItem)item; }
-                            <div class="irt-uwe-action-cell">
-                                <TelerikButton Size="@ThemeConstants.Button.Size.Small"
-                                               FillMode="@ThemeConstants.Button.FillMode.Outline"
-                                               ThemeColor="@ThemeConstants.Button.ThemeColor.Base"
-                                               Class="irt-uwe-action-btn"
-                                               OnClick="@(() => HandleAddExpense(uweRow))">
-                                    + Add Expense
-                                </TelerikButton>
-                            </div>
-                        </Template>
-                    </GridColumn>
-                </GridColumns>
-            </TelerikGrid>
-        </CardBody>
-    </TelerikCard>
 
     @* ── Status Edit Modal ─────────────────────────────────────────────────── *@
     @* Used for both single-row click (clickable status pills) and bulk selection. *@
@@ -337,15 +718,31 @@
                                          ValueChanged="@((string v) => _statusDraftInvestor = v)"
                                          Width="100%" />
                 </div>
+                @{
+                    var _ncSelected = _statusDraftBusiness == "Needs Corrections";
+                    var _ncRequiredMsg = _smAttempted && _ncSelected && string.IsNullOrWhiteSpace(_statusDraftComment)
+                        ? "A comment is required when setting Needs Corrections." : null;
+                }
                 <div class="irt-sm-field">
                     <label class="irt-sm-label">
                         Comment
-                        <span class="irt-sm-optional">(optional)</span>
+                        @if (_ncSelected)
+                        {
+                            <span class="irt-sm-required" aria-label="required">*</span>
+                        }
+                        else
+                        {
+                            <span class="irt-sm-optional">(optional)</span>
+                        }
                     </label>
-                    <textarea class="irt-sm-comment"
+                    <textarea class="irt-sm-comment @(_ncSelected ? "irt-sm-comment--required" : null)"
                               @bind="@_statusDraftComment"
-                              placeholder="Add a note about this status change…"
-                              rows="2"></textarea>
+                              placeholder="@(_ncSelected ? "Required: describe the corrections needed…" : "Add a note about this status change…")"
+                              rows="3"></textarea>
+                    @if (_ncRequiredMsg is not null)
+                    {
+                        <span class="irt-sm-error">@_ncRequiredMsg</span>
+                    }
                 </div>
             </div>
         </WindowContent>
@@ -433,6 +830,426 @@
                            OnClick="@ConfirmSendBack">Confirm Send Back</TelerikButton>
         </WindowFooter>
     </TelerikWindow>
+
+    @* ── Right-side Review Drawer ─────────────────────────────────────────── *@
+    @* position:fixed so it overlays the full viewport regardless of scroll offset. *@
+    @if (_drawerVisible)
+    {
+        <div class="irt-drawer-overlay" @onclick="CloseDrawer"></div>
+        <div class="irt-drawer">
+            @{
+                var drawerTitle  = _drawerIsOrphan ? _drawerOrphanItem!.Description : _drawerItem!.Description;
+                var drawerSub    = _drawerIsOrphan ? "Work Item — No Expense Linked" : "Vendor Expense Review";
+            }
+
+            @* ── Drawer header ───────────────────────────────────────────── *@
+            <div class="irt-drawer-hdr">
+                <div class="irt-drawer-hdr-left">
+                    @if (_drawerIsOrphan && _drawerOrphanItem is not null)
+                    {
+                        <h2 class="irt-drawer-hdr-title">@_drawerOrphanItem.Description</h2>
+                        <span class="irt-drawer-hdr-sub">
+                            @_drawerOrphanItem.WorkItem
+                            <span class="irt-drawer-hdr-sep" aria-hidden="true">•</span>
+                            <span class="@UweStatusCss(_drawerOrphanItem.Status)">@_drawerOrphanItem.Status</span>
+                        </span>
+                        <div class="irt-drawer-hdr-chips">
+                            <span class="irt-drawer-hdr-chip">
+                                <span class="irt-drawer-hdr-chip__lbl">WO</span>
+                                <span class="irt-drawer-hdr-chip__val">@_drawerOrphanItem.WorkOrderNumber</span>
+                            </span>
+                            <span class="irt-drawer-hdr-chip">
+                                <span class="irt-drawer-hdr-chip__lbl">Vendor</span>
+                                <span class="irt-drawer-hdr-chip__val">@_drawerOrphanItem.VendorName</span>
+                            </span>
+                        </div>
+                    }
+                    else
+                    {
+                        <span class="irt-drawer-hdr-eyebrow">@drawerSub</span>
+                        <h2 class="irt-drawer-hdr-title">@drawerTitle</h2>
+                        @if (_drawerItem is not null)
+                        {
+                            <div class="irt-drawer-hdr-pills">
+                                <span class="irt-drawer-hdr-pill-lbl">Business</span>
+                                <span class="@StatusCss(_drawerItem.BusinessStatus) irt-status-clickable"
+                                      title="Click to edit status"
+                                      @onclick="@(() => OpenStatusModal(_drawerItem))">@StatusLabel(_drawerItem.BusinessStatus)</span>
+                                <span class="irt-drawer-hdr-pill-lbl">Client</span>
+                                <span class="@StatusCss(_drawerItem.ClientStatus) irt-status-clickable"
+                                      title="Click to edit status"
+                                      @onclick="@(() => OpenStatusModal(_drawerItem))">@StatusLabel(_drawerItem.ClientStatus)</span>
+                                <span class="irt-drawer-hdr-pill-lbl">Investor</span>
+                                <span class="@StatusCss(_drawerItem.InvestorStatus) irt-status-clickable"
+                                      title="Click to edit status"
+                                      @onclick="@(() => OpenStatusModal(_drawerItem))">@StatusLabel(_drawerItem.InvestorStatus)</span>
+                            </div>
+                        }
+                    }
+                </div>
+                <button class="irt-drawer-close" @onclick="CloseDrawer" title="Close review panel" aria-label="Close">&times;</button>
+            </div>
+
+            @* ── Drawer scrollable body ───────────────────────────────────── *@
+            <div class="irt-drawer-body">
+
+                @if (_drawerIsOrphan && _drawerOrphanItem is not null)
+                {
+                    @* ──────────── ORPHAN MODE ──────────── *@
+
+                    @* Review summary band — Expected Total as hero, secondary stats right *@
+                    <div class="irt-orphan-summary">
+                        @if (_drawerOrphanItem.ExpectedUnitCost > 0)
+                        {
+                            <div class="irt-orphan-summary__hero">
+                                <span class="irt-orphan-summary__hero-lbl">Expected Total</span>
+                                <span class="irt-orphan-summary__hero-val">@_drawerOrphanItem.ExpectedTotal.ToString("C2", _us)</span>
+                            </div>
+                            <div class="irt-orphan-summary__secondary">
+                                <div class="irt-orphan-summary__sec-item">
+                                    <span class="irt-orphan-summary__sec-lbl">Qty</span>
+                                    <span class="irt-orphan-summary__sec-val">@_drawerOrphanItem.RequestedQty.ToString("0.##")</span>
+                                </div>
+                                <div class="irt-orphan-summary__sec-item">
+                                    <span class="irt-orphan-summary__sec-lbl">Unit</span>
+                                    <span class="irt-orphan-summary__sec-val">@_drawerOrphanItem.Unit</span>
+                                </div>
+                                <div class="irt-orphan-summary__sec-item">
+                                    <span class="irt-orphan-summary__sec-lbl">Unit Cost</span>
+                                    <span class="irt-orphan-summary__sec-val">@_drawerOrphanItem.ExpectedUnitCost.ToString("C2", _us)</span>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="irt-orphan-summary__hero">
+                                <span class="irt-orphan-summary__hero-lbl">Expected Qty</span>
+                                <span class="irt-orphan-summary__hero-val">@_drawerOrphanItem.RequestedQty.ToString("0.##")</span>
+                            </div>
+                            <div class="irt-orphan-summary__secondary">
+                                <div class="irt-orphan-summary__sec-item">
+                                    <span class="irt-orphan-summary__sec-lbl">Unit</span>
+                                    <span class="irt-orphan-summary__sec-val">@_drawerOrphanItem.Unit</span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    @* Missing expense notice + primary action *@
+                    <section class="irt-drawer-section">
+                        <div class="irt-orphan-notice">
+                            <span class="irt-orphan-notice__icon" aria-hidden="true">&#9888;</span>
+                            <div class="irt-orphan-notice__body">
+                                <span class="irt-orphan-notice__headline">No expense has been submitted for this work item.</span>
+                                <span class="irt-orphan-notice__sub">This work item was sent to the vendor but no returned expense is currently linked.</span>
+                            </div>
+                        </div>
+                        <div class="irt-orphan-action">
+                            <TelerikButton ThemeColor="@ThemeConstants.Button.ThemeColor.Primary"
+                                           FillMode="@ThemeConstants.Button.FillMode.Solid"
+                                           OnClick="@HandleAddExpenseFromDrawer">
+                                + Add Expense
+                            </TelerikButton>
+                        </div>
+                    </section>
+
+                    @* Related work items on this work order — informational *@
+                    <section class="irt-drawer-section">
+                        <h3 class="irt-drawer-section-title">Related Work Items on This Work Order</h3>
+                        <div class="irt-drawer-wo-items">
+                            @foreach (var li in _lines)
+                            {
+                                <div class="irt-drawer-wo-item irt-drawer-wo-item--done">
+                                    <span class="irt-drawer-wo-item__icon" aria-hidden="true">&#10003;</span>
+                                    <span class="irt-drawer-wo-item__name">@li.Description</span>
+                                    <span class="irt-drawer-wo-item__id">@li.LineItem</span>
+                                </div>
+                            }
+                            @foreach (var ui in _unexpensedItems)
+                            {
+                                var isCurrent = ReferenceEquals(ui, _drawerOrphanItem);
+                                <div class="irt-drawer-wo-item @(isCurrent ? "irt-drawer-wo-item--current" : "irt-drawer-wo-item--missing")">
+                                    <span class="irt-drawer-wo-item__icon" aria-hidden="true">@(isCurrent ? "⚠" : "–")</span>
+                                    <span class="irt-drawer-wo-item__name">@ui.Description</span>
+                                    <span class="irt-drawer-wo-item__id">@ui.WorkItem</span>
+                                </div>
+                            }
+                        </div>
+                    </section>
+
+                    @* Why am I seeing this? — reviewer guidance *@
+                    <section class="irt-drawer-section">
+                        <h3 class="irt-drawer-section-title">Why am I seeing this?</h3>
+                        <p class="irt-drawer-guidance">
+                            This work item was sent to the vendor but no returned expense was received. Review the item and either manually add an expense or wait for the vendor to submit one.
+                        </p>
+                    </section>
+                }
+                else if (_drawerItem is not null)
+                {
+                    @* ──────────── EXPENSE REVIEW MODE ──────────── *@
+
+                    @* Section A — Review Summary *@
+                    <section class="irt-drawer-section">
+                        <h3 class="irt-drawer-section-title">Review Summary</h3>
+                        <div class="irt-drawer-kv-grid">
+                            <span class="irt-drawer-kv-lbl">Work Order</span>
+                            <span class="irt-drawer-kv-val">@_drawerItem.WorkOrderNumber</span>
+                            <span class="irt-drawer-kv-lbl">Work Item</span>
+                            <span class="irt-drawer-kv-val">@_drawerItem.LineItem — @_drawerItem.Description</span>
+                            <span class="irt-drawer-kv-lbl">Vendor</span>
+                            <span class="irt-drawer-kv-val">@_drawerItem.VendorName</span>
+                            <span class="irt-drawer-kv-lbl">Submitted Total</span>
+                            <span class="irt-drawer-kv-val irt-num">@_drawerItem.VendorFeeTotal.ToString("C2", _us)</span>
+                            @if (_drawerItem.WoUnitCost.HasValue)
+                            {
+                                var origQtyS = _drawerItem.OriginalQty ?? _drawerItem.Qty;
+                                var expectedTotal = origQtyS * _drawerItem.WoUnitCost!.Value;
+                                <span class="irt-drawer-kv-lbl">Expected Total</span>
+                                <span class="irt-drawer-kv-val irt-num">@expectedTotal.ToString("C2", _us)</span>
+                                <span class="irt-drawer-kv-lbl">Total Variance</span>
+                                <span class="irt-drawer-kv-val">
+                                    @{
+                                        var summaryVar = _drawerItem.VendorVariance;
+                                    }
+                                    <span class="@GetVarianceCssClass(summaryVar)">
+                                        @(summaryVar.HasValue ? summaryVar.Value.ToString("C2", _us) : "—")
+                                    </span>
+                                    @if (summaryVar.HasValue && summaryVar.Value != 0m)
+                                    {
+                                        <span class="irt-drawer-var-badge @GetVarianceBadgeCss(summaryVar)">@GetVarianceLabel(summaryVar)</span>
+                                    }
+                                </span>
+                            }
+                        </div>
+                    </section>
+
+                    @* Section B — Original Work Item *@
+                    <section class="irt-drawer-section">
+                        <h3 class="irt-drawer-section-title">
+                            Original Work Item
+                            <span class="irt-drawer-section-source">From original work order</span>
+                        </h3>
+                        <div class="irt-drawer-kv-grid">
+                            <span class="irt-drawer-kv-lbl">Description</span>
+                            <span class="irt-drawer-kv-val">@_drawerItem.Description</span>
+                            <span class="irt-drawer-kv-lbl">Qty</span>
+                            <span class="irt-drawer-kv-val irt-num">@((_drawerItem.OriginalQty ?? _drawerItem.Qty).ToString("0.##"))</span>
+                            <span class="irt-drawer-kv-lbl">Unit</span>
+                            <span class="irt-drawer-kv-val">@_drawerItem.WoUnit</span>
+                            <span class="irt-drawer-kv-lbl">Unit Cost</span>
+                            <span class="irt-drawer-kv-val irt-num">@(_drawerItem.WoUnitCost.HasValue ? _drawerItem.WoUnitCost.Value.ToString("C2", _us) : "—")</span>
+                            <span class="irt-drawer-kv-lbl">Total</span>
+                            <span class="irt-drawer-kv-val irt-num">
+                                @if (_drawerItem.WoUnitCost.HasValue)
+                                {
+                                    @(((_drawerItem.OriginalQty ?? _drawerItem.Qty) * _drawerItem.WoUnitCost!.Value).ToString("C2", _us))
+                                }
+                                else
+                                {
+                                    <span>—</span>
+                                }
+                            </span>
+                        </div>
+                    </section>
+
+                    @* Section C — Vendor Submitted Expense *@
+                    <section class="irt-drawer-section">
+                        <h3 class="irt-drawer-section-title">
+                            Vendor Submitted Expense
+                            <span class="irt-drawer-section-source">Submitted by vendor</span>
+                        </h3>
+                        <div class="irt-drawer-kv-grid">
+                            <span class="irt-drawer-kv-lbl">Qty</span>
+                            <span class="irt-drawer-kv-val irt-num @(_drawerItem.HasQtyMismatch ? "irt-qty-mismatch" : "")">@_drawerItem.Qty.ToString("0.##")</span>
+                            <span class="irt-drawer-kv-lbl">Unit</span>
+                            <span class="irt-drawer-kv-val">@_drawerItem.Unit</span>
+                            <span class="irt-drawer-kv-lbl">Unit Cost</span>
+                            <span class="irt-drawer-kv-val irt-num">@(_drawerItem.VendorUnitCost.HasValue ? _drawerItem.VendorUnitCost.Value.ToString("C2", _us) : "—")</span>
+                            <span class="irt-drawer-kv-lbl">Total</span>
+                            <span class="irt-drawer-kv-val irt-num">@_drawerItem.VendorFeeTotal.ToString("C2", _us)</span>
+                            @if (!string.IsNullOrEmpty(_drawerItem.VendorReference))
+                            {
+                                <span class="irt-drawer-kv-lbl">Ref #</span>
+                                <span class="irt-drawer-kv-val">@_drawerItem.VendorReference</span>
+                            }
+                        </div>
+                    </section>
+
+                    @* Section D — Variance Analysis *@
+                    @if (_drawerItem.WoUnitCost.HasValue)
+                    {
+                        var origQty   = _drawerItem.OriginalQty ?? _drawerItem.Qty;
+                        var origCost  = _drawerItem.WoUnitCost!.Value;
+                        var origTotal = origQty * origCost;
+                        var subQty    = _drawerItem.Qty;
+                        var subCost   = _drawerItem.VendorUnitCost ?? 0m;
+                        var subTotal  = _drawerItem.VendorFeeTotal;
+                        var varQty    = subQty - origQty;
+                        var varCost   = subCost - origCost;
+                        var varTotal  = subTotal - origTotal;
+
+                        <section class="irt-drawer-section">
+                            <h3 class="irt-drawer-section-title">
+                                Variance Analysis
+                                <span class="irt-drawer-var-badge @GetVarianceBadgeCss(varTotal != 0m ? varTotal : (decimal?)null)">@VarDirectionLabel(varTotal != 0m ? varTotal : (decimal?)null)</span>
+                            </h3>
+                            <table class="irt-drawer-var-table">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>Original</th>
+                                        <th>Submitted</th>
+                                        <th>Variance</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="irt-drawer-var-row-lbl">Quantity</td>
+                                        <td class="irt-drawer-var-num">@origQty.ToString("0.##")</td>
+                                        <td class="irt-drawer-var-num @(varQty != 0m ? "irt-qty-mismatch" : "")">@subQty.ToString("0.##")</td>
+                                        <td class="irt-drawer-var-num @GetVarianceCssClass(varQty != 0m ? varQty : (decimal?)null)">
+                                            @VarFormattedQty(varQty)
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="irt-drawer-var-row-lbl">Unit Cost</td>
+                                        <td class="irt-drawer-var-num">@origCost.ToString("C2", _us)</td>
+                                        <td class="irt-drawer-var-num">@subCost.ToString("C2", _us)</td>
+                                        <td class="irt-drawer-var-num @GetVarianceCssClass(varCost != 0m ? varCost : (decimal?)null)">
+                                            @VarFormatted(varCost != 0m ? (decimal?)varCost : (decimal?)null)
+                                        </td>
+                                    </tr>
+                                    <tr class="irt-drawer-var-total-row">
+                                        <td class="irt-drawer-var-row-lbl">Total</td>
+                                        <td class="irt-drawer-var-num">@origTotal.ToString("C2", _us)</td>
+                                        <td class="irt-drawer-var-num">@subTotal.ToString("C2", _us)</td>
+                                        <td class="irt-drawer-var-num @GetVarianceCssClass(varTotal != 0m ? varTotal : (decimal?)null)">
+                                            @VarFormatted(varTotal != 0m ? (decimal?)varTotal : (decimal?)null)
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </section>
+                    }
+
+                    @* Section E — Evidence / Photos *@
+                    <section class="irt-drawer-section">
+                        <h3 class="irt-drawer-section-title">Evidence / Photos</h3>
+                        @if (_drawerItem.PhotoCount > 0)
+                        {
+                            <div class="irt-drawer-photos">
+                                @for (var pi = 0; pi < Math.Min(_drawerItem.PhotoCount, 4); pi++)
+                                {
+                                    var photoIdx = pi;
+                                    <div class="irt-drawer-photo-thumb" title="Photo @(photoIdx + 1)">
+                                        <span class="irt-drawer-photo-icon">&#128444;</span>
+                                        <span class="irt-drawer-photo-lbl">Photo @(photoIdx + 1)</span>
+                                    </div>
+                                }
+                            </div>
+                            @if (_drawerItem.PhotoCount > 4)
+                            {
+                                <p class="irt-drawer-photo-more">+@(_drawerItem.PhotoCount - 4) more photos attached</p>
+                            }
+                        }
+                        else
+                        {
+                            <div class="irt-drawer-empty-state irt-drawer-empty-state--sm">
+                                <span class="irt-drawer-empty-msg">No photos attached to this expense.</span>
+                            </div>
+                        }
+                    </section>
+
+                    @* Section F — Related Work Items *@
+                    <section class="irt-drawer-section">
+                        <h3 class="irt-drawer-section-title">Related Work Items</h3>
+                        <p class="irt-drawer-section-sub">Work items on this work order. Use <strong>Link to this expense</strong> to reassign if the expense is tied to the wrong item.</p>
+                        @{
+                            var relatedItems = GetRelatedWorkItems(_drawerItem.LineItem);
+                        }
+                        @if (relatedItems.Any())
+                        {
+                            <div class="irt-drawer-related-list">
+                                @foreach (var rwi in relatedItems)
+                                {
+                                    var capturedRwi = rwi;
+                                    <div class="irt-drawer-related-row @(capturedRwi.IsCurrentlyLinked ? "irt-drawer-related-row--linked" : "")">
+                                        <div class="irt-drawer-related-info">
+                                            <span class="irt-drawer-related-name">@capturedRwi.Description</span>
+                                            <span class="irt-drawer-related-meta">
+                                                @capturedRwi.ExpectedQty.ToString("0.##") @capturedRwi.ExpectedUnit
+                                                @if (capturedRwi.ExpectedUnitCost > 0)
+                                                {
+                                                    @(" · ")@capturedRwi.ExpectedUnitCost.ToString("C2", _us)@("/unit")
+                                                }
+                                            </span>
+                                        </div>
+                                        <div class="irt-drawer-related-action">
+                                            @if (capturedRwi.IsCurrentlyLinked)
+                                            {
+                                                <span class="irt-drawer-linked-badge">Currently linked</span>
+                                            }
+                                            else
+                                            {
+                                                <TelerikButton Size="@ThemeConstants.Button.Size.Small"
+                                                               FillMode="@ThemeConstants.Button.FillMode.Outline"
+                                                               ThemeColor="@ThemeConstants.Button.ThemeColor.Base"
+                                                               OnClick="@(() => LinkExpenseToWorkItem(_drawerItem!, capturedRwi))">
+                                                    Link to this expense
+                                                </TelerikButton>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="irt-drawer-empty-state irt-drawer-empty-state--sm">
+                                <span class="irt-drawer-empty-msg">No related work items found.</span>
+                            </div>
+                        }
+                    </section>
+
+                    @* Section G — Status / Decision Area *@
+                    <section class="irt-drawer-section irt-drawer-section--decision">
+                        <h3 class="irt-drawer-section-title">Status &amp; Decision</h3>
+                        <div class="irt-drawer-status-grid">
+                            <div class="irt-drawer-status-item">
+                                <span class="irt-drawer-status-lbl">Business</span>
+                                <span class="@StatusCss(_drawerItem.BusinessStatus) irt-status-clickable"
+                                      title="Click to edit status"
+                                      @onclick="@(() => OpenStatusModal(_drawerItem))">@StatusLabel(_drawerItem.BusinessStatus)</span>
+                            </div>
+                            <div class="irt-drawer-status-item">
+                                <span class="irt-drawer-status-lbl">Client</span>
+                                <span class="@StatusCss(_drawerItem.ClientStatus) irt-status-clickable"
+                                      title="Click to edit status"
+                                      @onclick="@(() => OpenStatusModal(_drawerItem))">@StatusLabel(_drawerItem.ClientStatus)</span>
+                            </div>
+                            <div class="irt-drawer-status-item">
+                                <span class="irt-drawer-status-lbl">Investor</span>
+                                <span class="@StatusCss(_drawerItem.InvestorStatus) irt-status-clickable"
+                                      title="Click to edit status"
+                                      @onclick="@(() => OpenStatusModal(_drawerItem))">@StatusLabel(_drawerItem.InvestorStatus)</span>
+                            </div>
+                        </div>
+                        <div class="irt-drawer-status-actions">
+                            <TelerikButton ThemeColor="@ThemeConstants.Button.ThemeColor.Primary"
+                                           FillMode="@ThemeConstants.Button.FillMode.Outline"
+                                           OnClick="@(() => OpenStatusModal(_drawerItem))">
+                                Update Statuses
+                            </TelerikButton>
+                        </div>
+                        <p class="irt-drawer-decision-note">
+                            <strong>Approving the business status</strong> confirms the work was completed, the vendor expense is acceptable, and any variance has been acknowledged.
+                        </p>
+                    </section>
+                }
+            </div>
+        </div>
+    }
 
     @* ── Add Expense modal ────────────────────────────────────────────────── *@
     @* Updated: work-item-type combobox (searchable) replaces the read-only context block. *@
@@ -561,6 +1378,86 @@
         </WindowFooter>
     </TelerikWindow>
 
+    @* ── Complete Task validation modal ──────────────────────────────────── *@
+    <TelerikWindow @bind-Visible="@_completeValidVisible"
+                   Modal="true"
+                   Width="460px"
+                   Draggable="false"
+                   Resizable="false"
+                   FooterLayoutAlign="WindowFooterLayoutAlign.End">
+        <WindowTitle>Cannot Complete Task</WindowTitle>
+        <WindowActions>
+            <WindowAction Name="Close" OnClick="@(() => _completeValidVisible = false)" />
+        </WindowActions>
+        <WindowContent>
+            <div class="irt-cv-body">
+                <p class="irt-cv-intro">The following issues must be resolved before completing this task:</p>
+                <ul class="irt-cv-list">
+                    @foreach (var err in _completeValidErrors)
+                    {
+                        <li>@err</li>
+                    }
+                </ul>
+            </div>
+        </WindowContent>
+        <WindowFooter>
+            <TelerikButton ThemeColor="@ThemeConstants.Button.ThemeColor.Primary"
+                           OnClick="@(() => _completeValidVisible = false)">OK — I'll Fix These</TelerikButton>
+        </WindowFooter>
+    </TelerikWindow>
+
+    @* ── Resolve Mapping modal ────────────────────────────────────────────── *@
+    <TelerikWindow @bind-Visible="@_resolveMappingVisible"
+                   Width="460px"
+                   Modal="true"
+                   Class="irt-rm-window">
+        <WindowTitle>
+            <span class="irt-rm-title">Resolve Product Type Mapping</span>
+        </WindowTitle>
+        <WindowContent>
+            <div class="irt-rm-body">
+
+                @* Vendor description — read-only context *@
+                <div class="irt-rm-field">
+                    <span class="irt-rm-label">Vendor Description</span>
+                    <span class="irt-rm-vendor-desc">@(_resolveMappingTarget?.VendorRawDescription ?? "")</span>
+                </div>
+
+                <p class="irt-rm-help">
+                    Select the work item type that best matches this vendor expense. The row will be
+                    updated immediately and variance will be recalculated once a pricing rule is available.
+                </p>
+
+                @* Work item type selector — flat list with category prefix *@
+                <div class="irt-rm-field">
+                    <label class="irt-rm-label" for="rm-type-select">
+                        Work Item Type <span class="irt-rm-required">*</span>
+                    </label>
+                    <TelerikComboBox Data="@_mappingOptionLabels"
+                                     TItem="string"
+                                     TValue="string"
+                                     @bind-Value="@_rmSelectedType"
+                                     Filterable="true"
+                                     Placeholder="Search or select work item type…"
+                                     Width="100%" />
+                    @if (_rmAttempted && string.IsNullOrWhiteSpace(_rmSelectedType))
+                    {
+                        <span class="irt-rm-error">A work item type is required.</span>
+                    }
+                </div>
+
+            </div>
+        </WindowContent>
+        <WindowFooter>
+            <div class="irt-rm-footer">
+                <TelerikButton FillMode="@ThemeConstants.Button.FillMode.Outline"
+                               OnClick="@CloseResolveMapping">Cancel</TelerikButton>
+                <TelerikButton ThemeColor="@ThemeConstants.Button.ThemeColor.Primary"
+                               OnClick="@ApplyMapping">Apply Mapping</TelerikButton>
+            </div>
+        </WindowFooter>
+    </TelerikWindow>
+
 </div>
 
 @code {
@@ -579,11 +1476,25 @@
                 l.Description.Contains(_searchTerm, StringComparison.OrdinalIgnoreCase) ||
                 l.LineItem.Contains(_searchTerm, StringComparison.OrdinalIgnoreCase));
 
-    // ── Aggregate totals for the summary bar ─────────────────────────────────
+    // ── Filtered line sets ────────────────────────────────────────────────────
+    // FilteredMatchedLines: non-orphaned rows that match the search term.
+    // Used for the main financial grid and its totals footer.
+    // FilteredLines (all rows): kept for summary cards to show the full picture.
+
+    private IEnumerable<IrtLineItem> FilteredMatchedLines =>
+        FilteredLines.Where(l => !l.IsUnmapped && !l.IsExternallyCreated);
+
+    // ── Aggregate totals for the summary bar and summary cards ───────────────
+    // Summary cards use all FilteredLines; footer totals use FilteredMatchedLines.
     private decimal TotalVendorFeeTotal  => FilteredLines.Sum(l => l.VendorFeeTotal);
     private decimal TotalClientFeeTotal  => FilteredLines.Sum(l => l.ClientFeeTotal);
+    // Spec: exclude dash rows (null variance) from variance sum.
     private decimal TotalVendorVariance  => FilteredLines.Sum(l => l.VendorVariance ?? 0m);
     private decimal TotalClientVariance  => FilteredLines.Sum(l => l.ClientVariance ?? 0m);
+    // Prescribed Total = sum of matched WO AP totals.
+    private decimal TotalPrescribed      => FilteredMatchedLines.Sum(l => l.WoTotalAP);
+    // Requires Review = matched rows with null Business status (orphans handled separately).
+    private int     RequiresReviewCount  => FilteredMatchedLines.Count(l => l.BusinessStatus == null);
 
     // ── Staging / draft state ─────────────────────────────────────────────────
     // LOCAL: edits are in-memory until the user explicitly saves to staging.
@@ -591,18 +1502,50 @@
     // COMMITTED: only after Complete Task do changes become live in global views.
     private bool _hasStagedChanges;
     private bool _taskSaved;
+    private List<IrtLineItem>? _lastSavedLines;   // deep-copy snapshot for Reset
+
+    private static IrtLineItem CloneLine(IrtLineItem s) => new()
+    {
+        LineItem            = s.LineItem,
+        Description         = s.Description,
+        WoDescription       = s.WoDescription,
+        OriginalQty         = s.OriginalQty,
+        WoUnit              = s.WoUnit,
+        WoUnitCost          = s.WoUnitCost,
+        WoCustomerUnitCost  = s.WoCustomerUnitCost,
+        Qty                 = s.Qty,
+        Unit                = s.Unit,
+        VendorUnitCost      = s.VendorUnitCost,
+        ClientUnitCost      = s.ClientUnitCost,
+        BusinessStatus      = s.BusinessStatus,
+        ClientStatus        = s.ClientStatus,
+        InvestorStatus      = s.InvestorStatus,
+        StatusComment       = s.StatusComment,
+        WorkOrderNumber     = s.WorkOrderNumber,
+        VendorName          = s.VendorName,
+        VendorReference     = s.VendorReference,
+        PhotoCount          = s.PhotoCount,
+        IsUnmapped          = s.IsUnmapped,
+        VendorRawDescription = s.VendorRawDescription,
+        IsExternallyCreated = s.IsExternallyCreated,
+    };
+
+    private void TakeSnapshot() => _lastSavedLines = _lines.Select(CloneLine).ToList();
 
     private void SaveStagedChanges()
     {
         // TODO: persist to task staging table via API when data layer is wired.
+        TakeSnapshot();
         _hasStagedChanges = false;
-        _taskSaved = true;
+        _taskSaved        = true;
         StateHasChanged();
     }
 
     private void DiscardStagedChanges()
     {
-        // TODO: reload from last persisted staging state via API.
+        // Restore last saved snapshot, or leave unchanged if no save has occurred.
+        if (_lastSavedLines is not null)
+            _lines = _lastSavedLines.Select(CloneLine).ToList();
         _hasStagedChanges = false;
         StateHasChanged();
     }
@@ -641,9 +1584,38 @@
         Navigation.NavigateTo(_pendingNavUrl);
     }
 
+    // ── Complete Task validation ──────────────────────────────────────────────
+    private bool         _completeValidVisible;
+    private List<string> _completeValidErrors = [];
+
     private void HandleCompleteTask()
     {
-        // Commit all staged edits before marking task complete.
+        var errors = new List<string>();
+
+        var unmapped = _lines.Count(l => l.IsUnmapped);
+        if (unmapped > 0)
+            errors.Add($"{unmapped} unmapped product type(s) must be resolved before completing.");
+
+        var ncNoComment = _lines.Count(l => l.BusinessStatus == "Needs Corrections" && string.IsNullOrWhiteSpace(l.StatusComment));
+        if (ncNoComment > 0)
+            errors.Add($"{ncNoComment} \"Needs Corrections\" row(s) are missing a required comment.");
+
+        var nullStatus = _lines.Count(l => l.BusinessStatus == null);
+        if (nullStatus > 0)
+            errors.Add($"{nullStatus} row(s) have no Business status set.");
+
+        var unresolvedOrphans = BuildOrphanRows().Count;
+        if (unresolvedOrphans > 0)
+            errors.Add($"{unresolvedOrphans} orphaned / unmatched item(s) must be resolved before completing.");
+
+        if (errors.Count > 0)
+        {
+            _completeValidErrors  = errors;
+            _completeValidVisible = true;
+            return;
+        }
+
+        // All validations passed — commit staged edits.
         // TODO: call task-completion API endpoint when wired.
         if (_hasStagedChanges)
             SaveStagedChanges();
@@ -653,6 +1625,13 @@
     // ── Inline-edit handlers ─────────────────────────────────────────────────
     // Setting _hasStagedChanges here keeps the staging indicator in sync with
     // every field-level edit without requiring an explicit per-row save action.
+
+    private void OnDescriptionChanged(IrtLineItem item, string v)
+    {
+        item.Description = v ?? "";
+        _hasStagedChanges = true;
+        StateHasChanged();
+    }
 
     private void OnQtyChanged(IrtLineItem item, decimal v)
     {
@@ -688,6 +1667,7 @@
 
     private bool _statusModalVisible;
     private bool _statusModalIsBulk;
+    private bool _smAttempted;
     private List<IrtLineItem> _statusModalTargets = [];
     private string _statusDraftBusiness = "";
     private string _statusDraftClient   = "";
@@ -697,39 +1677,40 @@
     // StatusOption is a simple value/label pair for TelerikDropDownList.
     private sealed record StatusOption(string Value, string Label);
 
+    // Spec-aligned Business status values — PART 1 MVP.
+    // "Pending Manager Review" included as an option but manager task generation is out-of-scope MVP.
     private static readonly List<StatusOption> _statusOptsCore =
     [
-        new("Approved",                   "Approved"),
-        new("Approved Within Allowable",  "Approved Within Allowable"),
-        new("Denied",                     "Denied"),
-        new("Needs Corrections",          "Needs Corrections"),
-        new("Pending Review",             "Pending Review"),
-        new("Not Required",               "Not Required"),
-        new("Not Submitted",              "Not Submitted"),
-        new("Awaiting Approval",          "Awaiting Approval"),
-        new("Submitted",                  "Submitted"),
+        new("Approved",                  "Approved"),
+        new("Approved Within Allowable", "Approved Within Allowable"),
+        new("Needs Corrections",         "Needs Corrections"),
+        new("Denied",                    "Denied"),
+        new("Pending Manager Review",    "Pending Manager Review"),
     ];
 
     // Prepend the context-appropriate placeholder as the first option.
     private IReadOnlyList<StatusOption> StatusOptsForModal =>
         _statusModalIsBulk
-            ? [new("", "— No change —"),  .. _statusOptsCore]
-            : [new("", "— Not Set —"),    .. _statusOptsCore];
+            ? [new("", "— No change —"), .. _statusOptsCore]
+            : [new("", "— Not Set —"),   .. _statusOptsCore];
 
     private void OpenStatusModal(IrtLineItem item)
     {
         _statusModalIsBulk   = false;
+        _smAttempted         = false;
         _statusModalTargets  = [item];
         _statusDraftBusiness = item.BusinessStatus ?? "";
         _statusDraftClient   = item.ClientStatus   ?? "";
         _statusDraftInvestor = item.InvestorStatus  ?? "";
-        _statusDraftComment  = null;
+        // Pre-populate prior NC comment if this row already has Needs Corrections.
+        _statusDraftComment  = item.BusinessStatus == "Needs Corrections" ? item.StatusComment : null;
         _statusModalVisible  = true;
     }
 
     private void OpenStatusModalBulk(List<IrtLineItem> items)
     {
         _statusModalIsBulk   = true;
+        _smAttempted         = false;
         _statusModalTargets  = items;
         _statusDraftBusiness = "";   // "" = no change
         _statusDraftClient   = "";
@@ -740,18 +1721,32 @@
 
     private void SaveStatusModal()
     {
+        _smAttempted = true;
+
+        // Needs Corrections requires a comment before saving.
+        if (_statusDraftBusiness == "Needs Corrections" && string.IsNullOrWhiteSpace(_statusDraftComment))
+            return;
+
         foreach (var item in _statusModalTargets)
         {
             // In bulk mode, "" means "no change" — skip those fields so existing values
             // on other rows are not overwritten.
             if (!_statusModalIsBulk || !string.IsNullOrEmpty(_statusDraftBusiness))
+            {
                 item.BusinessStatus = string.IsNullOrEmpty(_statusDraftBusiness) ? null : _statusDraftBusiness;
+                // Save Needs Corrections comment only on the rows whose Business status is being set to NC.
+                if (item.BusinessStatus == "Needs Corrections")
+                    item.StatusComment = _statusDraftComment;
+                else if (!_statusModalIsBulk)
+                    item.StatusComment = null;  // clear comment if status changed away from NC
+            }
             if (!_statusModalIsBulk || !string.IsNullOrEmpty(_statusDraftClient))
                 item.ClientStatus   = string.IsNullOrEmpty(_statusDraftClient)   ? null : _statusDraftClient;
             if (!_statusModalIsBulk || !string.IsNullOrEmpty(_statusDraftInvestor))
                 item.InvestorStatus = string.IsNullOrEmpty(_statusDraftInvestor) ? null : _statusDraftInvestor;
         }
         _statusModalVisible = false;
+        _smAttempted        = false;
         _hasStagedChanges   = true;
         StateHasChanged();
     }
@@ -851,8 +1846,21 @@
         StateHasChanged();
     }
 
+    private void HandleAddExpenseFromDrawer()
+    {
+        var orphan = _drawerOrphanItem;
+        CloseDrawer();
+        if (orphan is null)
+            return;
+
+        HandleAddExpense(orphan);
+    }
+
     private void HandleAddExpense(IrtUnexpensedItem item)
     {
+        if (item is null)
+            return;
+
         _addExpenseTarget     = item;
         // Pre-fill work item name from the Description column (human-readable);
         // trigger catalog lookup to populate description template if it exists.
@@ -862,7 +1870,7 @@
             _aeDescription = catalogMeta.Description;
         _aeQty                = item.RequestedQty;
         _aeUnit               = item.Unit;
-        _aeVendorCost         = null;
+        _aeVendorCost         = item.ExpectedUnitCost > 0 ? item.ExpectedUnitCost : null;
         _aeClientCost         = null;
         _aeNotes              = "";
         _aeAttempted          = false;
@@ -884,9 +1892,11 @@
         var newItem = new IrtLineItem
         {
             LineItem       = _aeWorkItemName,
-            Description    = string.IsNullOrWhiteSpace(_aeDescription) ? _aeWorkItemName : _aeDescription,
+            Description    = _aeWorkItemName,                                // work item type name
+            WoDescription  = string.IsNullOrWhiteSpace(_aeDescription) ? _aeWorkItemName : _aeDescription,
             WoUnit         = _aeUnit,
-            WoUnitCost     = null,   // no WO pricing rule — variance columns will show "—"
+            WoUnitCost     = null,   // no WO pricing rule — variance = full fee total
+            WoCustomerUnitCost = null,
             OriginalQty    = _addExpenseTarget?.RequestedQty,
             Qty            = _aeQty,
             Unit           = _aeUnit,
@@ -910,6 +1920,7 @@
         _hasStagedChanges       = true;
 
         _newlyAddedLineItem = newItem.LineItem;
+        _toastMessage = "Expense added successfully";
         await ShowSuccessToastAsync();
         ScheduleClearRowHighlight();
 
@@ -928,6 +1939,7 @@
     // ── Toast / row-highlight helpers ─────────────────────────────────────────
 
     private bool     _successToastVisible;
+    private string   _toastMessage = "Expense added successfully";
     private string?  _newlyAddedLineItem;
     private CancellationTokenSource? _toastCts;
     private CancellationTokenSource? _highlightCts;
@@ -981,6 +1993,104 @@
         _highlightCts?.Dispose();
     }
 
+    // ── Review drawer state ───────────────────────────────────────────────────
+
+    private bool               _drawerVisible;
+    private bool               _drawerIsOrphan;
+    private IrtLineItem?       _drawerItem;
+    private IrtUnexpensedItem? _drawerOrphanItem;
+
+    // Local link overrides: key = LineItem.LineItem ID, value = override target WorkItemId.
+    // Front-end demo only — not persisted.
+    private readonly Dictionary<string, string> _drawerLinkOverrides = new(StringComparer.Ordinal);
+
+    private void OpenReviewDrawer(IrtLineItem item)
+    {
+        _drawerItem       = item;
+        _drawerOrphanItem = null;
+        _drawerIsOrphan   = false;
+        _drawerVisible    = true;
+    }
+
+    private void OpenOrphanDrawer(IrtUnexpensedItem item)
+    {
+        _drawerOrphanItem = item;
+        _drawerItem       = null;
+        _drawerIsOrphan   = true;
+        _drawerVisible    = true;
+    }
+
+    private void CloseDrawer()
+    {
+        _drawerVisible    = false;
+        _drawerItem       = null;
+        _drawerOrphanItem = null;
+    }
+
+    private void LinkExpenseToWorkItem(IrtLineItem expense, IrtDrawerRelatedWorkItem workItem)
+    {
+        _drawerLinkOverrides[expense.LineItem] = workItem.WorkItemId;
+        _toastMessage = $"Expense linked to \"{workItem.Description}\"";
+        _ = ShowSuccessToastAsync();
+        StateHasChanged();
+    }
+
+    // Build the related work items list for the drawer based on current _lines data.
+    // The item matching the current override (or the drawer item's own LineItem) is marked "Currently linked".
+    private IReadOnlyList<IrtDrawerRelatedWorkItem> GetRelatedWorkItems(string currentLineItemId)
+    {
+        var linkedTarget = _drawerLinkOverrides.GetValueOrDefault(currentLineItemId, currentLineItemId);
+        return _lines
+            .Select(l => new IrtDrawerRelatedWorkItem
+            {
+                WorkItemId       = l.LineItem,
+                Description      = l.Description,
+                ExpectedQty      = l.OriginalQty ?? l.Qty,
+                ExpectedUnit     = l.WoUnit,
+                ExpectedUnitCost = l.WoUnitCost ?? 0m,
+                IsCurrentlyLinked = l.LineItem == linkedTarget,
+            })
+            .ToList();
+    }
+
+    // ── Variance / display helpers ────────────────────────────────────────────
+
+    private static string GetVarianceLabel(decimal? variance) => variance switch
+    {
+        null  => "No Pricing Rule",
+        0     => "No Change",
+        > 0   => "Increased",
+        _     => "Reduced",
+    };
+
+    private static string GetVarianceCssClass(decimal? variance) => variance switch
+    {
+        > 0 => "irt-var-over",
+        < 0 => "irt-var-under",
+        _   => "",
+    };
+
+    private static string GetVarianceBadgeCss(decimal? variance) => variance switch
+    {
+        null    => "irt-drawer-var-badge--neutral",
+        > 0     => "irt-drawer-var-badge--over",
+        < 0     => "irt-drawer-var-badge--under",
+        _       => "irt-drawer-var-badge--neutral",
+    };
+
+    // ── Related work item view model ──────────────────────────────────────────
+
+    private sealed class IrtDrawerRelatedWorkItem
+    {
+        public string  WorkItemId        { get; set; } = "";
+        public string  Description       { get; set; } = "";
+        public decimal ExpectedQty       { get; set; }
+        public string  ExpectedUnit      { get; set; } = "";
+        public decimal ExpectedUnitCost  { get; set; }
+        public bool    IsCurrentlyLinked { get; set; }
+        public decimal ExpectedTotal     => ExpectedQty * ExpectedUnitCost;
+    }
+
     // ── Display helpers ───────────────────────────────────────────────────────
 
     private static string StatusCss(string? s) => s?.ToLower() switch
@@ -988,16 +2098,11 @@
         "approved"                          => "ss-pill ss-pill--approved",
         "approved within allowable"         => "ss-pill ss-pill--allowable",
         "denied"                            => "ss-pill ss-pill--denied",
-        "corrections needed"                => "ss-pill ss-pill--corrections",
         "needs corrections"                 => "ss-pill ss-pill--corrections",
-        "needs approval"                    => "ss-pill ss-pill--corrections",
-        "needs client approval"             => "ss-pill ss-pill--corrections",
-        "needs investor approval"           => "ss-pill ss-pill--corrections",
-        "not required"                      => "ss-pill ss-pill--neutral",
-        "not submitted"                     => "ss-pill ss-pill--neutral",
+        "corrections needed"                => "ss-pill ss-pill--corrections",
+        "pending manager review"            => "ss-pill ss-pill--pending",
         "pending review"                    => "ss-pill ss-pill--pending",
-        "awaiting approval"                 => "ss-pill ss-pill--pending",
-        "submitted"                         => "ss-pill ss-pill--pending",
+        "not required"                      => "ss-pill ss-pill--neutral",
         _                                   => "ss-pill ss-pill--empty"
     };
 
@@ -1011,6 +2116,100 @@
         _   => ""
     };
 
+    // Returns icon + signed currency value for variance cells and footer.
+    // null  → "—"  (no pricing rule)
+    // 0     → "$0.00"
+    // > 0   → "↑ +$XX.XX"  (red / Increased)
+    // < 0   → "↓ -$XX.XX"  (blue / Reduced)
+    private static string VarFormatted(decimal? v) => v switch
+    {
+        null    => "—",
+        0       => "$0.00",
+        > 0     => $"↑ +{v.Value.ToString("C2", _us)}",
+        _       => $"↓ -{Math.Abs(v.Value).ToString("C2", _us)}",
+    };
+
+    // Qty variance uses a plain number (no currency symbol).
+    private static string VarFormattedQty(decimal v) => v switch
+    {
+        0   => "—",
+        > 0 => $"↑ +{v.ToString("0.##")}",
+        _   => $"↓ -{Math.Abs(v).ToString("0.##")}",
+    };
+
+    // Human-readable direction label used in drawer badge + title attributes.
+    private static string VarDirectionLabel(decimal? v) => v switch
+    {
+        null    => "",
+        0       => "No Change",
+        > 0     => "Increased",
+        _       => "Reduced",
+    };
+
+    // ── Resolve Mapping — state and methods ──────────────────────────────────
+
+    private bool          _resolveMappingVisible;
+    private IrtLineItem?  _resolveMappingTarget;
+    private string        _rmSelectedType = "";
+    private bool          _rmAttempted;
+
+    private void OpenResolveMapping(IrtLineItem item)
+    {
+        _resolveMappingTarget  = item;
+        _rmSelectedType        = "";
+        _rmAttempted           = false;
+        _resolveMappingVisible = true;
+    }
+
+    private void CloseResolveMapping()
+    {
+        _resolveMappingVisible = false;
+        _rmAttempted           = false;
+        _resolveMappingTarget  = null;
+    }
+
+    private void ApplyMapping()
+    {
+        _rmAttempted = true;
+        if (string.IsNullOrWhiteSpace(_rmSelectedType)) return;
+
+        // Strip "Category — " prefix to get the clean work item name.
+        var sep   = " — ";
+        var idx   = _rmSelectedType.IndexOf(sep, StringComparison.Ordinal);
+        var label = idx >= 0 ? _rmSelectedType[(idx + sep.Length)..] : _rmSelectedType;
+
+        var item = _resolveMappingTarget!;
+        item.Description          = label;
+        item.IsUnmapped           = false;
+        item.VendorRawDescription = "";
+        _hasStagedChanges         = true;
+        _resolveMappingVisible    = false;
+
+        _toastMessage = $"Mapped to \"{label}\" — review variance and set status.";
+        _ = ShowSuccessToastAsync();
+        StateHasChanged();
+    }
+
+    // ── Work item type catalog for the Resolve Mapping dropdown ─────────────
+    // Flat string list with "Category — Label" prefix so the reviewer can scan
+    // the two groups without requiring TelerikComboBox grouping (which requires
+    // TItem == TValue or a stable GroupField — both untested in this build).
+    // ApplyMapping() strips the prefix before writing to the row description.
+
+    private static readonly List<string> _mappingOptionLabels =
+    [
+        "Client — Mulch Installation",
+        "Client — Exterior Power Wash",
+        "Client — Irrigation Check",
+        "Client — Gutter Cleaning",
+        "Business — Debris Removal",
+        "Business — Lawn Mowing",
+        "Business — Tree Trimming",
+        "Business — Hedge Trimming",
+        "Business — Fertilization",
+        "Business — Stump Grinding",
+    ];
+
     private static string UweStatusCss(string? s) => s?.ToLower() switch
     {
         "no expense submitted"      => "ss-pill ss-pill--corrections",
@@ -1019,46 +2218,97 @@
     };
 
     // ── Placeholder data ──────────────────────────────────────────────────────
-    // LI-003: Qty mismatch (vendor submitted 1, WO expected 2).
-    // LI-005: no pricing rule (WoUnitCost null → variance displays "—").
+    // LI-001: zero variance (vendor matches WO), approved.
+    // LI-002: negative variance (vendor billed less than WO) — blue/Reduced.
+    // LI-003: qty mismatch (vendor submitted 1, WO expected 2) + positive variance.
+    // LI-004: positive variance (vendor above WO), needs review.
+    // LI-005: no work item pricing (WoUnitCost null) — stump grinding added outside WO.
+    // LI-006: zero variance, approved.
+    // LI-UM1/UM2: unmapped product type (Scenario B) — amber unresolved.
+    // LI-EXT1: externally created expense (Scenario A) — no WO work item, blue-gray badge.
     // Instance field (not static) so CommitAddExpense can replace the reference.
     private List<IrtLineItem> _lines =
     [
         new() { LineItem = "LI-001", Description = "Lawn Mowing",
-                WoUnit = "EA", WoUnitCost = 60m,  OriginalQty = 4,
+                WoDescription = "Mow lawn and edge borders per property specification",
+                WoUnit = "EA", WoUnitCost = 60m, WoCustomerUnitCost = 75m, OriginalQty = 4,
                 Qty = 4,  Unit = "EA", VendorUnitCost = 60m,  ClientUnitCost = 75m,
-                BusinessStatus = "Approved",       ClientStatus = "Not Required",  InvestorStatus = "Not Required" },
+                BusinessStatus = "Approved",       ClientStatus = null,  InvestorStatus = null,
+                WorkOrderNumber = "ORD-882741", VendorName = "GreenScape LLC", VendorReference = "GS-INV-29481-001", PhotoCount = 3 },
 
         new() { LineItem = "LI-002", Description = "Hedge Trimming",
-                WoUnit = "EA", WoUnitCost = 45m,  OriginalQty = 2,
-                Qty = 2,  Unit = "EA", VendorUnitCost = 45m,  ClientUnitCost = 55m,
-                BusinessStatus = "Approved",       ClientStatus = "Not Required",  InvestorStatus = "Not Required" },
+                WoDescription = "Trim and shape all hedges and shrubs",
+                WoUnit = "EA", WoUnitCost = 45m, WoCustomerUnitCost = 57m, OriginalQty = 2,
+                Qty = 2,  Unit = "EA", VendorUnitCost = 40m,  ClientUnitCost = 52m,
+                BusinessStatus = "Approved",       ClientStatus = null,  InvestorStatus = null,
+                WorkOrderNumber = "ORD-882741", VendorName = "GreenScape LLC", VendorReference = "GS-INV-29481-002", PhotoCount = 2 },
 
         new() { LineItem = "LI-003", Description = "Debris Removal",
-                WoUnit = "LS", WoUnitCost = 85m,  OriginalQty = 2,
-                Qty = 1,  Unit = "LS", VendorUnitCost = 95m,  ClientUnitCost = 100m,
-                BusinessStatus = "Needs Approval", ClientStatus = "Needs Client Approval", InvestorStatus = "Not Required" },
+                WoDescription = "Remove all yard debris and haul off site",
+                WoUnit = "LS", WoUnitCost = 85m, WoCustomerUnitCost = 107m, OriginalQty = 2,
+                Qty = 1,  Unit = "LS", VendorUnitCost = 95m,  ClientUnitCost = 120m,
+                BusinessStatus = "Needs Corrections", ClientStatus = null, InvestorStatus = null,
+                StatusComment = "Vendor submitted 1 LS but WO called for 2 LS. Quantity must match work order or variance must be explained.",
+                WorkOrderNumber = "ORD-882741", VendorName = "GreenScape LLC", VendorReference = "GS-INV-29481-003", PhotoCount = 5 },
 
         new() { LineItem = "LI-004", Description = "Tree Trimming",
-                WoUnit = "EA", WoUnitCost = 300m, OriginalQty = 1,
-                Qty = 1,  Unit = "EA", VendorUnitCost = 350m, ClientUnitCost = 380m,
-                BusinessStatus = "Needs Approval", ClientStatus = null,            InvestorStatus = "Needs Investor Approval" },
+                WoDescription = "Trim and shape all trees to specification",
+                WoUnit = "EA", WoUnitCost = 300m, WoCustomerUnitCost = 375m, OriginalQty = 1,
+                Qty = 1,  Unit = "EA", VendorUnitCost = 350m, ClientUnitCost = 435m,
+                BusinessStatus = null, ClientStatus = null, InvestorStatus = null,
+                WorkOrderNumber = "ORD-882741", VendorName = "GreenScape LLC", VendorReference = "GS-INV-29481-004", PhotoCount = 4 },
 
         new() { LineItem = "LI-005", Description = "Stump Grinding",
-                WoUnit = "EA", WoUnitCost = null, OriginalQty = 3,
-                Qty = 3,  Unit = "EA", VendorUnitCost = 140m, ClientUnitCost = 160m,
-                BusinessStatus = null,             ClientStatus = null,            InvestorStatus = null },
+                WoDescription = "Grind all exposed stumps to ground level",
+                WoUnit = "EA", WoUnitCost = null, WoCustomerUnitCost = null, OriginalQty = 3,
+                Qty = 3,  Unit = "EA", VendorUnitCost = 140m, ClientUnitCost = 175m,
+                BusinessStatus = null, ClientStatus = null, InvestorStatus = null,
+                WorkOrderNumber = "ORD-882741", VendorName = "GreenScape LLC", VendorReference = "GS-INV-29481-005", PhotoCount = 0 },
 
         new() { LineItem = "LI-006", Description = "Fertilization",
-                WoUnit = "LS", WoUnitCost = 75m,  OriginalQty = 1,
-                Qty = 1,  Unit = "LS", VendorUnitCost = 75m,  ClientUnitCost = 80m,
-                BusinessStatus = "Approved",       ClientStatus = "Not Required",  InvestorStatus = "Not Required" },
+                WoDescription = "Apply granular fertilizer to all lawn areas",
+                WoUnit = "LS", WoUnitCost = 75m, WoCustomerUnitCost = 94m, OriginalQty = 1,
+                Qty = 1,  Unit = "LS", VendorUnitCost = 75m,  ClientUnitCost = 94m,
+                BusinessStatus = "Approved",       ClientStatus = null,  InvestorStatus = null,
+                WorkOrderNumber = "ORD-882741", VendorName = "GreenScape LLC", VendorReference = "GS-INV-29481-006", PhotoCount = 1 },
+
+        // Unmapped rows — vendor submitted expenses but product type has no known work item mapping.
+        // AB = AC = 0 until resolved; variance = full fee total in red.
+        new() { LineItem = "LI-UM1", Description = "Emergency Cleanup",
+                WoDescription = "",
+                IsUnmapped = true, VendorRawDescription = "Emergency Cleanup",
+                WoUnit = "LS", WoUnitCost = null, WoCustomerUnitCost = null, OriginalQty = 1,
+                Qty = 1,  Unit = "LS", VendorUnitCost = 320m, ClientUnitCost = 400m,
+                BusinessStatus = null, ClientStatus = null, InvestorStatus = null,
+                WorkOrderNumber = "ORD-882741", VendorName = "GreenScape LLC", VendorReference = "GS-INV-29481-UM1", PhotoCount = 2 },
+
+        new() { LineItem = "LI-UM2", Description = "Additional Debris Removal",
+                WoDescription = "",
+                IsUnmapped = true, VendorRawDescription = "Additional Debris Removal",
+                WoUnit = "LS", WoUnitCost = null, WoCustomerUnitCost = null, OriginalQty = 1,
+                Qty = 2,  Unit = "LS", VendorUnitCost = 95m,  ClientUnitCost = 120m,
+                BusinessStatus = null, ClientStatus = null, InvestorStatus = null,
+                WorkOrderNumber = "ORD-882741", VendorName = "GreenScape LLC", VendorReference = "GS-INV-29481-UM2", PhotoCount = 0 },
+
+        // Externally created row — vendor submitted expense outside a work order (Scenario A).
+        // No work item exists at order creation; AB = AC = 0 → variance = full F in red.
+        new() { LineItem = "LI-EXT1", Description = "Pool Algae Treatment",
+                WoDescription = "",
+                IsExternallyCreated = true, VendorRawDescription = "Pool Algae Treatment — emergency call",
+                WoUnit = "EA", WoUnitCost = null, WoCustomerUnitCost = null, OriginalQty = null,
+                Qty = 1,  Unit = "EA", VendorUnitCost = 180m, ClientUnitCost = 225m,
+                BusinessStatus = null, ClientStatus = null, InvestorStatus = null,
+                WorkOrderNumber = "ORD-882741", VendorName = "GreenScape LLC", VendorReference = "GS-INV-29481-EXT1", PhotoCount = 1 },
     ];
 
     // ── Line item model ───────────────────────────────────────────────────────
-    // SingleSourceGridGroup attributes drive the collapsible column header groups via reflection.
-    // Computed properties update live because the EditTemplates call StateHasChanged() on each change.
-    // HasQtyMismatch drives the orange Qty highlight in the ColumnTemplate.
+    // Spec: Financial Table Design Handoff — PART 1 MVP.
+    // Column naming follows spec letter references: A=OriginalQty, B=WoUnitCost, C=WoCustomerUnitCost,
+    //   AB=WoTotalAP, AC=WoTotalAR, D=Qty, E=VendorUnitCost, F=VendorFeeTotal,
+    //   G=ClientUnitCost, H=ClientFeeTotal.
+    // Variance formula: Vendor Var = F - AB; Customer Var = H - AC.
+    //   When no work item exists (unmapped / externally created): AB=AC=0 → variance = full fee total.
+    //   When no expense (VendorUnitCost/ClientUnitCost null): variance = null (shown as "—").
 
     [SingleSourceGridGroup(DisplayName = "Work Item",            Key = "WI",  Order = 1, Collapsible = true, HeaderClass = "irt-gh--wi")]
     [SingleSourceGridGroup(DisplayName = "Work Item Financials", Key = "WIF", Order = 2, Collapsible = true, HeaderClass = "irt-gh--wif")]
@@ -1067,67 +2317,129 @@
     private sealed class IrtLineItem
     {
         // ── Work Item group ──────────────────────────────────────────────────────
-        [SingleSourceGridAttribute(DisplayName = "Line Item",    Width = "100px", GroupKey = "WI", Order = 1, Groupable = false, Sortable = true,  Filterable = false, Editable = false, ShowColumnMenu = false)]
+
+        // Internal row ID — not a grid column; used for drawer identity and staging references.
+        [SingleSourceGridAttribute(AutoGenerate = false)]
         public string LineItem { get; set; } = "";
 
-        [SingleSourceGridAttribute(DisplayName = "Description",               GroupKey = "WI", Order = 2, Groupable = false, Sortable = true,  Filterable = false, Editable = false, VisibleWhenCollapsed = true, ShowColumnMenu = false)]
+        // "Work Item" column = work item type name. Always visible. Editable via dropdown.
+        [SingleSourceGridAttribute(DisplayName = "Work Item",                    GroupKey = "WI", Order = 1, Groupable = false, Sortable = true,  Filterable = false, Editable = true,  VisibleWhenCollapsed = true, ShowColumnMenu = false)]
         public string Description { get; set; } = "";
 
-        [SingleSourceGridAttribute(DisplayName = "WO Unit",      Width = "76px",  GroupKey = "WI", Order = 3, Groupable = false, Sortable = false, Filterable = false, Editable = false, ShowColumnMenu = false)]
-        public string WoUnit { get; set; } = "";
+        // "Description" column = DescriptionNoCRLF from PPW work order. Always visible, read-only.
+        [SingleSourceGridAttribute(DisplayName = "Description",                  GroupKey = "WI", Order = 2, Groupable = false, Sortable = false, Filterable = false, Editable = false, VisibleWhenCollapsed = true, ShowColumnMenu = false)]
+        public string WoDescription { get; set; } = "";
 
-        [SingleSourceGridAttribute(DisplayName = "WO Unit Cost", Width = "112px", GroupKey = "WI", Order = 4, Groupable = false, Sortable = false, Filterable = false, Editable = false, ShowColumnMenu = false)]
-        public decimal? WoUnitCost { get; set; }
-
-        // ── Work Item Financials group ──────────────────────────────────────────
-        [SingleSourceGridAttribute(DisplayName = "Qty",          Width = "80px",  GroupKey = "WIF", Order = 1, Groupable = false, Sortable = true,  Filterable = false, Editable = true,  ShowColumnMenu = false)]
-        public decimal Qty { get; set; }
-
-        // Hidden: WO original quantity used only for HasQtyMismatch — not rendered as a column
-        [SingleSourceGridAttribute(AutoGenerate = false)]
+        // (A) Original work order quantity — expand-only, read-only.
+        [SingleSourceGridAttribute(DisplayName = "(A) Qty",      Width = "82px",  GroupKey = "WI", Order = 3, Groupable = false, Sortable = false, Filterable = false, Editable = false, ShowColumnMenu = false)]
         public decimal? OriginalQty { get; set; }
 
-        [SingleSourceGridAttribute(DisplayName = "UOM",          Width = "70px",  GroupKey = "WIF", Order = 2, Groupable = false, Sortable = false, Filterable = false, Editable = false, VisibleWhenCollapsed = true, ShowColumnMenu = false)]
+        // Work order UOM — expand-only, read-only.
+        [SingleSourceGridAttribute(DisplayName = "UOM",          Width = "70px",  GroupKey = "WI", Order = 4, Groupable = false, Sortable = false, Filterable = false, Editable = false, ShowColumnMenu = false)]
+        public string WoUnit { get; set; } = "";
+
+        // (B) Work order vendor unit cost (AP) — expand-only, read-only.
+        [SingleSourceGridAttribute(DisplayName = "(B) Unit Cost AP", Width = "132px", GroupKey = "WI", Order = 5, Groupable = false, Sortable = false, Filterable = false, Editable = false, ShowColumnMenu = false)]
+        public decimal? WoUnitCost { get; set; }
+
+        // (C) Work order customer unit cost (AR) — expand-only, read-only.
+        [SingleSourceGridAttribute(DisplayName = "(C) Unit Cost AR", Width = "132px", GroupKey = "WI", Order = 6, Groupable = false, Sortable = false, Filterable = false, Editable = false, ShowColumnMenu = false)]
+        public decimal? WoCustomerUnitCost { get; set; }
+
+        // (AB) Work Item Total AP = B × A — expand-only, read-only, calculated.
+        [SingleSourceGridAttribute(DisplayName = "(AB) WI Total AP", Width = "132px", GroupKey = "WI", Order = 7, Groupable = false, Sortable = false, Filterable = false, Editable = false, IsCalculated = true, ShowColumnMenu = false)]
+        public decimal WoTotalAP => WoUnitCost.HasValue ? WoUnitCost.Value * (OriginalQty ?? 0m) : 0m;
+
+        // (AC) Work Item Total AR = C × A — expand-only, read-only, calculated.
+        [SingleSourceGridAttribute(DisplayName = "(AC) WI Total AR", Width = "132px", GroupKey = "WI", Order = 8, Groupable = false, Sortable = false, Filterable = false, Editable = false, IsCalculated = true, ShowColumnMenu = false)]
+        public decimal WoTotalAR => WoCustomerUnitCost.HasValue ? WoCustomerUnitCost.Value * (OriginalQty ?? 0m) : 0m;
+
+        // ── Work Item Financials group ──────────────────────────────────────────
+
+        // (D) PPW expense qty — always visible, editable, orange if mismatch vs. WO qty.
+        [SingleSourceGridAttribute(DisplayName = "(D) Qty",      Width = "80px",  GroupKey = "WIF", Order = 1, Groupable = false, Sortable = true,  Filterable = false, Editable = true,  VisibleWhenCollapsed = true, ShowColumnMenu = false)]
+        public decimal Qty { get; set; }
+
+        // PPW expense UOM — always visible, read-only. Visually flagged if differs from WoUnit.
+        [SingleSourceGridAttribute(DisplayName = "Unit",         Width = "70px",  GroupKey = "WIF", Order = 2, Groupable = false, Sortable = false, Filterable = false, Editable = false, VisibleWhenCollapsed = true, ShowColumnMenu = false)]
         public string Unit { get; set; } = "";
 
-        [SingleSourceGridAttribute(DisplayName = "Vendor Cost",  Width = "120px", GroupKey = "WIF", Order = 3, Groupable = false, Sortable = false, Filterable = false, Editable = true,  ShowColumnMenu = false)]
+        // (E) Vendor unit cost — expand-only, editable. Drives F.
+        [SingleSourceGridAttribute(DisplayName = "(E) Vendor Cost", Width = "126px", GroupKey = "WIF", Order = 3, Groupable = false, Sortable = false, Filterable = false, Editable = true,  ShowColumnMenu = false)]
         public decimal? VendorUnitCost { get; set; }
 
-        [SingleSourceGridAttribute(DisplayName = "Vendor Total", Width = "120px", GroupKey = "WIF", Order = 4, Groupable = false, Sortable = true,  Filterable = false, Editable = false, VisibleWhenCollapsed = true, IsCalculated = true, ShowColumnMenu = false)]
+        // (F) Vendor Total = D × E — expand-only, auto-calculated, read-only, italic.
+        [SingleSourceGridAttribute(DisplayName = "(F) Vendor Total", Width = "126px", GroupKey = "WIF", Order = 4, Groupable = false, Sortable = true,  Filterable = false, Editable = false, IsCalculated = true, ShowColumnMenu = false)]
         public decimal VendorFeeTotal => Qty * (VendorUnitCost ?? 0m);
 
-        [SingleSourceGridAttribute(DisplayName = "Client Cost",  Width = "120px", GroupKey = "WIF", Order = 5, Groupable = false, Sortable = false, Filterable = false, Editable = true,  ShowColumnMenu = false)]
+        // (G) Customer unit cost — expand-only, editable. Drives H.
+        [SingleSourceGridAttribute(DisplayName = "(G) Customer Cost", Width = "134px", GroupKey = "WIF", Order = 5, Groupable = false, Sortable = false, Filterable = false, Editable = true,  ShowColumnMenu = false)]
         public decimal? ClientUnitCost { get; set; }
 
-        [SingleSourceGridAttribute(DisplayName = "Client Total", Width = "120px", GroupKey = "WIF", Order = 6, Groupable = false, Sortable = true,  Filterable = false, Editable = false, VisibleWhenCollapsed = true, IsCalculated = true, ShowColumnMenu = false)]
+        // (H) Customer Total = D × G — expand-only, auto-calculated, read-only, italic.
+        [SingleSourceGridAttribute(DisplayName = "(H) Customer Total", Width = "134px", GroupKey = "WIF", Order = 6, Groupable = false, Sortable = true,  Filterable = false, Editable = false, IsCalculated = true, ShowColumnMenu = false)]
         public decimal ClientFeeTotal => Qty * (ClientUnitCost ?? 0m);
 
         // ── Variance group ──────────────────────────────────────────────────────
-        [SingleSourceGridAttribute(DisplayName = "Vendor Var.",  Width = "118px", GroupKey = "Var", Order = 1, Groupable = false, Sortable = true,  Filterable = false, Editable = false, IsCalculated = true, ShowColumnMenu = false)]
+        // Vendor Var = F - AB. When no expense (VendorUnitCost null): null → shown as "—".
+        // When no work item (unmapped/external): AB = 0 → variance = full F in red.
+        [SingleSourceGridAttribute(DisplayName = "Vendor Var.",    Width = "120px", GroupKey = "Var", Order = 1, Groupable = false, Sortable = true,  Filterable = false, Editable = false, IsCalculated = true, ShowColumnMenu = false)]
         public decimal? VendorVariance =>
-            VendorUnitCost.HasValue && WoUnitCost.HasValue
-                ? Qty * (VendorUnitCost.Value - WoUnitCost.Value)
-                : null;
+            VendorUnitCost.HasValue ? VendorFeeTotal - WoTotalAP : null;
 
-        [SingleSourceGridAttribute(DisplayName = "Client Var.",  Width = "118px", GroupKey = "Var", Order = 2, Groupable = false, Sortable = true,  Filterable = false, Editable = false, IsCalculated = true, ShowColumnMenu = false)]
+        // Customer Var = H - AC.
+        [SingleSourceGridAttribute(DisplayName = "Customer Var.",  Width = "124px", GroupKey = "Var", Order = 2, Groupable = false, Sortable = true,  Filterable = false, Editable = false, IsCalculated = true, ShowColumnMenu = false)]
         public decimal? ClientVariance =>
-            ClientUnitCost.HasValue && WoUnitCost.HasValue
-                ? Qty * (ClientUnitCost.Value - WoUnitCost.Value)
-                : null;
+            ClientUnitCost.HasValue ? ClientFeeTotal - WoTotalAR : null;
 
         // ── Status group — clickable pills open status-edit modal ─────────────
-        [SingleSourceGridAttribute(DisplayName = "Business",     Width = "150px", GroupKey = "Dec", Order = 1, Groupable = false, Sortable = true,  Filterable = false, Editable = false, ShowColumnMenu = false)]
+        [SingleSourceGridAttribute(DisplayName = "Business",      Width = "162px", GroupKey = "Dec", Order = 1, Groupable = false, Sortable = true,  Filterable = false, Editable = false, ShowColumnMenu = false)]
         public string? BusinessStatus { get; set; }
 
-        [SingleSourceGridAttribute(DisplayName = "Client",       Width = "158px", GroupKey = "Dec", Order = 2, Groupable = false, Sortable = true,  Filterable = false, Editable = false, VisibleWhenCollapsed = true, ShowColumnMenu = false)]
+        [SingleSourceGridAttribute(DisplayName = "Customer",      Width = "162px", GroupKey = "Dec", Order = 2, Groupable = false, Sortable = true,  Filterable = false, Editable = false, VisibleWhenCollapsed = true, ShowColumnMenu = false)]
         public string? ClientStatus { get; set; }
 
-        [SingleSourceGridAttribute(DisplayName = "Investor",     Width = "162px", GroupKey = "Dec", Order = 3, Groupable = false, Sortable = true,  Filterable = false, Editable = false, VisibleWhenCollapsed = true, ShowColumnMenu = false)]
+        [SingleSourceGridAttribute(DisplayName = "Investor",      Width = "162px", GroupKey = "Dec", Order = 3, Groupable = false, Sortable = true,  Filterable = false, Editable = false, VisibleWhenCollapsed = true, ShowColumnMenu = false)]
         public string? InvestorStatus { get; set; }
 
-        // Internal flag — not a column. Drives the orange Qty highlight in the ColumnTemplate.
+        // ── Computed flags ─────────────────────────────────────────────────────
         [SingleSourceGridAttribute(AutoGenerate = false)]
         public bool HasQtyMismatch => OriginalQty.HasValue && Qty != OriginalQty.Value;
+
+        [SingleSourceGridAttribute(AutoGenerate = false)]
+        public bool HasUomMismatch => !string.IsNullOrEmpty(WoUnit) && !string.IsNullOrEmpty(Unit) && Unit != WoUnit;
+
+        // ── Drawer-only fields ─────────────────────────────────────────────────
+        [SingleSourceGridAttribute(AutoGenerate = false)]
+        public string WorkOrderNumber { get; set; } = "";
+
+        [SingleSourceGridAttribute(AutoGenerate = false)]
+        public string VendorName { get; set; } = "";
+
+        [SingleSourceGridAttribute(AutoGenerate = false)]
+        public string VendorReference { get; set; } = "";
+
+        [SingleSourceGridAttribute(AutoGenerate = false)]
+        public int PhotoCount { get; set; }
+
+        // ── Unmapped product type (Scenario B) ────────────────────────────────
+        // Set true when expense arrives with no known work item type mapping.
+        // Cleared by ApplyMapping() once resolved.
+        [SingleSourceGridAttribute(AutoGenerate = false)]
+        public bool IsUnmapped { get; set; }
+
+        [SingleSourceGridAttribute(AutoGenerate = false)]
+        public string VendorRawDescription { get; set; } = "";
+
+        // ── Externally created expense (Scenario A) ───────────────────────────
+        // Expense submitted by vendor outside a work order — no work item exists.
+        // AB = AC = 0 → variance = full F and H in red.
+        [SingleSourceGridAttribute(AutoGenerate = false)]
+        public bool IsExternallyCreated { get; set; }
+
+        // ── Per-row Needs Corrections comment (staged) ────────────────────────
+        [SingleSourceGridAttribute(AutoGenerate = false)]
+        public string? StatusComment { get; set; }
     }
 
     // ── Unexpensed work items mock data ───────────────────────────────────────
@@ -1136,19 +2448,211 @@
 
     private List<IrtUnexpensedItem> _unexpensedItems =
     [
-        new() { WorkItem = "LI-007", Description = "Mulch Installation",  RequestedQty = 3, Unit = "CY", Status = "No Expense Submitted" },
-        new() { WorkItem = "LI-008", Description = "Irrigation Check",    RequestedQty = 1, Unit = "EA", Status = "No Expense Submitted" },
-        new() { WorkItem = "LI-009", Description = "Gutter Cleaning",     RequestedQty = 2, Unit = "EA", Status = "Completed Without Expense" },
-        new() { WorkItem = "LI-010", Description = "Exterior Power Wash", RequestedQty = 1, Unit = "LS", Status = "No Expense Submitted" },
+        new() { WorkItem = "LI-007", Description = "Mulch Installation",  RequestedQty = 3, Unit = "CY", ExpectedUnitCost = 55m,  Status = "No Expense Submitted",      WorkOrderNumber = "ORD-882741", VendorName = "GreenScape LLC" },
+        new() { WorkItem = "LI-008", Description = "Irrigation Check",    RequestedQty = 1, Unit = "EA", ExpectedUnitCost = 120m, Status = "No Expense Submitted",      WorkOrderNumber = "ORD-882741", VendorName = "GreenScape LLC" },
+        new() { WorkItem = "LI-009", Description = "Gutter Cleaning",     RequestedQty = 2, Unit = "EA", ExpectedUnitCost = 80m,  Status = "Completed Without Expense", WorkOrderNumber = "ORD-882741", VendorName = "GreenScape LLC" },
+        new() { WorkItem = "LI-010", Description = "Exterior Power Wash", RequestedQty = 1, Unit = "LS", ExpectedUnitCost = 200m, Status = "No Expense Submitted",      WorkOrderNumber = "ORD-882741", VendorName = "GreenScape LLC" },
     ];
 
     // ── Unexpensed item model ─────────────────────────────────────────────────
     private sealed class IrtUnexpensedItem
     {
-        public string  WorkItem    { get; set; } = "";
-        public string  Description { get; set; } = "";
-        public decimal RequestedQty { get; set; }
-        public string  Unit        { get; set; } = "";
-        public string  Status      { get; set; } = "";
+        public string  WorkItem         { get; set; } = "";
+        public string  Description      { get; set; } = "";
+        public decimal RequestedQty     { get; set; }
+        public string  Unit             { get; set; } = "";
+        public decimal ExpectedUnitCost { get; set; }
+        public string  Status           { get; set; } = "";
+        public string  WorkOrderNumber  { get; set; } = "";
+        public string  VendorName       { get; set; } = "";
+        public decimal ExpectedTotal    => RequestedQty * ExpectedUnitCost;
+        // Resolution state (local/staged)
+        public bool    IsMarkedNotDone  { get; set; }
+        public bool    IsFlagged        { get; set; }
+    }
+
+    // ── Orphan section state ──────────────────────────────────────────────────
+    private bool _orphansCollapsed;
+
+    private void MarkOrphanNotDone(IrtUnexpensedItem item)
+    {
+        item.IsMarkedNotDone = true;
+        _hasStagedChanges    = true;
+        _toastMessage        = $"\"{item.Description}\" marked as not done.";
+        _ = ShowSuccessToastAsync();
+        StateHasChanged();
+    }
+
+    private void FlagOrphanIssue(IrtUnexpensedItem item)
+    {
+        item.IsFlagged    = true;
+        _hasStagedChanges = true;
+        _toastMessage     = $"\"{item.Description}\" flagged for follow-up.";
+        _ = ShowSuccessToastAsync();
+        StateHasChanged();
+    }
+
+    private void DenyOrphanItem(IrtOrphanRow row)
+    {
+        if (row.SourceLine is not null)
+        {
+            row.SourceLine.BusinessStatus = "Denied";
+            _hasStagedChanges             = true;
+            _toastMessage                 = $"\"{row.VendorDescription}\" denied.";
+            _ = ShowSuccessToastAsync();
+            StateHasChanged();
+        }
+    }
+
+    // Opens the status modal pre-targeting an orphan source line for quick NC.
+    private void OpenNcOrphan(IrtOrphanRow row)
+    {
+        if (row.SourceLine is not null)
+            OpenStatusModal(row.SourceLine);
+        else if (row.SourceItem is not null)
+            FlagOrphanIssue(row.SourceItem);
+    }
+
+    // Spec Scenario D — Create Work Item for an orphan invoice line.
+    // Mock implementation: resolves the line by treating it as a newly created work item,
+    // clearing the unmapped/external flag so it graduates to the matched table.
+    private void CreateWorkItemForOrphan(IrtOrphanRow row)
+    {
+        if (row.SourceLine is null) return;
+
+        var line = row.SourceLine;
+        // For demo: assign the vendor description as the new work item name,
+        // clear orphan flags, stamp a nominal WO cost to show it is now mapped.
+        line.Description       = string.IsNullOrWhiteSpace(line.VendorRawDescription) ? line.Description : line.VendorRawDescription;
+        line.WoDescription     = $"Created from vendor submission — {line.VendorRawDescription}";
+        line.IsUnmapped        = false;
+        line.IsExternallyCreated = false;
+        line.WoUnitCost        = line.VendorUnitCost;
+        line.WoCustomerUnitCost = line.ClientUnitCost;
+        line.OriginalQty       = line.Qty;
+        _hasStagedChanges      = true;
+
+        _toastMessage = $"Work item created for \"{line.Description}\" — review variance and set status.";
+        _ = ShowSuccessToastAsync();
+        StateHasChanged();
+    }
+
+    // ── Orphan rows — cached for the current render cycle ────────────────────
+    // Exposed as a property so the header and section body both reference the same
+    // list without calling BuildOrphanRows() multiple times per render.
+    private IReadOnlyList<IrtOrphanRow> _orphanRows => BuildOrphanRows();
+
+    // ── Orphan exposure totals (for the section footer) ───────────────────────
+    private decimal OrphanVendorExposure   => _orphanRows.Sum(r => r.ApAmount ?? 0m);
+    private decimal OrphanCustomerExposure => _orphanRows.Sum(r => r.ArAmount ?? 0m);
+
+    private string OrphanStatusCss(IrtOrphanRow row) => row.OrphanStatus?.ToLower() switch
+    {
+        "denied"             => "ss-pill ss-pill--denied",
+        "needs corrections"  => "ss-pill ss-pill--corrections",
+        "flagged"            => "ss-pill ss-pill--corrections",
+        "approved"           => "ss-pill ss-pill--approved",
+        "needs assignment"   => "ss-pill ss-pill--pending",
+        "needs decision"     => "ss-pill ss-pill--pending",
+        "no invoice"         => "ss-pill ss-pill--pending",
+        "completed"          => "ss-pill ss-pill--neutral",
+        _                    => "ss-pill ss-pill--neutral",
+    };
+
+    // ── IrtOrphanRow — unified view of unmatched invoice and missing invoice rows ──
+    // Combines:
+    //   Type A — Unmatched Invoice: lines where IsUnmapped || IsExternallyCreated.
+    //            No WorkItemID resolved; full vendor amount surfaces as variance.
+    //   Type B — Missing Invoice: _unexpensedItems entries where !IsMarkedNotDone.
+    //            Work item exists but contractor invoice has not arrived yet.
+
+    private sealed class IrtOrphanRow
+    {
+        public string                Id                 { get; init; } = "";
+        public string                OrphanType         { get; init; } = "";  // "Unmatched Invoice" | "Externally Created" | "Missing Invoice"
+        public string                OrphanTypeCss      { get; init; } = "";  // unmatched | external | missing
+        public string                WorkItemRef        { get; init; } = "";
+        public string                VendorDescription  { get; init; } = "";
+        public decimal               Qty                { get; init; }
+        public string                Unit               { get; init; } = "";
+        public decimal?              ApAmount           { get; init; }
+        public decimal?              ArAmount           { get; init; }
+        public string                OrphanStatus       { get; init; } = "";
+        public IrtLineItem?          SourceLine         { get; init; }
+        public IrtUnexpensedItem?    SourceItem         { get; init; }
+        // Variance: for unmatched/external = full ApAmount (no work item to compare to).
+        // For missing invoice = null (no invoice yet).
+        public decimal?              Variance           { get; init; }
+    }
+
+    private IReadOnlyList<IrtOrphanRow> BuildOrphanRows()
+    {
+        var rows = new List<IrtOrphanRow>();
+
+        // Type A1 — Unmatched Invoice (Scenario B: unmapped product type)
+        foreach (var l in _lines.Where(l => l.IsUnmapped))
+        {
+            rows.Add(new IrtOrphanRow
+            {
+                Id                = l.LineItem,
+                OrphanType        = "Unmatched Invoice",
+                OrphanTypeCss     = "unmatched",
+                WorkItemRef       = "Requires Mapping",
+                VendorDescription = l.VendorRawDescription,
+                Qty               = l.Qty,
+                Unit              = l.Unit,
+                ApAmount          = l.VendorFeeTotal,
+                ArAmount          = l.ClientFeeTotal,
+                Variance          = l.VendorFeeTotal,   // full amount is unplanned
+                OrphanStatus      = l.BusinessStatus ?? "Needs Assignment",
+                SourceLine        = l,
+            });
+        }
+
+        // Type A2 — Externally Created (Scenario A: no WO work item at all)
+        foreach (var l in _lines.Where(l => l.IsExternallyCreated))
+        {
+            rows.Add(new IrtOrphanRow
+            {
+                Id                = l.LineItem,
+                OrphanType        = "No Work Item Match",
+                OrphanTypeCss     = "external",
+                WorkItemRef       = "No Work Item",
+                VendorDescription = l.VendorRawDescription,
+                Qty               = l.Qty,
+                Unit              = l.Unit,
+                ApAmount          = l.VendorFeeTotal,
+                ArAmount          = l.ClientFeeTotal,
+                Variance          = l.VendorFeeTotal,
+                OrphanStatus      = l.BusinessStatus ?? "Needs Decision",
+                SourceLine        = l,
+            });
+        }
+
+        // Type B — Missing Invoice (work item prescribed, no vendor invoice received)
+        foreach (var u in _unexpensedItems.Where(i => !i.IsMarkedNotDone))
+        {
+            rows.Add(new IrtOrphanRow
+            {
+                Id                = u.WorkItem,
+                OrphanType        = "Missing Invoice",
+                OrphanTypeCss     = "missing",
+                WorkItemRef       = u.WorkItem,
+                VendorDescription = u.Description,
+                Qty               = u.RequestedQty,
+                Unit              = u.Unit,
+                ApAmount          = null,              // no invoice yet — $0 placeholder
+                ArAmount          = u.ExpectedTotal,   // estimated AR from WO
+                Variance          = null,              // no invoice to compare
+                OrphanStatus      = u.IsFlagged ? "Flagged" : u.Status switch {
+                    "No Expense Submitted"      => "No Invoice",
+                    "Completed Without Expense" => "Completed",
+                    _                           => u.Status,
+                },
+                SourceItem        = u,
+            });
+        }
+
+        return rows;
     }
 }
